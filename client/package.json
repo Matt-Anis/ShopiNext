@@ -9,8 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "better-auth": "^1.6.26",
     "dotenv": "^17.4.2",
-    "drizzle-orm": "^1.0.0-rc.4",
+    "drizzle-orm": "^0.45.2",
     "next": "16.3.0",
     "pg": "^8.22.0",
     "react": "19.2.8",
@@ -22,7 +23,7 @@
     "@types/pg": "^8.20.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "drizzle-kit": "^1.0.0-rc.4",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",

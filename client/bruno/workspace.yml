@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "ShopiNext"
+  type: workspace
+
+collections:
+  - name: "auth"
+    path: "collections/auth"
+
+specs:
+
+docs: ''
