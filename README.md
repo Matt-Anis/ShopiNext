@@ -1,2 +1,31 @@
-# ShopiNext
-Full-stack e-commerce platform built with Next.js, PostgreSQL, Stripe payments, and Better Auth. Features an admin dashboard, marketing emails, and user accounts. Portfolio project, work in progress.
+# ⚠️ This project is still under development
+
+## Features
+
+### MVP
+
+- [ ] Product listing page
+- [ ] Product detail page
+- [ ] Cart (add/remove/update qty)
+- [ ] Auth (Better Auth)
+- [ ] Checkout with Stripe
+- [ ] Order confirmation page
+
+### V1
+
+- [ ] Order history page
+- [ ] Admin panel (add/edit/delete products)
+- [ ] Product images (Vercel Blob)
+- [ ] Product categories
+- [ ] Basic SEO (meta tags, OG image)
+
+### Later
+
+- [ ] Search and filters
+- [ ] Email notifications (Resend)
+- [ ] Reviews & comments
+- [ ] Dashboard analytics
+- [ ] Coupons
+- [ ] Wishlist
+- [ ] Inventory & stock management
+- [ ] Docker setup for self-hosting
