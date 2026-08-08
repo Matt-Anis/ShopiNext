@@ -1,0 +1,92 @@
+import {
+  integer,
+  pgTable,
+  text,
+  uuid,
+  timestamp,
+  index,
+} from "drizzle-orm/pg-core";
+import { user } from "@/lib/auth-schema";
+import { relations } from "drizzle-orm";
+
+export const products = pgTable("products", {
+  id: uuid().primaryKey().defaultRandom(),
+  name: text().notNull(),
+  description: text(),
+  price: integer().notNull().default(0),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const images = pgTable(
+  "images",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    url: text().notNull(),
+    altText: text(),
+    productId: uuid()
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("images_productId_idx").on(table.productId)],
+);
+
+export const cart = pgTable("cart", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
+export const cartItems = pgTable(
+  "cart_items",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    cartId: uuid()
+      .notNull()
+      .references(() => cart.id, { onDelete: "cascade" }),
+    productId: uuid()
+      .notNull()
+      .references(() => products.id),
+    quantity: integer().notNull().default(1),
+  },
+  (table) => [index("cart_items_cartId_idx").on(table.cartId)],
+);
+
+export const orders = pgTable("orders", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  totalAmount: integer().notNull().default(0),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid()
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  productId: uuid()
+    .notNull()
+    .references(() => products.id),
+  priceAtPurchase: integer().notNull(),
+  quantity: integer().notNull().default(1),
+});
+
+export const productsRelations = relations(products, ({ many }) => ({
+  images: many(images),
+}));
+
+export const imagesRelations = relations(images, ({ one }) => ({
+  product: one(products, {
+    fields: [images.productId],
+    references: [products.id],
+  }),
+}));

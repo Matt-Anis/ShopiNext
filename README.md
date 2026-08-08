@@ -18,6 +18,10 @@
 - [ ] Product images (Vercel Blob)
 - [ ] Product categories
 - [ ] Basic SEO (meta tags, OG image)
+- [ ] Categories
+- [ ] Colors
+- [ ] Sizes
+- [ ] Promotional
 
 ### Later
 
