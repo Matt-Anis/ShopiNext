@@ -32,11 +32,14 @@ export default function Navbar() {
       className="h-17 pt-1 px-6 md:px-10 flex items-center bg-background/50 backdrop-blur-md fixed -top-1 w-full z-50 border-b-2 border-primary perspective-normal"
     >
       <Logo className="text-foreground size-8" />
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-0 md:gap-1">
         <Button variant="ghost">
           <User />
         </Button>
-        <Button>
+        <Button className="md:hidden" variant="ghost">
+          <ShoppingCart />
+        </Button>
+        <Button className="hidden md:inline-flex font-bold">
           <ShoppingCart data-icon="inline-start" />
           Cart
         </Button>
