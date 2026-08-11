@@ -10,16 +10,22 @@ import {
 import { user } from "@/lib/auth-schema";
 import { relations, sql } from "drizzle-orm";
 
-export const products = pgTable("products", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: text().notNull(),
-  description: text(),
-  price: integer().notNull().default(0),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const products = pgTable(
+  "products",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    name: text().notNull(),
+    description: text(),
+    price: integer().notNull().default(0),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("products_createdAt_id_idx").on(table.createdAt, table.id),
+  ],
+);
 
 export const images = pgTable(
   "images",
