@@ -15,6 +15,13 @@
       "when": 1786220195217,
       "tag": "0001_violet_micromax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786464388593,
+      "tag": "0002_left_winter_soldier",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   pgTable,
   text,
@@ -7,7 +8,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { user } from "@/lib/auth-schema";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const products = pgTable("products", {
   id: uuid().primaryKey().defaultRandom(),
@@ -26,11 +27,17 @@ export const images = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     url: text().notNull(),
     altText: text(),
+    isPrimary: boolean().notNull().default(false),
     productId: uuid()
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
   },
-  (table) => [index("images_productId_idx").on(table.productId)],
+  (table) => [
+    index("images_productId_idx").on(table.productId),
+    index("images_primary_idx")
+      .on(table.productId)
+      .where(sql`${table.isPrimary} = true`),
+  ],
 );
 
 export const cart = pgTable("cart", {

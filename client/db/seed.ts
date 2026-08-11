@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
+import { inArray } from "drizzle-orm";
 import { db } from "./index";
 import { products, images } from "./schema";
 import { seed, reset } from "drizzle-seed";
@@ -27,9 +28,23 @@ async function main() {
       columns: {
         url: f.valuesFromArray({ values: picsumUrls }),
         altText: f.loremIpsum({ sentencesCount: 1 }),
+        isPrimary: f.default({ defaultValue: false }),
       },
     },
   }));
+
+  await db
+    .update(images)
+    .set({ isPrimary: true })
+    .where(
+      inArray(
+        images.id,
+        db
+          .selectDistinctOn([images.productId], { id: images.id })
+          .from(images)
+          .orderBy(images.productId, images.id),
+      ),
+    );
 
   console.log("Seeded 100 products with 300 images.");
   process.exit(0);
