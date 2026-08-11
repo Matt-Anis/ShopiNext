@@ -33,10 +33,10 @@ export default function Navbar() {
     >
       <Logo className="text-foreground size-8" />
       <div className="ml-auto flex items-center gap-0 md:gap-1">
-        <Button variant="ghost">
+        <Button variant="ghost" size="icon">
           <User />
         </Button>
-        <Button className="md:hidden" variant="ghost">
+        <Button className="md:hidden" variant="ghost" size="icon">
           <ShoppingCart />
         </Button>
         <Button className="hidden md:inline-flex font-bold">
