@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { Maximize2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import {
   Carousel,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import ProductGalleryLightbox from "./ProductGalleryLightbox";
 
 const SKELETON_THUMB_COUNT = 4;
 
@@ -31,6 +33,7 @@ export default function ProductGallery({
 }) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const thumbRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
 
   React.useEffect(() => {
@@ -80,7 +83,7 @@ export default function ProductGallery({
                   src={image.url}
                   alt={image.altText ?? productName}
                   fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  sizes="(min-width: 1024px) 33vw, 100vw"
                   priority={index === 0}
                   className="object-cover"
                 />
@@ -94,6 +97,14 @@ export default function ProductGallery({
             <CarouselNext className="right-2" />
           </>
         )}
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(true)}
+          aria-label="Open fullscreen"
+          className="absolute bottom-2 right-2 z-10 hidden items-center justify-center rounded-md bg-background/80 p-2 text-foreground ring-1 ring-border backdrop-blur-sm transition-colors hover:bg-background lg:flex"
+        >
+          <Maximize2 className="size-4" />
+        </button>
       </Carousel>
 
       {images.length > 1 && (
@@ -129,6 +140,14 @@ export default function ProductGallery({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-8 bg-gradient-to-t from-background to-transparent lg:block" />
         </div>
       )}
+
+      <ProductGalleryLightbox
+        images={images}
+        productName={productName}
+        startIndex={selectedIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+      />
     </div>
   );
 }
