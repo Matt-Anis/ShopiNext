@@ -4,7 +4,7 @@
 
 ### MVP
 
-- [ ] Product listing page
+- [x] Product listing page
 - [ ] Product detail page
 - [ ] Cart (add/remove/update qty)
 - [ ] Auth (Better Auth)
