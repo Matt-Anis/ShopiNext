@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
   const image = product.images[0];
 
   return (
-    <Link href={`/products/${product.id}`} className="block h-full ">
+    <Link href={`/products/${product.slug}`} className="block h-full ">
       <Card className="gap-0 h-full p-0 rounded-md border border-border  shadow-none ring-0 transition-all duration-300 hover:-translate-y-1">
         <AspectRatio ratio={1 / 1} className="overflow-hidden bg-muted ">
           {image ? (

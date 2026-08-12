@@ -108,3 +108,16 @@ export const getAllProducts = async ({
 
   return { products: rows, nextCursor };
 };
+
+export const getProductBySlug = async (slug: string) => {
+  const product = await db.query.products.findFirst({
+    where: eq(products.slug, slug),
+    with: {
+      images: {
+        orderBy: desc(images.isPrimary),
+      },
+    },
+  });
+
+  return product ?? null;
+};
