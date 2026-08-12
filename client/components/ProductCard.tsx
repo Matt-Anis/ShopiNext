@@ -49,13 +49,15 @@ export function ProductCard({ product }: { product: Product }) {
 
 export function ProductCardSkeleton() {
   return (
-    <Card className="gap-0 p-0">
-      <AspectRatio ratio={4 / 3} className="overflow-hidden">
-        <Skeleton className="animate-pulse h-full w-full rounded-none" />
+    <Card className="gap-0 h-full p-0 rounded-md border border-border shadow-none ring-0">
+      <AspectRatio ratio={1 / 1} className="overflow-hidden bg-muted">
+        <Skeleton className="h-full w-full rounded-none" />
       </AspectRatio>
       <CardContent className="flex items-center justify-between gap-2 px-4 py-3">
-        <Skeleton className="animate-pulse h-4 w-2/3" />
-        <Skeleton className="animate-pulse h-4 w-10" />
+        <div className="flex w-full flex-col gap-2">
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-7 w-16" />
+        </div>
       </CardContent>
     </Card>
   );

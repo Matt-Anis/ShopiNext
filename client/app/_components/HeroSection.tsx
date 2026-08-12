@@ -23,12 +23,12 @@ const item: Variants = {
 
 export default function HeroSection() {
   return (
-    <section className="flex min-h-[calc(100svh-4rem)] items-center px-6 py-16 md:px-10">
+    <section className="flex items-center justify-center px-6 py-24 md:px-10 md:py-32">
       <motion.div
         variants={container}
         initial="hidden"
         animate="visible"
-        className="flex max-w-2xl flex-col items-start gap-5 text-left"
+        className="flex max-w-2xl flex-col items-center gap-5 text-center"
       >
         <motion.h1
           variants={item}
