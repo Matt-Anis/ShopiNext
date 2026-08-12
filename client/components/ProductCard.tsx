@@ -4,14 +4,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Product } from "@/db/queries";
-
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-const formatPrice = (priceInCents: number) =>
-  currencyFormatter.format(priceInCents / 100);
+import { formatPrice } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const image = product.images[0];
