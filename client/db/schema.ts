@@ -15,6 +15,7 @@ export const products = pgTable(
   {
     id: uuid().primaryKey().defaultRandom(),
     name: text().notNull(),
+    slug: text().unique().notNull(),
     description: text(),
     price: integer().notNull().default(0),
     createdAt: timestamp().defaultNow().notNull(),
@@ -22,9 +23,7 @@ export const products = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [
-    index("products_createdAt_id_idx").on(table.createdAt, table.id),
-  ],
+  (table) => [index("products_createdAt_id_idx").on(table.createdAt, table.id)],
 );
 
 export const images = pgTable(
