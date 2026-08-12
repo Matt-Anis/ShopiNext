@@ -1,0 +1,2 @@
+ALTER TABLE "images" ADD COLUMN "isPrimary" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE INDEX "images_primary_idx" ON "images" USING btree ("productId") WHERE "images"."isPrimary" = true;
