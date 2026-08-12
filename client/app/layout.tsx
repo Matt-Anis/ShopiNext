@@ -31,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={cn(
         "h-full",
+        "scroll-smooth",
         "antialiased",
         geistSans.variable,
         geistMono.variable,

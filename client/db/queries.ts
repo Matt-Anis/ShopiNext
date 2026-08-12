@@ -14,6 +14,10 @@ import { images, products } from "@/db/schema";
 
 export type ProductSortBy = "newest" | "price_asc" | "price_desc";
 
+export type Product = Awaited<
+  ReturnType<typeof getAllProducts>
+>["products"][number];
+
 export type ProductCursor = {
   id: string;
   value: Date | number;
