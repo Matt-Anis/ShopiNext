@@ -5,7 +5,7 @@
 ### MVP
 
 - [x] Product listing page
-- [ ] Product detail page
+- [x] Product detail page
 - [ ] Cart (add/remove/update qty)
 - [ ] Auth (Better Auth)
 - [ ] Checkout with Stripe
