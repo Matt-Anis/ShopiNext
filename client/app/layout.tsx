@@ -3,8 +3,6 @@ import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-import NavBar from "@/components/NavBar";
-
 const figtreeHeading = Figtree({
   subsets: ["latin"],
   variable: "--font-heading",
@@ -38,10 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         figtreeHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">
-        <NavBar />
-        <main className="pt-16">{children}</main>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
