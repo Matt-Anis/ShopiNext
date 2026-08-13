@@ -7,7 +7,7 @@
 - [x] Product listing page
 - [x] Product detail page
 - [ ] Cart (add/remove/update qty)
-- [ ] Auth (Better Auth)
+- [x] Auth (Better Auth)
 - [ ] Checkout with Stripe
 - [ ] Order confirmation page
 
