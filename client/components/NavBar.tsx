@@ -73,7 +73,11 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid="user-menu-trigger"
+                    >
                       <User />
                     </Button>
                   }
@@ -91,6 +95,7 @@ export default function Navbar() {
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => setLogoutDialogOpen(true)}
+                    data-testid="logout-menu-item"
                   >
                     <LogOutIcon />
                     Log out
@@ -113,12 +118,16 @@ export default function Navbar() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel variant="outline">
+                    <AlertDialogCancel
+                      variant="outline"
+                      data-testid="logout-cancel-button"
+                    >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       variant="destructive"
                       onClick={() => authClient.signOut()}
+                      data-testid="logout-confirm-button"
                     >
                       Log out
                     </AlertDialogAction>
@@ -131,6 +140,7 @@ export default function Navbar() {
               variant="outline"
               nativeButton={false}
               render={<Link href="/login" />}
+              data-testid="signin-nav-button"
             >
               Sign in
             </Button>

@@ -78,7 +78,7 @@ export function SignupForm({
           <CardDescription>Sign up with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} noValidate>
+          <form onSubmit={onSubmit} noValidate data-testid="signup-form">
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -100,6 +100,7 @@ export function SignupForm({
                   label="Full Name"
                   type="text"
                   aria-invalid={!!errors.name}
+                  data-testid="signup-name-input"
                   {...register("name")}
                 />
                 <FieldError errors={[errors.name]} />
@@ -110,6 +111,7 @@ export function SignupForm({
                   label="Email"
                   type="email"
                   aria-invalid={!!errors.email}
+                  data-testid="signup-email-input"
                   {...register("email")}
                 />
                 <FieldError errors={[errors.email]} />
@@ -122,6 +124,7 @@ export function SignupForm({
                       label="Password"
                       type="password"
                       aria-invalid={!!errors.password}
+                      data-testid="signup-password-input"
                       {...register("password")}
                     />
                   </Field>
@@ -137,6 +140,7 @@ export function SignupForm({
                       label="Confirm Password"
                       type="password"
                       aria-invalid={!!errors.confirmPassword}
+                      data-testid="signup-confirm-password-input"
                       {...register("confirmPassword")}
                     />
                     <FieldError errors={[errors.confirmPassword]} />
@@ -144,7 +148,11 @@ export function SignupForm({
                 </Field>
               </Field>
               <Field>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  data-testid="signup-submit-button"
+                >
                   Create Account
                 </Button>
                 <FieldDescription className="text-center">

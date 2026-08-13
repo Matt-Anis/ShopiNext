@@ -1,10 +1,15 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
+import { randomUUID } from "node:crypto";
 import { inArray } from "drizzle-orm";
+import { hashPassword } from "better-auth/crypto";
 import { db } from "./index";
 import { products, images } from "./schema";
+import { user, account } from "../lib/auth-schema";
 import { seed, reset } from "drizzle-seed";
+
+const SEEDED_USER_PASSWORD = "secret password";
 
 const picsumUrls = Array.from(
   { length: 300 },
@@ -12,9 +17,9 @@ const picsumUrls = Array.from(
 );
 
 async function main() {
-  await reset(db, { products, images });
+  await reset(db, { products, images, user, account });
 
-  await seed(db, { products, images }).refine((f) => ({
+  await seed(db, { products, images, user }).refine((f) => ({
     products: {
       count: 100,
       columns: {
@@ -29,6 +34,13 @@ async function main() {
         url: f.valuesFromArray({ values: picsumUrls }),
         altText: f.loremIpsum({ sentencesCount: 1 }),
         isPrimary: f.default({ defaultValue: false }),
+      },
+    },
+    user: {
+      count: 20,
+      columns: {
+        name: f.fullName(),
+        email: f.email(),
       },
     },
   }));
@@ -46,7 +58,22 @@ async function main() {
       ),
     );
 
-  console.log("Seeded 100 products with 300 images.");
+  const passwordHash = await hashPassword(SEEDED_USER_PASSWORD);
+  const seededUsers = await db.select({ id: user.id }).from(user);
+
+  await db.insert(account).values(
+    seededUsers.map(({ id }) => ({
+      id: randomUUID(),
+      accountId: id,
+      providerId: "credential",
+      userId: id,
+      password: passwordHash,
+    })),
+  );
+
+  console.log(
+    `Seeded 100 products with 300 images and ${seededUsers.length} users (password: "${SEEDED_USER_PASSWORD}").`,
+  );
   process.exit(0);
 }
 

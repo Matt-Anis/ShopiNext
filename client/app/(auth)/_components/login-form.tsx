@@ -71,7 +71,7 @@ export function LoginForm({
           <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} data-testid="login-form">
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -94,6 +94,7 @@ export function LoginForm({
                   label="Email"
                   type="email"
                   required
+                  data-testid="login-email-input"
                 />
               </Field>
               <Field>
@@ -103,10 +104,15 @@ export function LoginForm({
                   label="Password"
                   type="password"
                   required
+                  data-testid="login-password-input"
                 />
               </Field>
               <Field>
-                <Button type="submit" disabled={isPending}>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  data-testid="login-submit-button"
+                >
                   Login
                 </Button>
                 <FieldDescription className="text-center">
