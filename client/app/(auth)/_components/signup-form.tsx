@@ -1,4 +1,17 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
+import {
+  emailSignUpFormSchema,
+  type EmailSignUpFormValues,
+} from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,16 +23,53 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldSeparator,
 } from "@/components/ui/field";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
-import Link from "next/link";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmailSignUpFormValues>({
+    resolver: zodResolver(emailSignUpFormSchema),
+  });
+
+  const onSubmit = handleSubmit(async ({ name, email, password }) => {
+    const signUpPromise = authClient.signUp
+      .email({ name, email, password })
+      .then((res) => {
+        if (res.error) {
+          throw new Error(res.error.message ?? "Something went wrong");
+        }
+        return res.data;
+      });
+
+    await toast
+      .promise(signUpPromise, {
+        loading: { title: "Creating your account..." },
+        success: () => {
+          router.push("/");
+          return {
+            title: "Account created successfully",
+            description: undefined,
+          };
+        },
+        error: (error: Error) => ({
+          title: "Sign up failed",
+          description: error.message,
+        }),
+      })
+      .catch(() => {});
+  });
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -28,7 +78,7 @@ export function SignupForm({
           <CardDescription>Sign up with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit} noValidate>
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -44,47 +94,59 @@ export function SignupForm({
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
-              <Field>
+              <Field data-invalid={!!errors.name}>
                 <FloatingLabelInput
                   id="name"
                   label="Full Name"
                   type="text"
-                  required
+                  aria-invalid={!!errors.name}
+                  {...register("name")}
                 />
+                <FieldError errors={[errors.name]} />
               </Field>
-              <Field>
+              <Field data-invalid={!!errors.email}>
                 <FloatingLabelInput
                   id="email"
                   label="Email"
                   type="email"
-                  required
+                  aria-invalid={!!errors.email}
+                  {...register("email")}
                 />
+                <FieldError errors={[errors.email]} />
               </Field>
               <Field>
-                <Field className="flex flex-col">
-                  <Field>
+                <Field className="flex flex-col gap-6">
+                  <Field data-invalid={!!errors.password}>
                     <FloatingLabelInput
                       id="password"
                       label="Password"
                       type="password"
-                      required
+                      aria-invalid={!!errors.password}
+                      {...register("password")}
                     />
                   </Field>
-                  <FieldDescription className="text-xs px-3 pb-2">
-                    Must be at least 8 characters long.
-                  </FieldDescription>
-                  <Field>
+                  {errors.password && (
+                    <FieldError
+                      className="px-3 pb-2 text-xs"
+                      errors={[errors.password]}
+                    />
+                  )}
+                  <Field data-invalid={!!errors.confirmPassword}>
                     <FloatingLabelInput
                       id="confirm-password"
                       label="Confirm Password"
                       type="password"
-                      required
+                      aria-invalid={!!errors.confirmPassword}
+                      {...register("confirmPassword")}
                     />
+                    <FieldError errors={[errors.confirmPassword]} />
                   </Field>
                 </Field>
               </Field>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  Create Account
+                </Button>
                 <FieldDescription className="text-center">
                   Already have an account? <Link href="/login">Sign in</Link>
                 </FieldDescription>
