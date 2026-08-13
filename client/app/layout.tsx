@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-
-import NavBar from "@/components/NavBar";
+import { Toaster } from "@/components/ui/toast";
 
 const figtreeHeading = Figtree({
   subsets: ["latin"],
@@ -39,8 +38,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col">
-        <NavBar />
-        <main className="pt-16">{children}</main>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

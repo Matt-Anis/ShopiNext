@@ -37,7 +37,7 @@ export default function ProductList({
   return (
     <section className="px-6 py-16 md:px-10" id="products">
       <h2 className="mb-8 text-center text-4xl font-semibold">Our products</h2>
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
