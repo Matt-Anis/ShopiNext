@@ -1,4 +1,12 @@
+"use client";
+
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,12 +22,47 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
-import Link from "next/link";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    startTransition(async () => {
+      const signInPromise = authClient.signIn
+        .email({ email, password })
+        .then((res) => {
+          if (res.error) {
+            throw new Error(res.error.message ?? "Something went wrong");
+          }
+          return res.data;
+        });
+
+      await toast
+        .promise(signInPromise, {
+          loading: { title: "Signing in..." },
+          success: () => {
+            router.push("/");
+            return { title: "Signed in successfully", description: undefined };
+          },
+          error: (error: Error) => ({
+            title: "Login failed",
+            description: error.message,
+          }),
+        })
+        .catch(() => {});
+    });
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -28,7 +71,7 @@ export function LoginForm({
           <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -47,6 +90,7 @@ export function LoginForm({
               <Field>
                 <FloatingLabelInput
                   id="email"
+                  name="email"
                   label="Email"
                   type="email"
                   required
@@ -55,13 +99,16 @@ export function LoginForm({
               <Field>
                 <FloatingLabelInput
                   id="password"
+                  name="password"
                   label="Password"
                   type="password"
                   required
                 />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={isPending}>
+                  Login
+                </Button>
                 <FieldDescription className="text-center">
                   <Link
                     href="#"

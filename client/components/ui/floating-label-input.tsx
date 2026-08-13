@@ -16,7 +16,7 @@ function FloatingLabelInput({
         id={id}
         placeholder=" "
         className={cn(
-          "peer h-12 border-border bg-transparent pt-4 pb-1 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/40",
+          "peer border-border bg-transparent   focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/40",
           className,
         )}
         {...props}
