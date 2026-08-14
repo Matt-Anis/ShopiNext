@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Product } from "@/db/queries";
+import type { Product } from "@/features/products/queries";
 import { formatPrice } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {

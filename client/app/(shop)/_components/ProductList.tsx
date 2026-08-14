@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useInView } from "react-intersection-observer";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
-import type { Product, ProductCursor } from "@/db/queries";
-import { loadMoreProducts } from "@/actions";
+import type { Product, ProductCursor } from "@/features/products/queries";
+import { loadMoreProducts } from "@/features/products/actions";
 
 const SKELETON_COUNT = 8;
 

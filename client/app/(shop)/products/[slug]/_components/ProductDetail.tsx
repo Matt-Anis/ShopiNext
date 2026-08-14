@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
-import { fetchProductBySlug } from "@/actions";
+import { fetchProductBySlug } from "@/features/products/actions";
 import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery";
 
 export default async function ProductDetail({ slug }: { slug: string }) {
