@@ -1,0 +1,2 @@
+ALTER TABLE "cart" ADD CONSTRAINT "cart_userId_unique" UNIQUE("userId");--> statement-breakpoint
+ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_cartId_productId_unique" UNIQUE("cartId","productId");

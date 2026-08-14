@@ -6,6 +6,7 @@ import {
   uuid,
   timestamp,
   index,
+  unique,
 } from "drizzle-orm/pg-core";
 import { user } from "@/lib/auth-schema";
 import { relations, sql } from "drizzle-orm";
@@ -49,6 +50,7 @@ export const cart = pgTable("cart", {
   id: uuid().primaryKey().defaultRandom(),
   userId: text()
     .notNull()
+    .unique()
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp().defaultNow().notNull(),
 });
@@ -62,10 +64,15 @@ export const cartItems = pgTable(
       .references(() => cart.id, { onDelete: "cascade" }),
     productId: uuid()
       .notNull()
-      .references(() => products.id),
+      .references(() => products.id, { onDelete: "cascade" }),
     quantity: integer().notNull().default(1),
   },
-  (table) => [index("cart_items_cartId_idx").on(table.cartId)],
+  (table) => [
+    unique("cart_items_cartId_productId_unique").on(
+      table.cartId,
+      table.productId,
+    ),
+  ],
 );
 
 export const orders = pgTable("orders", {
@@ -99,6 +106,21 @@ export const productsRelations = relations(products, ({ many }) => ({
 export const imagesRelations = relations(images, ({ one }) => ({
   product: one(products, {
     fields: [images.productId],
+    references: [products.id],
+  }),
+}));
+
+export const cartRelations = relations(cart, ({ many }) => ({
+  items: many(cartItems),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  cart: one(cart, {
+    fields: [cartItems.cartId],
+    references: [cart.id],
+  }),
+  product: one(products, {
+    fields: [cartItems.productId],
     references: [products.id],
   }),
 }));

@@ -4,7 +4,7 @@ import {
   getAllProducts,
   getProductBySlug,
   type ProductCursor,
-} from "@/db/queries";
+} from "@/features/products/queries";
 
 export async function loadMoreProducts(cursor: ProductCursor) {
   return getAllProducts({ cursor });

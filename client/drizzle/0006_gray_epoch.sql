@@ -1,0 +1,1 @@
+DROP INDEX "cart_items_cartId_idx";

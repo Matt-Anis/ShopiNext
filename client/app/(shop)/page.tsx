@@ -1,4 +1,4 @@
-import { getAllProducts } from "@/db/queries";
+import { getAllProducts } from "@/features/products/queries";
 import HeroSection from "./_components/HeroSection";
 import ProductList from "./_components/ProductList";
 
