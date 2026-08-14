@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   gt,
+  inArray,
   lt,
   or,
   type Column,
@@ -120,4 +121,18 @@ export const getProductBySlug = async (slug: string) => {
   });
 
   return product ?? null;
+};
+
+export const getProductsByIds = async (ids: string[]) => {
+  if (ids.length === 0) return [];
+
+  return db.query.products.findMany({
+    where: inArray(products.id, ids),
+    with: {
+      images: {
+        where: eq(images.isPrimary, true),
+        limit: 1,
+      },
+    },
+  });
 };
