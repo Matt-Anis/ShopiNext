@@ -6,6 +6,7 @@ import {
   uuid,
   timestamp,
   index,
+  unique,
 } from "drizzle-orm/pg-core";
 import { user } from "@/lib/auth-schema";
 import { relations, sql } from "drizzle-orm";
@@ -49,6 +50,7 @@ export const cart = pgTable("cart", {
   id: uuid().primaryKey().defaultRandom(),
   userId: text()
     .notNull()
+    .unique()
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp().defaultNow().notNull(),
 });
@@ -65,7 +67,12 @@ export const cartItems = pgTable(
       .references(() => products.id),
     quantity: integer().notNull().default(1),
   },
-  (table) => [index("cart_items_cartId_idx").on(table.cartId)],
+  (table) => [
+    unique("cart_items_cartId_productId_unique").on(
+      table.cartId,
+      table.productId,
+    ),
+  ],
 );
 
 export const orders = pgTable("orders", {
