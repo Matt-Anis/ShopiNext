@@ -27,8 +27,13 @@ export function CartItemCard({ item }: { item: CartItem }) {
         )}
       </AspectRatio>
       <div className="flex items-center justify-between gap-2">
-        <p className="line-clamp-2 text-sm font-medium">{product.name}</p>
-        <p className="shrink-0 text-sm font-medium">
+        <p
+          className="line-clamp-2 text-sm font-medium"
+          data-testid="cart-item-name"
+        >
+          {product.name}
+        </p>
+        <p className="shrink-0 text-sm font-medium" data-testid="cart-item-price">
           {formatPrice(product.price * quantity)}
         </p>
       </div>

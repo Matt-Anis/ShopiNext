@@ -45,13 +45,16 @@ export function CartDrawer({ children }: { children: ReactNode }) {
   return (
     <Drawer swipeDirection={isDesktop ? "right" : "down"}>
       {children}
-      <DrawerContent className="max-md:[--drawer-height:80vh]!">
+      <DrawerContent
+        className="max-md:[--drawer-height:80vh]!"
+        data-testid="cart-drawer-content"
+      >
         <DrawerHeader>
           <DrawerTitle>Cart</DrawerTitle>
         </DrawerHeader>
 
         {items.length === 0 ? (
-          <Empty className="h-full border-none">
+          <Empty className="h-full border-none" data-testid="cart-empty-state">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <ShoppingCart />
@@ -76,9 +79,15 @@ export function CartDrawer({ children }: { children: ReactNode }) {
           <DrawerFooter>
             <div className="flex items-center justify-between text-sm font-medium">
               <span>Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span data-testid="cart-subtotal">{formatPrice(subtotal)}</span>
             </div>
-            <DrawerClose render={<Button className="w-full">Close</Button>} />
+            <DrawerClose
+              render={
+                <Button className="w-full" data-testid="cart-drawer-close">
+                  Close
+                </Button>
+              }
+            />
           </DrawerFooter>
         )}
       </DrawerContent>

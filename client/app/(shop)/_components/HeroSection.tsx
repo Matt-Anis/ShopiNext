@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, type Variants } from "motion/react";
 
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 const container: Variants = {
   hidden: {},
@@ -22,6 +23,8 @@ const item: Variants = {
 };
 
 export default function HeroSection() {
+  const { data: session, isPending } = authClient.useSession();
+
   return (
     <section className="flex items-center justify-center px-6 py-24 md:px-10 md:py-32">
       <motion.div
@@ -67,14 +70,16 @@ export default function HeroSection() {
           >
             Browse Products
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/login" />}
-          >
-            Login
-          </Button>
+          {!isPending && !session && (
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/login" />}
+            >
+              Login
+            </Button>
+          )}
         </motion.div>
       </motion.div>
     </section>
