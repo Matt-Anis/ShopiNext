@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { fetchProductBySlug } from "@/features/products/actions";
+import { CartControl } from "@/features/cart/CartControl";
 import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery";
 
 export default async function ProductDetail({ slug }: { slug: string }) {
@@ -35,9 +36,11 @@ export default async function ProductDetail({ slug }: { slug: string }) {
         )}
 
         <div className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-sm lg:hidden">
-          <Button variant="outline" size="lg" className="w-full">
-            Add to cart
-          </Button>
+          <CartControl
+            product={product}
+            size="lg"
+            className="border-border bg-background text-foreground hover:bg-muted"
+          />
           <Button size="lg" className="w-full">
             Buy now
           </Button>
@@ -47,9 +50,11 @@ export default async function ProductDetail({ slug }: { slug: string }) {
       <div className="hidden lg:sticky lg:top-24 lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-4 lg:rounded-md lg:border lg:border-border lg:p-6">
         <p className="text-2xl font-medium">{formatPrice(product.price)}</p>
         <div className="flex flex-col gap-2">
-          <Button variant="outline" size="lg" className="w-full">
-            Add to cart
-          </Button>
+          <CartControl
+            product={product}
+            size="lg"
+            className="border-border bg-background text-foreground hover:bg-muted"
+          />
           <Button size="lg" className="w-full">
             Buy now
           </Button>

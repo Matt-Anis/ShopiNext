@@ -24,6 +24,9 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { Skeleton } from "./ui/skeleton";
+import { Badge } from "./ui/badge";
+import { DrawerTrigger } from "./ui/drawer";
+import { CartDrawer } from "@/app/(shop)/_components/CartDrawer";
 
 import {
   LogOutIcon,
@@ -35,12 +38,14 @@ import {
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { useCart } from "@/features/cart/CartProvider";
 
 export default function Navbar() {
   const [hidden, setHidden] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { scrollY } = useScroll();
   const { data: session, isPending } = authClient.useSession();
+  const { count } = useCart();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
@@ -59,13 +64,32 @@ export default function Navbar() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="h-17 pt-1 px-6 md:px-10 flex items-center justify-center bg-background/50 backdrop-blur-md fixed -top-1 w-full z-50 border-b-2 border-primary perspective-normal"
+      className="h-17 pt-1 px-6 md:px-10 flex items-center justify-center bg-background/90 backdrop-blur-md fixed -top-1 w-full z-50 border-b-2 border-primary perspective-normal"
     >
       <div className="w-full h-full flex max-w-7xl items-center">
         <Link href="/">
           <Logo className="text-foreground size-8" />
         </Link>
         <div className="ml-auto flex items-center gap-0 md:gap-1">
+          <CartDrawer>
+            <DrawerTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  data-testid="cart-trigger"
+                >
+                  <ShoppingCart />
+                  {count > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 min-w-4 justify-center rounded-full px-1 text-[10px]">
+                      {count}
+                    </Badge>
+                  )}
+                </Button>
+              }
+            />
+          </CartDrawer>
           {isPending ? (
             <Skeleton className="size-9 rounded-full" />
           ) : session ? (
@@ -113,8 +137,7 @@ export default function Navbar() {
                     </AlertDialogMedia>
                     <AlertDialogTitle>Log out?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      You&apos;ll need to sign in again to access your
-                      account.
+                      You&apos;ll need to sign in again to access your account.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -136,22 +159,28 @@ export default function Navbar() {
               </AlertDialog>
             </>
           ) : (
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/login" />}
-              data-testid="signin-nav-button"
-            >
-              Sign in
-            </Button>
+            <>
+              <Button
+                className="md:hidden"
+                variant="ghost"
+                size="icon"
+                nativeButton={false}
+                render={<Link href="/login" />}
+                data-testid="signin-nav-button-mobile"
+              >
+                <User />
+              </Button>
+              <Button
+                className="hidden md:inline-flex"
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="/login" />}
+                data-testid="signin-nav-button"
+              >
+                login
+              </Button>
+            </>
           )}
-          <Button className="md:hidden" variant="ghost" size="icon">
-            <ShoppingCart />
-          </Button>
-          <Button className="hidden md:inline-flex font-bold">
-            <ShoppingCart data-icon="inline-start" />
-            Cart
-          </Button>
         </div>
       </div>
     </motion.nav>
