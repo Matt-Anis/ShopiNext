@@ -8,8 +8,8 @@
 - [x] Product detail page
 - [x] Cart (add/remove/update qty)
 - [x] Auth (Better Auth)
-- [ ] Checkout with Stripe
-- [ ] Order confirmation page
+- [x] Checkout with Stripe
+- [x] Order confirmation page
 
 ### V1
 
