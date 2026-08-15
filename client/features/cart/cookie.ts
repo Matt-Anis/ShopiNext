@@ -66,6 +66,11 @@ export const addCartItem = async (productId: string, quantity = 1) => {
   await setCookie(setItemQuantity(items, productId, nextQuantity));
 };
 
+export const clearCart = async () => {
+  const store = await cookies();
+  store.delete(CART_COOKIE_NAME);
+};
+
 export const deleteCartItem = async (productId: string) => {
   const store = await cookies();
   const items = await pruneStaleItems(

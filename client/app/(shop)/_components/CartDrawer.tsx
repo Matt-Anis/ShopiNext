@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/features/cart/CartProvider";
+import { checkoutCart } from "@/features/checkout/actions";
 import { formatPrice } from "@/lib/utils";
 import { CartItemCard } from "@/app/(shop)/_components/CartItemCard";
 import type { ReactNode } from "react";
@@ -81,9 +82,22 @@ export function CartDrawer({ children }: { children: ReactNode }) {
               <span>Subtotal</span>
               <span data-testid="cart-subtotal">{formatPrice(subtotal)}</span>
             </div>
+            <form action={checkoutCart}>
+              <Button
+                type="submit"
+                className="w-full"
+                data-testid="cart-checkout"
+              >
+                Checkout
+              </Button>
+            </form>
             <DrawerClose
               render={
-                <Button className="w-full" data-testid="cart-drawer-close">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  data-testid="cart-drawer-close"
+                >
                   Close
                 </Button>
               }
