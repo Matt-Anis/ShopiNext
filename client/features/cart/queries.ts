@@ -88,3 +88,9 @@ export const deleteCartItem = async (userId: string, productId: string) => {
       ),
     );
 };
+
+export const clearCart = async (userId: string) => {
+  await db
+    .delete(cartItems)
+    .where(inArray(cartItems.cartId, cartIdForUser(userId)));
+};
