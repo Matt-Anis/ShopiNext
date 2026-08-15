@@ -43,7 +43,12 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             className="border-border bg-background text-foreground hover:bg-muted"
           />
           <form action={checkoutNow.bind(null, product.id, 1)}>
-            <Button type="submit" size="lg" className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              data-testid="buy-now-button"
+            >
               Buy now
             </Button>
           </form>
@@ -59,7 +64,12 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             className="border-border bg-background text-foreground hover:bg-muted"
           />
           <form action={checkoutNow.bind(null, product.id, 1)}>
-            <Button type="submit" size="lg" className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              data-testid="buy-now-button"
+            >
               Buy now
             </Button>
           </form>
