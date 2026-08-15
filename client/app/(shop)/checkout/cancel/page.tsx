@@ -24,14 +24,11 @@ export default async function CheckoutCancelPage({
   return (
     <section className="mx-auto flex min-h-[60vh] w-full max-w-lg flex-col items-center justify-center gap-4 px-4 text-center">
       <XCircle className="size-12 text-muted-foreground" />
-      <h1 className="font-heading text-2xl font-semibold">
-        Checkout canceled
-      </h1>
+      <h1 className="font-heading text-2xl font-semibold">Checkout canceled</h1>
       <p className="text-muted-foreground">
-        No payment was made. Your cart is still here whenever you&apos;re
-        ready.
+        No payment was made. Your cart is still here whenever you&apos;re ready.
       </p>
-      <Button nativeButton={false} render={<Link href="/products" />}>
+      <Button nativeButton={false} render={<Link href="/" />}>
         Back to shopping
       </Button>
     </section>
