@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint",
     "db:seed": "tsx db/seed.ts",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
     "test:e2e": "playwright test"
   },
   "dependencies": {

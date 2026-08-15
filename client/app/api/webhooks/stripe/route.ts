@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       items,
     });
 
-    if (order && userId) {
+    if (order && userId && session.metadata?.source === "cart") {
       await clearCart(userId);
     }
   } catch (error) {

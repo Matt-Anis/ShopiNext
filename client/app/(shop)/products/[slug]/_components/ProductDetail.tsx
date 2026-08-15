@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { fetchProductBySlug } from "@/features/products/actions";
+import { checkoutNow } from "@/features/checkout/actions";
 import { CartControl } from "@/features/cart/CartControl";
 import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery";
 
@@ -41,9 +42,11 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             size="lg"
             className="border-border bg-background text-foreground hover:bg-muted"
           />
-          <Button size="lg" className="w-full">
-            Buy now
-          </Button>
+          <form action={checkoutNow.bind(null, product.id, 1)}>
+            <Button type="submit" size="lg" className="w-full">
+              Buy now
+            </Button>
+          </form>
         </div>
       </div>
 
@@ -55,9 +58,11 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             size="lg"
             className="border-border bg-background text-foreground hover:bg-muted"
           />
-          <Button size="lg" className="w-full">
-            Buy now
-          </Button>
+          <form action={checkoutNow.bind(null, product.id, 1)}>
+            <Button type="submit" size="lg" className="w-full">
+              Buy now
+            </Button>
+          </form>
         </div>
       </div>
     </section>

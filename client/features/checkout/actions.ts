@@ -12,7 +12,12 @@ type LineItemInput = {
   quantity: number;
 };
 
-const createCheckoutSession = async (items: LineItemInput[]) => {
+type CheckoutSource = "cart" | "buy-now";
+
+const createCheckoutSession = async (
+  items: LineItemInput[],
+  source: CheckoutSource,
+) => {
   if (items.length === 0) {
     throw new Error("Cannot checkout with no items");
   }
@@ -34,9 +39,12 @@ const createCheckoutSession = async (items: LineItemInput[]) => {
       },
     })),
     customer_email: user?.email,
-    metadata: user ? { userId: user.id } : undefined,
-    success_url: `${process.env.BETTER_AUTH_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.BETTER_AUTH_URL}/checkout/cancel`,
+    metadata: {
+      ...(user ? { userId: user.id } : {}),
+      source,
+    },
+    success_url: `${process.env.BETTER_AUTH_URL}/api/checkout/complete?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.BETTER_AUTH_URL}/checkout/cancel?session_id={CHECKOUT_SESSION_ID}`,
   });
 
   if (!checkoutSession.url) {
@@ -53,7 +61,7 @@ export const checkoutNow = async (productId: string, quantity = 1) => {
     throw new Error("Product not found");
   }
 
-  await createCheckoutSession([{ product, quantity }]);
+  await createCheckoutSession([{ product, quantity }], "buy-now");
 };
 
 export const checkoutCart = async () => {
@@ -61,5 +69,6 @@ export const checkoutCart = async () => {
 
   await createCheckoutSession(
     cart.map((item) => ({ product: item.product, quantity: item.quantity })),
+    "cart",
   );
 };
