@@ -77,9 +77,9 @@ export const cartItems = pgTable(
 
 export const orders = pgTable("orders", {
   id: uuid().primaryKey().defaultRandom(),
-  userId: text()
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+  userId: text().references(() => user.id, { onDelete: "set null" }),
+  checkoutEmail: text().notNull(),
+  stripeSessionId: text().unique().notNull(),
   totalAmount: integer().notNull().default(0),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp()
