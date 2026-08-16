@@ -1,0 +1,7 @@
+{
+  "name": "shopinext",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
