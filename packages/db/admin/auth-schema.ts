@@ -1,7 +1,8 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { adminSchema } from "./schema";
 
-export const adminUser = pgTable("admin_user", {
+export const adminUser = adminSchema.table("admin_user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -14,7 +15,7 @@ export const adminUser = pgTable("admin_user", {
     .notNull(),
 });
 
-export const adminSession = pgTable(
+export const adminSession = adminSchema.table(
   "admin_session",
   {
     id: text("id").primaryKey(),
@@ -33,7 +34,7 @@ export const adminSession = pgTable(
   (table) => [index("adminSession_userId_idx").on(table.userId)],
 );
 
-export const adminAccount = pgTable(
+export const adminAccount = adminSchema.table(
   "admin_account",
   {
     id: text("id").primaryKey(),
@@ -57,7 +58,7 @@ export const adminAccount = pgTable(
   (table) => [index("adminAccount_userId_idx").on(table.userId)],
 );
 
-export const adminVerification = pgTable(
+export const adminVerification = adminSchema.table(
   "admin_verification",
   {
     id: text("id").primaryKey(),

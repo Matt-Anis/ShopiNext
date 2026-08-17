@@ -64,6 +64,20 @@
       "when": 1786794152335,
       "tag": "0008_omniscient_punisher",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786995051200,
+      "tag": "0009_rapid_slyde",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1786995507532,
+      "tag": "0010_create_app_roles",
+      "breakpoints": true
     }
   ]
 }
