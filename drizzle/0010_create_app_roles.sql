@@ -13,8 +13,10 @@
 CREATE ROLE client_app WITH LOGIN;
 CREATE ROLE admin_app WITH LOGIN;
 
-GRANT CONNECT ON DATABASE store TO client_app;
-GRANT CONNECT ON DATABASE store TO admin_app;
+-- No explicit GRANT CONNECT here: Postgres grants CONNECT on a database
+-- to PUBLIC by default when the database is created, and nothing here
+-- revokes it. An explicit grant would have to hardcode a database name,
+-- which differs between environments (e.g. "store" locally vs "test" in CI).
 
 -- client_app: public schema only
 GRANT USAGE ON SCHEMA public TO client_app;
