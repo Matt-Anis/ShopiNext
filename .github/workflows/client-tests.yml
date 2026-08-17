@@ -58,6 +58,8 @@ jobs:
       DATABASE_URL_TEST: postgresql://admin:secret@localhost:5432/test
       BETTER_AUTH_SECRET: ci-e2e-secret-not-used-in-production
       BETTER_AUTH_URL: http://localhost:3000
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
