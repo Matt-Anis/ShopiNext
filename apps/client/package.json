@@ -17,7 +17,7 @@
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@hookform/resolvers": "^5.7.1",
-    "@repo/db": "*",
+    "@repo/db": "workspace:*",
     "better-auth": "^1.6.26",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -1,4 +1,4 @@
-name: Tests
+name: Client Tests
 
 on:
   push:
@@ -12,14 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run check --workspace=apps/client
+      - run: pnpm --filter client run check
 
   e2e:
     name: E2E tests
@@ -45,25 +47,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
         working-directory: apps/client
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Apply database migrations
         working-directory: apps/client
-        run: npx drizzle-kit migrate
+        run: pnpm exec drizzle-kit migrate
         env:
           DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
 
       - name: Run e2e tests
-        run: npm run test:e2e --workspace=apps/client
+        run: pnpm --filter client run test:e2e
 
       - name: Upload Playwright report
         if: failure()

@@ -1,11 +1,7 @@
 {
   "name": "shopinext",
   "private": true,
-  "packageManager": "npm@11.16.0",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
