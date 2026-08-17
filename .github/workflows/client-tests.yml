@@ -1,0 +1,93 @@
+name: Client Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/client/**"
+      - "packages/db/**"
+      - "drizzle.config.ts"
+      - "drizzle/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/client-tests.yml"
+  pull_request:
+    paths:
+      - "apps/client/**"
+      - "packages/db/**"
+      - "drizzle.config.ts"
+      - "drizzle/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/client-tests.yml"
+
+jobs:
+  check:
+    name: Typecheck & lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter client run check
+
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL_TEST: postgresql://admin:secret@localhost:5432/test
+      BETTER_AUTH_SECRET: ci-e2e-secret-not-used-in-production
+      BETTER_AUTH_URL: http://localhost:3000
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ci-e2e-webhook-secret-not-used-in-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: apps/client
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Apply database migrations
+        run: pnpm exec drizzle-kit migrate
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
+
+      - name: Run e2e tests
+        run: pnpm --filter client run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/client/playwright-report/
+          retention-days: 7

@@ -1,0 +1,8 @@
+dist/
+node_modules/
+.next/
+.turbo/
+coverage/
+playwright-report/
+test-results/
+drizzle/
