@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Maximize2 } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { AspectRatio } from "@repo/ui/aspect-ratio";
 import {
   Carousel,
   CarouselContent,
@@ -11,9 +11,9 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@/components/ui/carousel";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+} from "@repo/ui/carousel";
+import { Skeleton } from "@repo/ui/skeleton";
+import { cn } from "@repo/ui/utils";
 import ProductGalleryLightbox from "./ProductGalleryLightbox";
 
 const SKELETON_THUMB_COUNT = 4;

@@ -5,29 +5,29 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/utils";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@repo/ui/toast";
 import {
   emailSignUpFormSchema,
   type EmailSignUpFormValues,
 } from "@/lib/validations/auth";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@repo/ui/card";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldSeparator,
-} from "@/components/ui/field";
-import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+} from "@repo/ui/field";
+import { FloatingLabelInput } from "@repo/ui/floating-label-input";
 
 export function SignupForm({
   className,

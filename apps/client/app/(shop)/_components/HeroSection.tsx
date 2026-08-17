@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, type Variants } from "motion/react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import { authClient } from "@/lib/auth-client";
 
 const container: Variants = {

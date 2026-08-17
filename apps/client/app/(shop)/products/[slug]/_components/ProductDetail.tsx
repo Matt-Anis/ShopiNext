@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@repo/ui/button";
+import { Skeleton } from "@repo/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { fetchProductBySlug } from "@/features/products/actions";
 import { checkoutNow } from "@/features/checkout/actions";

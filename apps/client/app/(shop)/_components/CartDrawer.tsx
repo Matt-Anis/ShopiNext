@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { ShoppingCart } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -11,15 +11,15 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@repo/ui/drawer";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@repo/ui/empty";
+import { ScrollArea } from "@repo/ui/scroll-area";
 import { useCart } from "@/features/cart/CartProvider";
 import { checkoutCart } from "@/features/checkout/actions";
 import { formatPrice } from "@/lib/utils";

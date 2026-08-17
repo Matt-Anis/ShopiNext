@@ -4,14 +4,14 @@ import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { useState } from "react";
 
 import Logo from "./Logo";
-import { Button } from "./ui/button";
+import { Button } from "@repo/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@repo/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,10 +22,10 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { Skeleton } from "./ui/skeleton";
-import { Badge } from "./ui/badge";
-import { DrawerTrigger } from "./ui/drawer";
+} from "@repo/ui/alert-dialog";
+import { Skeleton } from "@repo/ui/skeleton";
+import { Badge } from "@repo/ui/badge";
+import { DrawerTrigger } from "@repo/ui/drawer";
 import { CartDrawer } from "@/app/(shop)/_components/CartDrawer";
 
 import {

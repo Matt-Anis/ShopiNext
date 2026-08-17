@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Card } from "@/components/ui/card";
+import { AspectRatio } from "@repo/ui/aspect-ratio";
+import { Card } from "@repo/ui/card";
 import { CartControl } from "@/features/cart/CartControl";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/features/cart/actions";

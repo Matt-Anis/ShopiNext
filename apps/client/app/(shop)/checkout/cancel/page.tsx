@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import { stripe } from "@/lib/stripe";
 
 export default async function CheckoutCancelPage({

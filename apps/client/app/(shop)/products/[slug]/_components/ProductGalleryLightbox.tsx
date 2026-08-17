@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@repo/ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -10,7 +10,7 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@/components/ui/carousel";
+} from "@repo/ui/carousel";
 
 const LENS_SIZE = 200;
 const ZOOM_MIN = 600;

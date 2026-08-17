@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { AspectRatio } from "@repo/ui/aspect-ratio";
+import { Card, CardContent, CardFooter, CardTitle } from "@repo/ui/card";
+import { Skeleton } from "@repo/ui/skeleton";
 import type { Product } from "@/features/products/queries";
 import { CartControl } from "@/features/cart/CartControl";
 import { formatPrice } from "@/lib/utils";

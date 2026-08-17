@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/toast";
+import { cn } from "@repo/ui/utils";
+import { Toaster } from "@repo/ui/toast";
 
 const figtreeHeading = Figtree({
   subsets: ["latin"],

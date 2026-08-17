@@ -1,0 +1,45 @@
+{
+  "name": "@repo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./alert-dialog": "./components/alert-dialog.tsx",
+    "./alert": "./components/alert.tsx",
+    "./aspect-ratio": "./components/aspect-ratio.tsx",
+    "./badge": "./components/badge.tsx",
+    "./button": "./components/button.tsx",
+    "./card": "./components/card.tsx",
+    "./carousel": "./components/carousel.tsx",
+    "./dialog": "./components/dialog.tsx",
+    "./drawer": "./components/drawer.tsx",
+    "./dropdown-menu": "./components/dropdown-menu.tsx",
+    "./empty": "./components/empty.tsx",
+    "./field": "./components/field.tsx",
+    "./floating-label-input": "./components/floating-label-input.tsx",
+    "./input": "./components/input.tsx",
+    "./label": "./components/label.tsx",
+    "./scroll-area": "./components/scroll-area.tsx",
+    "./separator": "./components/separator.tsx",
+    "./skeleton": "./components/skeleton.tsx",
+    "./toast": "./components/toast.tsx",
+    "./utils": "./lib/utils.ts"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "lucide-react": "^1.31.0",
+    "tailwind-merge": "^3.6.0"
+  },
+  "peerDependencies": {
+    "@base-ui/react": "^1.7.0",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

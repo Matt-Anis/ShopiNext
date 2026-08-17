@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,9 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@repo/ui/alert-dialog";
 import { useCart } from "@/features/cart/CartProvider";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/utils";
 import type { Product } from "@/features/products/queries";
 
 export function CartControl({
