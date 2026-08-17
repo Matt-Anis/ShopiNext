@@ -3,7 +3,21 @@ name: Client Tests
 on:
   push:
     branches: [main]
+    paths:
+      - "apps/client/**"
+      - "packages/db/**"
+      - "drizzle.config.ts"
+      - "drizzle/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/client-tests.yml"
   pull_request:
+    paths:
+      - "apps/client/**"
+      - "packages/db/**"
+      - "drizzle.config.ts"
+      - "drizzle/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/client-tests.yml"
 
 jobs:
   check:
