@@ -38,3 +38,6 @@ apps/client/db/schema.md
 
 # turborepo
 .turbo
+
+# claude
+.claude/

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orders, orderItems } from "@/db/schema";
+import { orders, orderItems } from "@repo/db/public/schema";
 
 type CreateOrderInput = {
   stripeSessionId: string;

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { eq } from "drizzle-orm";
 import { testDb } from "../../utils/db";
-import { cart, cartItems } from "@/db/schema";
+import { cart, cartItems } from "@repo/db/public/schema";
 import { resetAuthTables, resetCartTables } from "../../utils/db-reset";
 import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
 import { seedProduct } from "../../utils/seed-product";

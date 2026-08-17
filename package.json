@@ -3,7 +3,8 @@
   "private": true,
   "packageManager": "npm@11.16.0",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     "dev": "turbo run dev",
@@ -12,6 +13,9 @@
     "typecheck": "turbo run typecheck",
     "check": "turbo run check",
     "test:e2e": "turbo run test:e2e"
+  },
+  "dependencies": {
+    "pg": "^8.22.0"
   },
   "devDependencies": {
     "turbo": "^2.10.10"

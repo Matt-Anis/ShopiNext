@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
-import * as authSchema from "@/lib/auth-schema";
-import * as appSchema from "@/db/schema";
+import * as authSchema from "@repo/db/public/auth-schema";
+import * as appSchema from "@repo/db/public/schema";
 
 config({ path: ".env.local" });
 

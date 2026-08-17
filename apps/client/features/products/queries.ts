@@ -11,7 +11,7 @@ import {
   type GetColumnData,
 } from "drizzle-orm";
 import { db } from "@/db";
-import { images, products } from "@/db/schema";
+import { images, products } from "@repo/db/public/schema";
 
 export type ProductSortBy = "newest" | "price_asc" | "price_desc";
 

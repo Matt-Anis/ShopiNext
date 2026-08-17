@@ -8,7 +8,7 @@ import {
   index,
   unique,
 } from "drizzle-orm/pg-core";
-import { user } from "@/lib/auth-schema";
+import { user } from "./auth-schema";
 import { relations, sql } from "drizzle-orm";
 
 export const products = pgTable(

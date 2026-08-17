@@ -1,0 +1,14 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./public/schema": "./public/schema.ts",
+    "./public/auth-schema": "./public/auth-schema.ts",
+    "./admin/schema": "./admin/schema.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  }
+}

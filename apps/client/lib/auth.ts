@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import { db } from "@/db";
-import * as authSchema from "@/lib/auth-schema";
+import * as authSchema from "@repo/db/public/auth-schema";
 import { emailSignUpSchema } from "@/lib/validations/auth";
 
 export const auth = betterAuth({

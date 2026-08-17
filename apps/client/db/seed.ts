@@ -5,8 +5,8 @@ import { randomUUID } from "node:crypto";
 import { inArray } from "drizzle-orm";
 import { hashPassword } from "better-auth/crypto";
 import { db } from "./index";
-import { products, images } from "./schema";
-import { user, account } from "../lib/auth-schema";
+import { products, images } from "@repo/db/public/schema";
+import { user, account } from "@repo/db/public/auth-schema";
 import { seed, reset } from "drizzle-seed";
 
 const SEEDED_USER_PASSWORD = "secret password";

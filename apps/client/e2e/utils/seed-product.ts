@@ -1,5 +1,5 @@
 import { testDb } from "./db";
-import { products, images } from "@/db/schema";
+import { products, images } from "@repo/db/public/schema";
 
 export const DEFAULT_TEST_PRODUCT = {
   name: "Test Product",

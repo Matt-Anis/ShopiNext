@@ -1,6 +1,6 @@
 import { testDb } from "./db";
-import { user, verification } from "@/lib/auth-schema";
-import { cart, orders, products } from "@/db/schema";
+import { user, verification } from "@repo/db/public/auth-schema";
+import { cart, orders, products } from "@repo/db/public/schema";
 
 export async function resetAuthTables() {
   await testDb.delete(user);

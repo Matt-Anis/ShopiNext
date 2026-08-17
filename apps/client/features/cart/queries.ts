@@ -1,6 +1,6 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { cart, cartItems, images } from "@/db/schema";
+import { cart, cartItems, images } from "@repo/db/public/schema";
 
 export type Cart = Awaited<ReturnType<typeof getCartFromDb>>;
 
