@@ -8,12 +8,17 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "check": "turbo run check",
-    "test:e2e": "turbo run test:e2e"
+    "test:e2e": "turbo run test:e2e",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "pg": "^8.22.0"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "turbo": "^2.10.10"
   }
 }

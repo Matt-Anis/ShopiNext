@@ -61,7 +61,6 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Apply database migrations
-        working-directory: apps/client
         run: pnpm exec drizzle-kit migrate
         env:
           DATABASE_URL: ${{ env.DATABASE_URL_TEST }}

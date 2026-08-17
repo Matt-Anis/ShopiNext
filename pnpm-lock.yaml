@@ -8,10 +8,16 @@ importers:
 
   .:
     dependencies:
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       pg:
         specifier: ^8.22.0
         version: 8.23.0
     devDependencies:
+      drizzle-kit:
+        specifier: ^0.31.10
+        version: 0.31.10
       turbo:
         specifier: ^2.10.10
         version: 2.10.10
@@ -194,9 +200,6 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.4(@types/react@19.2.18)
-      drizzle-kit:
-        specifier: ^0.31.10
-        version: 0.31.10
       drizzle-seed:
         specifier: ^0.3.1
         version: 0.3.1(drizzle-orm@0.45.2(@types/pg@8.21.0)(kysely@0.29.5)(pg@8.23.0))
