@@ -1,29 +1,30 @@
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import { config } from "dotenv"
+config({ path: ".env.local" })
 
-import { randomUUID } from "node:crypto";
-import { inArray } from "drizzle-orm";
-import { hashPassword } from "better-auth/crypto";
-import { db } from "./index";
-import { products, images } from "@repo/db/public/schema";
-import { user, account } from "@repo/db/public/auth-schema";
-import { seed, reset } from "drizzle-seed";
+import { randomUUID } from "node:crypto"
+import { inArray } from "drizzle-orm"
+import { hashPassword } from "better-auth/crypto"
+import { db } from "./index"
+import { products, images } from "@repo/db/public/schema"
+import { user, account } from "@repo/db/public/auth-schema"
+import { seed, reset } from "drizzle-seed"
 
-const SEEDED_USER_PASSWORD = "secret password";
+const SEEDED_USER_PASSWORD = "secret password"
 
 const picsumUrls = Array.from(
   { length: 300 },
-  (_, i) => `https://picsum.photos/id/${i + 1}/800/600`,
-);
+  (_, i) => `https://picsum.photos/id/${i + 1}/800/600`
+)
 
 async function main() {
-  await reset(db, { products, images, user, account });
+  await reset(db, { products, images, user, account })
 
   await seed(db, { products, images, user }).refine((f) => ({
     products: {
       count: 100,
       columns: {
         price: f.int({ minValue: 999, maxValue: 99999 }),
+        description: f.loremIpsum({ sentencesCount: 10 }),
       },
       with: {
         images: 3,
@@ -43,7 +44,7 @@ async function main() {
         email: f.email(),
       },
     },
-  }));
+  }))
 
   await db
     .update(images)
@@ -54,12 +55,12 @@ async function main() {
         db
           .selectDistinctOn([images.productId], { id: images.id })
           .from(images)
-          .orderBy(images.productId, images.id),
-      ),
-    );
+          .orderBy(images.productId, images.id)
+      )
+    )
 
-  const passwordHash = await hashPassword(SEEDED_USER_PASSWORD);
-  const seededUsers = await db.select({ id: user.id }).from(user);
+  const passwordHash = await hashPassword(SEEDED_USER_PASSWORD)
+  const seededUsers = await db.select({ id: user.id }).from(user)
 
   await db.insert(account).values(
     seededUsers.map(({ id }) => ({
@@ -68,16 +69,16 @@ async function main() {
       providerId: "credential",
       userId: id,
       password: passwordHash,
-    })),
-  );
+    }))
+  )
 
   console.log(
-    `Seeded 100 products with 300 images and ${seededUsers.length} users (password: "${SEEDED_USER_PASSWORD}").`,
-  );
-  process.exit(0);
+    `Seeded 100 products with 300 images and ${seededUsers.length} users (password: "${SEEDED_USER_PASSWORD}").`
+  )
+  process.exit(0)
 }
 
 main().catch((err) => {
-  console.error("Seed failed:", err);
-  process.exit(1);
-});
+  console.error("Seed failed:", err)
+  process.exit(1)
+})
