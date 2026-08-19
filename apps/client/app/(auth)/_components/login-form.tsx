@@ -117,7 +117,7 @@ export function LoginForm({
                 </Button>
                 <FieldDescription className="text-center">
                   <Link
-                    href="#"
+                    href="/forgot-password"
                     className="text-center   text-muted-foreground underline-offset-4 hover:underline"
                   >
                     Forgot your password?

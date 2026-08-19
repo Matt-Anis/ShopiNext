@@ -44,7 +44,7 @@ export function SignupForm({
 
   const onSubmit = handleSubmit(async ({ name, email, password }) => {
     const signUpPromise = authClient.signUp
-      .email({ name, email, password })
+      .email({ name, email, password, callbackURL: "/login" })
       .then((res) => {
         if (res.error) {
           throw new Error(res.error.message ?? "Something went wrong");
@@ -58,8 +58,8 @@ export function SignupForm({
         success: () => {
           router.push("/");
           return {
-            title: "Account created successfully",
-            description: undefined,
+            title: "Please verify your email",
+            description: "We've sent a verification link to your inbox.",
           };
         },
         error: (error: Error) => ({
