@@ -44,7 +44,7 @@ export function SignupForm({
 
   const onSubmit = handleSubmit(async ({ name, email, password }) => {
     const signUpPromise = authClient.signUp
-      .email({ name, email, password, callbackURL: "/login" })
+      .email({ name, email, password, callbackURL: "/" })
       .then((res) => {
         if (res.error) {
           throw new Error(res.error.message ?? "Something went wrong");
