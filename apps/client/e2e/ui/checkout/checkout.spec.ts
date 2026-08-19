@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct } from "../../utils/seed-product";
+import { clickUntilHydrated } from "../../utils/interaction";
 
 test.beforeEach(async () => {
   await resetCartTables();
@@ -21,8 +22,15 @@ test.describe("Checkout redirects", () => {
     const product = await seedProduct();
     await page.goto(`/products/${product.slug}`);
 
-    await visible(page, "buy-now-button").click();
-    await page.waitForURL(/checkout\.stripe\.com/, { timeout: 15_000 });
+    await clickUntilHydrated(
+      visible(page, "buy-now-button"),
+      () =>
+        page.waitForURL(/checkout\.stripe\.com/, {
+          timeout: 5_000,
+          waitUntil: "domcontentloaded",
+        }),
+      { timeout: 15_000 },
+    );
 
     expect(page.url()).toContain("checkout.stripe.com");
   });
@@ -32,9 +40,11 @@ test.describe("Checkout redirects", () => {
   }) => {
     const product = await seedProduct();
     await page.goto(`/products/${product.slug}`);
-    await visible(page, "cart-control-add").click();
-    await expect(visible(page, "cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(visible(page, "cart-control-add"), () =>
+      expect(visible(page, "cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
 
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -60,12 +70,20 @@ test.describe("Buy now does not touch the cart", () => {
     });
 
     await page.goto(`/products/${productA.slug}`);
-    await visible(page, "cart-control-add").click();
-    await expect(page.getByTestId("cart-badge")).toHaveText("1");
+    await clickUntilHydrated(visible(page, "cart-control-add"), () =>
+      expect(page.getByTestId("cart-badge")).toHaveText("1", { timeout: 1000 }),
+    );
 
     await page.goto(`/products/${productB.slug}`);
-    await visible(page, "buy-now-button").click();
-    await page.waitForURL(/checkout\.stripe\.com/, { timeout: 15_000 });
+    await clickUntilHydrated(
+      visible(page, "buy-now-button"),
+      () =>
+        page.waitForURL(/checkout\.stripe\.com/, {
+          timeout: 5_000,
+          waitUntil: "domcontentloaded",
+        }),
+      { timeout: 15_000 },
+    );
 
     await page.goto("/");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");

@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, DEFAULT_TEST_PRODUCT } from "../../utils/seed-product";
+import { clickUntilHydrated } from "../../utils/interaction";
 
 test.beforeEach(async () => {
   await resetCartTables();
@@ -14,10 +15,11 @@ test.describe("Guest cart", () => {
     await page.goto("/");
 
     await expect(page.getByTestId("cart-badge")).not.toBeVisible();
-    await page.getByTestId("cart-control-add").click();
-
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
+      expect(page.getByTestId("cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
@@ -26,9 +28,11 @@ test.describe("Guest cart", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.getByTestId("cart-control-add").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
+      expect(page.getByTestId("cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
 
     await page.getByTestId("cart-control-increment").click();
@@ -48,9 +52,11 @@ test.describe("Guest cart", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.getByTestId("cart-control-add").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
+      expect(page.getByTestId("cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
 
     await page.getByTestId("cart-control-decrement").click();
@@ -62,6 +68,7 @@ test.describe("Guest cart", () => {
       "1 in cart",
     );
 
+    await expect(page.getByTestId("cart-control-decrement")).toBeVisible();
     await page.getByTestId("cart-control-decrement").click();
     await expect(page.getByText("Remove item?")).toBeVisible();
     await page.getByTestId("cart-remove-confirm-button").click();
@@ -72,17 +79,21 @@ test.describe("Guest cart", () => {
 
   test("drawer shows the empty state with no items", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("cart-trigger").click();
-
-    await expect(page.getByTestId("cart-empty-state")).toBeVisible();
+    await clickUntilHydrated(page.getByTestId("cart-trigger"), () =>
+      expect(page.getByTestId("cart-empty-state")).toBeVisible({
+        timeout: 1000,
+      }),
+    );
     await expect(page.getByText("Your cart is empty")).toBeVisible();
   });
 
   test("drawer lists the item, price, and subtotal", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("cart-control-add").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
+      expect(page.getByTestId("cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
     await page.getByTestId("cart-control-increment").click();
     await expect(page.getByTestId("cart-control-quantity")).toHaveText(
@@ -105,10 +116,17 @@ test.describe("Guest cart", () => {
 
   test("cart persists across a page reload", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("cart-control-add").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
+    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
+      expect(page.getByTestId("cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
     );
+    // The quantity text updates optimistically before the server action
+    // that actually persists the cart cookie resolves. Reloading right on
+    // that optimistic update can race the write, so wait for the button
+    // to re-enable (isPending clearing) as proof the request landed.
+    await expect(page.getByTestId("cart-control-decrement")).toBeEnabled();
 
     await page.reload();
 
