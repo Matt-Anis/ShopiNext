@@ -40,6 +40,10 @@ jobs:
   e2e:
     name: E2E tests
     runs-on: ubuntu-latest
+    # Image tag must match the @playwright/test version in apps/client/package.json.
+    # Bumping the dependency requires bumping this tag too, or the browsers baked
+    # into the image will mismatch the test runner's expected version.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     services:
       postgres:
         image: postgres:16
@@ -55,7 +59,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL_TEST: postgresql://admin:secret@localhost:5432/test
+      DATABASE_URL_TEST: postgresql://admin:secret@postgres:5432/test
       BETTER_AUTH_SECRET: ci-e2e-secret-not-used-in-production
       BETTER_AUTH_URL: http://localhost:3000
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
@@ -71,28 +75,6 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Get installed Playwright version
-        id: playwright-version
-        working-directory: apps/client
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-chromium-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: apps/client
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright OS dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: apps/client
-        run: pnpm exec playwright install-deps chromium
 
       - name: Apply database migrations
         run: pnpm exec drizzle-kit migrate
