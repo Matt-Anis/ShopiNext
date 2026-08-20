@@ -4,6 +4,7 @@ import { createAuthMiddleware, APIError } from "better-auth/api";
 import { db } from "@/db";
 import * as authSchema from "@repo/db/public/auth-schema";
 import { emailSignUpSchema } from "@/lib/validations/auth";
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -12,6 +13,19 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 20,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail(user.email, url);
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendVerificationEmail(user.email, url);
+    },
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {

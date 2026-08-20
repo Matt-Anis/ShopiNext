@@ -26,3 +26,26 @@ export const emailSignUpFormSchema = emailSignUpSchema
   });
 
 export type EmailSignUpFormValues = z.infer<typeof emailSignUpFormSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .email("Enter a valid email address")
+    .max(50, "Email must be at most 50 characters"),
+});
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordFormSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(20, "Password must be at most 20 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
