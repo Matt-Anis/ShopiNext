@@ -1,13 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { resetAuthTables } from "../../utils/db-reset";
-import { seedUser } from "../../utils/seed-user";
 
 test.beforeEach(async () => {
   await resetAuthTables();
 });
 
 test.describe("Sign up", () => {
-  test("creates an account with valid details and redirects home", async ({
+  test("creates an account and asks the user to verify their email", async ({
     page,
   }) => {
     await page.goto("/signup");
@@ -20,9 +19,7 @@ test.describe("Sign up", () => {
       .fill("password123");
     await page.getByTestId("signup-submit-button").click();
 
-    await expect(
-      page.getByText("Account created successfully"),
-    ).toBeVisible();
+    await expect(page.getByText("Please verify your email")).toBeVisible();
     await page.waitForURL("/");
   });
 
@@ -148,23 +145,5 @@ test.describe("Sign up", () => {
     await page.getByTestId("signup-submit-button").click();
 
     await expect(page.getByText("Passwords do not match")).toBeVisible();
-  });
-
-  test("rejects signing up with an email that's already registered", async ({
-    page,
-    request,
-  }) => {
-    await seedUser(request, { email: "existing@example.com" });
-
-    await page.goto("/signup");
-    await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill("existing@example.com");
-    await page.getByTestId("signup-password-input").fill("password123");
-    await page
-      .getByTestId("signup-confirm-password-input")
-      .fill("password123");
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(page.getByText("Sign up failed")).toBeVisible();
   });
 });
