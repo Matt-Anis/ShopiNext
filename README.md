@@ -13,8 +13,8 @@
 
 
 ### V1
-- [ ] Email verification (Resend)
-- [ ] Password reset
+- [x] Email verification (Resend)
+- [x] Password reset
 - [ ] OAuth
 - [ ] Order history page
 - [ ] Order receipt email (Resend)
