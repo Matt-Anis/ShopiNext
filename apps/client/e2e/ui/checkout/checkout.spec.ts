@@ -22,15 +22,16 @@ test.describe("Checkout redirects", () => {
     const product = await seedProduct();
     await page.goto(`/products/${product.slug}`);
 
-    await clickUntilHydrated(
-      visible(page, "buy-now-button"),
-      () =>
-        page.waitForURL(/checkout\.stripe\.com/, {
-          timeout: 5_000,
-          waitUntil: "domcontentloaded",
-        }),
-      { timeout: 15_000 },
+    await clickUntilHydrated(visible(page, "buy-now-button"), () =>
+      expect(visible(page, "stripe-checkout-confirm")).toBeVisible({
+        timeout: 1_000,
+      }),
     );
+    await page.getByTestId("stripe-checkout-confirm").click();
+    await page.waitForURL(/checkout\.stripe\.com/, {
+      timeout: 15_000,
+      waitUntil: "domcontentloaded",
+    });
 
     expect(page.url()).toContain("checkout.stripe.com");
   });
@@ -50,6 +51,7 @@ test.describe("Checkout redirects", () => {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.getByTestId("cart-trigger").click();
     await page.getByTestId("cart-checkout").click();
+    await page.getByTestId("stripe-checkout-confirm").click();
     await page.waitForURL(/checkout\.stripe\.com/, { timeout: 15_000 });
 
     expect(page.url()).toContain("checkout.stripe.com");
@@ -75,15 +77,16 @@ test.describe("Buy now does not touch the cart", () => {
     );
 
     await page.goto(`/products/${productB.slug}`);
-    await clickUntilHydrated(
-      visible(page, "buy-now-button"),
-      () =>
-        page.waitForURL(/checkout\.stripe\.com/, {
-          timeout: 5_000,
-          waitUntil: "domcontentloaded",
-        }),
-      { timeout: 15_000 },
+    await clickUntilHydrated(visible(page, "buy-now-button"), () =>
+      expect(visible(page, "stripe-checkout-confirm")).toBeVisible({
+        timeout: 1_000,
+      }),
     );
+    await page.getByTestId("stripe-checkout-confirm").click();
+    await page.waitForURL(/checkout\.stripe\.com/, {
+      timeout: 15_000,
+      waitUntil: "domcontentloaded",
+    });
 
     await page.goto("/");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");

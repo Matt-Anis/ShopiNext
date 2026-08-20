@@ -1,6 +1,6 @@
 "use client"
 
-import { useSyncExternalStore } from "react"
+import { useRef, useState, useSyncExternalStore } from "react"
 import { ShoppingCart } from "lucide-react"
 
 import { Button } from "@repo/ui/button"
@@ -24,10 +24,13 @@ import { useCart } from "@/features/cart/CartProvider"
 import { checkoutCart } from "@/features/checkout/actions"
 import { formatPrice } from "@/lib/utils"
 import { CartItemCard } from "@/app/(shop)/_components/CartItemCard"
+import { StripeCheckoutDialog } from "@/app/(shop)/_components/StripeCheckoutDialog"
 import type { ReactNode } from "react"
 
 export function CartDrawer({ children }: { children: ReactNode }) {
   const { items } = useCart()
+  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false)
+  const checkoutFormRef = useRef<HTMLFormElement>(null)
   const isDesktop = useSyncExternalStore(
     (onChange) => {
       const query = window.matchMedia("(min-width: 768px)")
@@ -82,15 +85,21 @@ export function CartDrawer({ children }: { children: ReactNode }) {
               <span>Subtotal</span>
               <span data-testid="cart-subtotal">{formatPrice(subtotal)}</span>
             </div>
-            <form action={checkoutCart}>
+            <form ref={checkoutFormRef} action={checkoutCart}>
               <Button
-                type="submit"
+                type="button"
                 className="w-full"
+                onClick={() => setCheckoutDialogOpen(true)}
                 data-testid="cart-checkout"
               >
                 Checkout
               </Button>
             </form>
+            <StripeCheckoutDialog
+              open={checkoutDialogOpen}
+              onOpenChange={setCheckoutDialogOpen}
+              onConfirm={() => checkoutFormRef.current?.requestSubmit()}
+            />
             <DrawerClose
               render={
                 <Button

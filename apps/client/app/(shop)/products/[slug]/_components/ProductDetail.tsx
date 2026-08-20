@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
-import { Button } from "@repo/ui/button";
 import { Skeleton } from "@repo/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { fetchProductBySlug } from "@/features/products/actions";
-import { checkoutNow } from "@/features/checkout/actions";
 import { CartControl } from "@/features/cart/CartControl";
+import { BuyNowButton } from "./BuyNowButton";
 import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery";
 
 export default async function ProductDetail({ slug }: { slug: string }) {
@@ -42,16 +41,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             size="lg"
             className="border-border bg-background text-foreground hover:bg-muted"
           />
-          <form action={checkoutNow.bind(null, product.id, 1)}>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              data-testid="buy-now-button"
-            >
-              Buy now
-            </Button>
-          </form>
+          <BuyNowButton productId={product.id} className="w-full" />
         </div>
       </div>
 
@@ -63,16 +53,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             size="lg"
             className="border-border bg-background text-foreground hover:bg-muted"
           />
-          <form action={checkoutNow.bind(null, product.id, 1)}>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              data-testid="buy-now-button"
-            >
-              Buy now
-            </Button>
-          </form>
+          <BuyNowButton productId={product.id} className="w-full" />
         </div>
       </div>
     </section>
