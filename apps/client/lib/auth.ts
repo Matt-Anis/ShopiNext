@@ -7,6 +7,7 @@ import { emailSignUpSchema } from "@/lib/validations/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 
 export const auth = betterAuth({
+  trustedOrigins: [process.env.BETTER_AUTH_URL as string],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: authSchema,

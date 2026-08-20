@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { resetAuthTables } from "../../utils/db-reset";
+import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
 
 test.beforeEach(async () => {
   await resetAuthTables();
@@ -145,5 +146,24 @@ test.describe("Sign up", () => {
     await page.getByTestId("signup-submit-button").click();
 
     await expect(page.getByText("Passwords do not match")).toBeVisible();
+  });
+
+  test("redirects an already signed-in user away from /signup", async ({
+    page,
+    request,
+  }) => {
+    await seedUser(request);
+
+    await page.goto("/login");
+    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email);
+    await page
+      .getByTestId("login-password-input")
+      .fill(DEFAULT_TEST_USER.password);
+    await page.getByTestId("login-submit-button").click();
+    await page.waitForURL("/");
+
+    await page.goto("/signup");
+
+    await page.waitForURL("/");
   });
 });
