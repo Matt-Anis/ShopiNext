@@ -15,7 +15,7 @@
 ### V1
 - [x] Email verification (Resend)
 - [x] Password reset
-- [ ] OAuth
+- [x] OAuth
 - [ ] Order history page
 - [ ] Order receipt email (Resend)
 - [ ] Order status tracking
