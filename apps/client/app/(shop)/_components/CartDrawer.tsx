@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { useSyncExternalStore } from "react";
-import { ShoppingCart } from "lucide-react";
+import { useSyncExternalStore } from "react"
+import { ShoppingCart } from "lucide-react"
 
-import { Button } from "@repo/ui/button";
+import { Button } from "@repo/ui/button"
 import {
   Drawer,
   DrawerClose,
@@ -11,37 +11,37 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@repo/ui/drawer";
+} from "@repo/ui/drawer"
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/empty";
-import { ScrollArea } from "@repo/ui/scroll-area";
-import { useCart } from "@/features/cart/CartProvider";
-import { checkoutCart } from "@/features/checkout/actions";
-import { formatPrice } from "@/lib/utils";
-import { CartItemCard } from "@/app/(shop)/_components/CartItemCard";
-import type { ReactNode } from "react";
+} from "@repo/ui/empty"
+import { ScrollArea } from "@repo/ui/scroll-area"
+import { useCart } from "@/features/cart/CartProvider"
+import { checkoutCart } from "@/features/checkout/actions"
+import { formatPrice } from "@/lib/utils"
+import { CartItemCard } from "@/app/(shop)/_components/CartItemCard"
+import type { ReactNode } from "react"
 
 export function CartDrawer({ children }: { children: ReactNode }) {
-  const { items } = useCart();
+  const { items } = useCart()
   const isDesktop = useSyncExternalStore(
     (onChange) => {
-      const query = window.matchMedia("(min-width: 768px)");
-      query.addEventListener("change", onChange);
-      return () => query.removeEventListener("change", onChange);
+      const query = window.matchMedia("(min-width: 768px)")
+      query.addEventListener("change", onChange)
+      return () => query.removeEventListener("change", onChange)
     },
     () => window.matchMedia("(min-width: 768px)").matches,
-    () => false,
-  );
+    () => false
+  )
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
-    0,
-  );
+    0
+  )
 
   return (
     <Drawer swipeDirection={isDesktop ? "right" : "down"}>
@@ -67,7 +67,7 @@ export function CartDrawer({ children }: { children: ReactNode }) {
             </EmptyHeader>
           </Empty>
         ) : (
-          <ScrollArea className="min-h-0 flex-1">
+          <ScrollArea className="min-h-0 flex-1 p-4">
             <div className="flex flex-col gap-4 py-4">
               {items.map((item) => (
                 <CartItemCard key={item.product.id} item={item} />
@@ -106,5 +106,5 @@ export function CartDrawer({ children }: { children: ReactNode }) {
         )}
       </DrawerContent>
     </Drawer>
-  );
+  )
 }

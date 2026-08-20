@@ -1,17 +1,17 @@
-import Image from "next/image";
+import Image from "next/image"
 
-import { AspectRatio } from "@repo/ui/aspect-ratio";
-import { Card } from "@repo/ui/card";
-import { CartControl } from "@/features/cart/CartControl";
-import { formatPrice } from "@/lib/utils";
-import type { CartItem } from "@/features/cart/actions";
+import { AspectRatio } from "@repo/ui/aspect-ratio"
+import { Card } from "@repo/ui/card"
+import { CartControl } from "@/features/cart/CartControl"
+import { formatPrice } from "@/lib/utils"
+import type { CartItem } from "@/features/cart/actions"
 
 export function CartItemCard({ item }: { item: CartItem }) {
-  const { product, quantity } = item;
-  const image = product.images[0];
+  const { product, quantity } = item
+  const image = product.images[0]
 
   return (
-    <Card className="gap-3 border border-border p-4">
+    <Card className="gap-3 border border-border p-4 shadow-none ring-0">
       <AspectRatio
         ratio={1 / 1}
         className="overflow-hidden rounded-md bg-muted"
@@ -33,11 +33,14 @@ export function CartItemCard({ item }: { item: CartItem }) {
         >
           {product.name}
         </p>
-        <p className="shrink-0 text-sm font-medium" data-testid="cart-item-price">
+        <p
+          className="shrink-0 text-sm font-medium"
+          data-testid="cart-item-price"
+        >
           {formatPrice(product.price * quantity)}
         </p>
       </div>
       <CartControl product={product} />
     </Card>
-  );
+  )
 }
