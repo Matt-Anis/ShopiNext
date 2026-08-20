@@ -2,9 +2,7 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
-// resend.dev sandbox only delivers to your own Resend account email — swap
-// this for a verified sending domain before this goes to real users.
-const FROM_EMAIL = "ShopiNext <onboarding@resend.dev>"
+const FROM_EMAIL = "ShopiNext <noreply@mail.shopinext.mattanis.dev>"
 
 const COLORS = {
   background: "#ffffff",
