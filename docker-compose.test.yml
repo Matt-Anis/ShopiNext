@@ -1,0 +1,10 @@
+services:
+  db-test:
+    image: postgres:16
+    container_name: store_db_test
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test
+    ports:
+      - "5433:5432"

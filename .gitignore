@@ -41,3 +41,5 @@ apps/client/db/schema.md
 
 # claude
 .claude/
+apps/admin/test-results/
+apps/admin/playwright-report/
