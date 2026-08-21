@@ -9,7 +9,13 @@ export const auth = betterAuth({
     schema: adminAuthSchema,
   }),
   user: { modelName: "adminUser" },
-  session: { modelName: "adminSession" },
+  session: {
+    modelName: "adminSession",
+    cookieCache: {
+      enabled: true,
+      strategy: "jwe",
+    },
+  },
   account: { modelName: "adminAccount" },
   verification: { modelName: "adminVerification" },
   emailAndPassword: {

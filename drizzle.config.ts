@@ -13,6 +13,9 @@ export default defineConfig({
   ],
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url:
+      process.env.DRIZZLE_TARGET === "test"
+        ? process.env.DATABASE_URL_TEST!
+        : process.env.DATABASE_URL!,
   },
 });
