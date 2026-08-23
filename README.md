@@ -3,39 +3,42 @@
 ## Features
 
 ### MVP
-- [x] Product listing page (cursor-based pagination)
+- [x] Product listing page
 - [x] Product detail page
-- [x] Cart (add/remove/update qty, optimistic UI, cookie-based for guests / DB-synced for auth users)
-- [x] Auth (Better Auth + rate limiting)
+- [x] Cart (add/remove/update quantity, guest and signed-in)
+- [x] Authentication
 - [x] Guest checkout
-- [x] Checkout with Stripe (+ webhook handling)
+- [x] Checkout
 - [x] Order confirmation page
 
 
 ### V1
-- [x] Email verification (Resend)
+- [x] Email verification
 - [x] Password reset
 - [x] OAuth
 - [ ] Order history page
-- [ ] Order receipt email (Resend)
+- [ ] Order receipt email
 - [ ] Order status tracking
-- [ ] Admin panel (add/edit/delete products)
+- [ ] Admin panel (product management)
 - [ ] Staff roles & permissions
-- [ ] Product images (Vercel Blob)
+- [ ] Staff invite via magic link
+- [ ] Product images
 - [ ] Product categories
 - [ ] Product variants (size, color, stock per variant)
 - [ ] Address management
-- [ ] Basic SEO (meta tags, OG image)
+- [ ] Basic SEO
 - [ ] Promotional
 
 ### Later
 - [ ] Search and filters
-- [ ] Abandoned cart emails (Resend)
-- [ ] Email notifications (Resend)
+- [ ] Abandoned cart emails
+- [ ] Email notifications
 - [ ] Reviews & comments
 - [ ] Dashboard analytics
 - [ ] Coupons
+- [ ] Shipping & tax settings
 - [ ] Wishlist
 - [ ] Inventory & stock management
 - [ ] Returns & refunds
+- [ ] Staff chat
 - [ ] Docker setup for self-hosting
