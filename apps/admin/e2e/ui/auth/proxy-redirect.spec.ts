@@ -39,9 +39,8 @@ test.describe("Protected route redirects", () => {
 
   test("allows access to a protected route with a valid session", async ({
     page,
-    request,
   }) => {
-    await seedAdmin(request)
+    await seedAdmin()
 
     await page.goto("/login")
     await page.getByTestId("login-email-input").fill(DEFAULT_TEST_ADMIN.email)
