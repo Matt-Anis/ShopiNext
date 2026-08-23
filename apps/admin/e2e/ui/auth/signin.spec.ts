@@ -2,9 +2,9 @@ import { test, expect } from "@playwright/test"
 import { resetAuthTables } from "../../utils/db-reset"
 import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async () => {
   await resetAuthTables()
-  await seedAdmin(request)
+  await seedAdmin()
 })
 
 test.describe("Admin sign in", () => {

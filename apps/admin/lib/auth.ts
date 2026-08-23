@@ -1,13 +1,13 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
-import * as adminAuthSchema from "@repo/db/admin/auth-schema";
+import { betterAuth } from "better-auth"
+import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { db } from "@/db"
+import * as adminAuthSchema from "@repo/db/admin/auth-schema"
 
 // Overridable in tests so the cache-staleness path can be exercised without
 // waiting out the real (5 minute default) window.
 const cookieCacheMaxAge = process.env.SESSION_COOKIE_CACHE_MAX_AGE
   ? Number(process.env.SESSION_COOKIE_CACHE_MAX_AGE)
-  : undefined;
+  : undefined
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -27,5 +27,6 @@ export const auth = betterAuth({
   verification: { modelName: "adminVerification" },
   emailAndPassword: {
     enabled: true,
+    disableSignUp: true,
   },
-});
+})

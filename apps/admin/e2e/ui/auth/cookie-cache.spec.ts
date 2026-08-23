@@ -5,9 +5,9 @@ import { resetAuthTables } from "../../utils/db-reset"
 import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
 import { TEST_COOKIE_CACHE_MAX_AGE_SECONDS } from "../../../playwright.config"
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async () => {
   await resetAuthTables()
-  await seedAdmin(request)
+  await seedAdmin()
 })
 
 async function signIn(page: Page) {
