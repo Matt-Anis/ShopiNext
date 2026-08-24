@@ -21,8 +21,12 @@
     "./label": "./components/label.tsx",
     "./scroll-area": "./components/scroll-area.tsx",
     "./separator": "./components/separator.tsx",
+    "./sheet": "./components/sheet.tsx",
+    "./sidebar": "./components/sidebar.tsx",
     "./skeleton": "./components/skeleton.tsx",
     "./toast": "./components/toast.tsx",
+    "./tooltip": "./components/tooltip.tsx",
+    "./hooks/use-mobile": "./hooks/use-mobile.ts",
     "./utils": "./lib/utils.ts"
   },
   "dependencies": {
