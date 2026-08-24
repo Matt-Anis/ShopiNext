@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { admin } from "better-auth/plugins"
 import { db } from "@/db"
 import * as adminAuthSchema from "@repo/db/admin/auth-schema"
+import { sendStaffSetPasswordEmail } from "@/lib/email"
 
 // Overridable in tests so the cache-staleness path can be exercised without
 // waiting out the real (5 minute default) window.
@@ -28,5 +30,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendStaffSetPasswordEmail(user.email, url)
+    },
   },
+  plugins: [admin()],
 })
