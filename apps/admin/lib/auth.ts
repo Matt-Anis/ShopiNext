@@ -1,9 +1,12 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { admin } from "better-auth/plugins"
-import { db } from "@/db"
+// Relative, not "@/", imports here: the better-auth CLI (create-admin/generate/
+// migrate) loads this file directly via jiti, which doesn't resolve our tsconfig
+// path alias — only Next.js's own bundler does.
+import { db } from "../db"
 import * as adminAuthSchema from "@repo/db/admin/auth-schema"
-import { sendStaffSetPasswordEmail } from "@/lib/email"
+import { sendStaffSetPasswordEmail } from "./email"
 
 // Overridable in tests so the cache-staleness path can be exercised without
 // waiting out the real (5 minute default) window.

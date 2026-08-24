@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { UserIcon } from "lucide-react"
+import { ChevronRight, Users } from "lucide-react"
 
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
   Sidebar,
   SidebarContent,
@@ -16,8 +17,13 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@repo/ui/sidebar"
+import { NavUser } from "./nav-user"
 
-export function AppSidebar() {
+export function AppSidebar({
+  user,
+}: {
+  user: { name: string; email: string; image?: string | null }
+}) {
   const pathname = usePathname()
 
   return (
@@ -25,39 +31,42 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton disabled>Staff</SidebarMenuButton>
-              <SidebarMenuSub>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    render={<Link href="/staff" />}
-                    isActive={pathname === "/staff"}
-                  >
-                    All staff
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    render={<Link href="/staff/new" />}
-                    isActive={pathname === "/staff/new"}
-                  >
-                    New staff
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
-            </SidebarMenuItem>
+            <Collapsible defaultOpen>
+              <SidebarMenuItem>
+                <CollapsibleTrigger
+                  render={<SidebarMenuButton className="group/collapsible" />}
+                >
+                  <Users />
+                  Staff
+                  <ChevronRight className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/staff" />}
+                        isActive={pathname === "/staff"}
+                      >
+                        All staff
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/staff/new" />}
+                        isActive={pathname === "/staff/new"}
+                      >
+                        New staff
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/" />} isActive={pathname === "/"}>
-              <UserIcon />
-              Profile
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )
