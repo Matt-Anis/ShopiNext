@@ -13,6 +13,10 @@ export const adminUser = adminSchema.table("admin_user", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  role: text("role"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
 });
 
 export const adminSession = adminSchema.table(
@@ -30,6 +34,7 @@ export const adminSession = adminSchema.table(
     userId: text("user_id")
       .notNull()
       .references(() => adminUser.id, { onDelete: "cascade" }),
+    impersonatedBy: text("impersonated_by"),
   },
   (table) => [index("adminSession_userId_idx").on(table.userId)],
 );
