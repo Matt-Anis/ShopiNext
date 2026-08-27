@@ -78,6 +78,13 @@
       "when": 1786995507532,
       "tag": "0010_create_app_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1787582187508,
+      "tag": "0011_brave_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,14 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { db } from "@/db"
+import { admin } from "better-auth/plugins"
+import { createAuthMiddleware, APIError } from "better-auth/api"
+// Relative, not "@/", imports here: the better-auth CLI (create-admin/generate/
+// migrate) loads this file directly via jiti, which doesn't resolve our tsconfig
+// path alias — only Next.js's own bundler does.
+import { db } from "../db"
 import * as adminAuthSchema from "@repo/db/admin/auth-schema"
+import { sendStaffSetPasswordEmail } from "./email"
+import { passwordSchema } from "./validations/auth"
 
 // Overridable in tests so the cache-staleness path can be exercised without
 // waiting out the real (5 minute default) window.
@@ -28,5 +35,23 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 20,
+    sendResetPassword: async ({ user, url }) => {
+      await sendStaffSetPasswordEmail(user.email, url)
+    },
+  },
+  plugins: [admin()],
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/reset-password") {
+        const result = passwordSchema.safeParse(ctx.body?.newPassword)
+        if (!result.success) {
+          throw new APIError("BAD_REQUEST", {
+            message: result.error.issues[0]?.message ?? "Invalid password",
+          })
+        }
+      }
+    }),
   },
 })
