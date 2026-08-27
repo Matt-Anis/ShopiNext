@@ -67,6 +67,7 @@ export function CreateStaffForm() {
                 name="name"
                 type="text"
                 required
+                className="border-border bg-transparent"
                 data-testid="create-staff-name-input"
               />
             </Field>
@@ -78,6 +79,7 @@ export function CreateStaffForm() {
                 type="email"
                 required
                 placeholder="staff@example.com"
+                className="border-border bg-transparent"
                 data-testid="create-staff-email-input"
               />
             </Field>
