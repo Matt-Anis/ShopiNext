@@ -21,7 +21,7 @@
 - [ ] Order status tracking
 - [ ] Admin panel (product management)
 - [ ] Staff roles & permissions
-- [ ] Staff invite via magic link
+- [x] Staff invite via magic link
 - [ ] Product images
 - [ ] Product categories
 - [ ] Product variants (size, color, stock per variant)
