@@ -40,9 +40,6 @@ jobs:
   e2e:
     name: E2E tests
     runs-on: ubuntu-latest
-    # Image tag must match the @playwright/test version in apps/admin/package.json.
-    # Bumping the dependency requires bumping this tag too, or the browsers baked
-    # into the image will mismatch the test runner's expected version.
     container: mcr.microsoft.com/playwright:v1.62.1-noble
     services:
       postgres:
@@ -62,6 +59,10 @@ jobs:
       DATABASE_URL_TEST: postgresql://admin:secret@postgres:5432/test
       BETTER_AUTH_SECRET: ci-e2e-secret-not-used-in-production
       BETTER_AUTH_URL: http://localhost:3001
+      # Emails are sent fire-and-forget (better-auth's runInBackgroundOrAwait
+      # just logs a failure, it doesn't fail the request), so a dummy key is
+      # enough to satisfy Resend's constructor — no real account needed.
+      RESEND_API_KEY: re_ci_dummy_key
     steps:
       - uses: actions/checkout@v4
 
