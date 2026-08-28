@@ -1,12 +1,6 @@
 # ⚠️ This project is still under development
 
-## Database
-
-Migrations run as a Postgres superuser (see `docker-compose.yml` / `.env.local`).
-That role's name must never match a schema name in `packages/db` (currently
-`public`, `admin`) — Postgres's default `search_path` is `"$user", public`, so a
-role named e.g. `admin` silently shadows the `public` schema for any
-unqualified `CREATE TABLE`, routing new tables into the wrong schema.
+See [`docs/database.md`](./docs/database.md) for database setup notes.
 
 ## Features
 
