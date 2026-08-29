@@ -38,7 +38,10 @@ export function getColumns({
       accessorKey: "description",
       header: "Description",
       cell: ({ row }) => (
-        <span className="text-muted-foreground">
+        <span
+          className="block max-w-xs truncate text-muted-foreground"
+          title={row.original.description ?? undefined}
+        >
           {row.original.description ?? "—"}
         </span>
       ),
