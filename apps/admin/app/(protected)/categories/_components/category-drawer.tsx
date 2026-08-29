@@ -77,6 +77,7 @@ export function CategoryDrawer({
 
         <form
           onSubmit={handleSubmit}
+          data-testid="category-form"
           className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4"
         >
           <FieldGroup>
@@ -89,6 +90,7 @@ export function CategoryDrawer({
                 required
                 defaultValue={category?.name}
                 className="border-border bg-transparent"
+                data-testid="category-name-input"
               />
             </Field>
             <Field>
@@ -98,6 +100,7 @@ export function CategoryDrawer({
                 name="description"
                 defaultValue={category?.description ?? ""}
                 className="border-border bg-transparent"
+                data-testid="category-description-input"
               />
             </Field>
           </FieldGroup>
@@ -106,7 +109,11 @@ export function CategoryDrawer({
             <DrawerClose render={<Button type="button" variant="outline" />}>
               Cancel
             </DrawerClose>
-            <Button type="submit" disabled={isPending}>
+            <Button
+              type="submit"
+              disabled={isPending}
+              data-testid="category-submit-button"
+            >
               {isEditing ? "Save changes" : "Create category"}
             </Button>
           </DrawerFooter>

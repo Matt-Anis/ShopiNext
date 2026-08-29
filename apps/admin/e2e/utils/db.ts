@@ -3,11 +3,12 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { like } from "drizzle-orm";
 import * as adminAuthSchema from "@repo/db/admin/auth-schema";
 import { adminVerification } from "@repo/db/admin/auth-schema";
+import * as publicSchema from "@repo/db/public/schema";
 
 config({ path: ".env.local" });
 
 export const testDb = drizzle(process.env.DATABASE_URL_TEST!, {
-  schema: { ...adminAuthSchema },
+  schema: { ...adminAuthSchema, ...publicSchema },
 });
 
 // Password reset tokens live in the `adminVerification` table as

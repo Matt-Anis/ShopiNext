@@ -86,6 +86,7 @@ export function DataTable<TData, TValue>({
               table.getColumn(searchColumn)?.setFilterValue(event.target.value)
             }
             className="pl-9"
+            data-testid="data-table-search-input"
           />
         </div>
       )}

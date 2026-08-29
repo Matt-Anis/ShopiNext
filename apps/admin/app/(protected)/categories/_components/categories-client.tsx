@@ -34,7 +34,10 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Categories</h1>
-        <Button onClick={() => setDrawerState({ mode: "create" })}>
+        <Button
+          onClick={() => setDrawerState({ mode: "create" })}
+          data-testid="new-category-button"
+        >
           <Plus />
           New category
         </Button>
