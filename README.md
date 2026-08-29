@@ -1,5 +1,7 @@
 # ⚠️ This project is still under development
 
+See [`docs/database.md`](./docs/database.md) for database setup notes.
+
 ## Features
 
 ### MVP

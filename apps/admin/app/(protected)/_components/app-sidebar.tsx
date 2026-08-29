@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, Users } from "lucide-react"
+import { ChevronRight, FolderTree, Users } from "lucide-react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
@@ -62,6 +62,15 @@ export function AppSidebar({
                 </CollapsibleContent>
               </SidebarMenuItem>
             </Collapsible>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link href="/categories" />}
+                isActive={pathname === "/categories"}
+              >
+                <FolderTree />
+                Categories
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

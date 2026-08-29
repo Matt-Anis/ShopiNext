@@ -4,7 +4,10 @@ services:
     container_name: store_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
+      # Must not match any schema name in packages/db (e.g. "admin", "public") —
+      # Postgres's default search_path is "$user", public, so a role named the
+      # same as a schema silently shadows public for unqualified CREATE TABLE.
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: store
     ports:

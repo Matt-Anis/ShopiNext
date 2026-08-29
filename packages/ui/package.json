@@ -27,6 +27,7 @@
     "./sidebar": "./components/sidebar.tsx",
     "./skeleton": "./components/skeleton.tsx",
     "./table": "./components/table.tsx",
+    "./textarea": "./components/textarea.tsx",
     "./toast": "./components/toast.tsx",
     "./tooltip": "./components/tooltip.tsx",
     "./hooks/use-mobile": "./hooks/use-mobile.ts",
