@@ -61,7 +61,10 @@ export function getColumns({
       header: "Created",
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {row.original.createdAt.toLocaleDateString()}
+          {row.original.createdAt.toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
         </span>
       ),
     },
@@ -70,7 +73,10 @@ export function getColumns({
       header: "Updated",
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {row.original.updatedAt.toLocaleDateString()}
+          {row.original.updatedAt.toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
         </span>
       ),
     },
