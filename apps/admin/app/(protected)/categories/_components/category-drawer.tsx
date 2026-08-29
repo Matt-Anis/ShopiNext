@@ -3,6 +3,7 @@
 import { useTransition } from "react"
 
 import type { Category } from "./columns"
+import { createCategory, updateCategory } from "@/features/categories/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
 import {
@@ -39,10 +40,9 @@ export function CategoryDrawer({
     const description = formData.get("description") as string
 
     startTransition(async () => {
-      // TODO: wire to createCategory / updateCategory server action
-      const submitPromise = Promise.resolve(
-        console.log({ id: category?.id, name, description })
-      )
+      const submitPromise = isEditing
+        ? updateCategory(category.id, name, description)
+        : createCategory(name, description)
 
       await toast
         .promise(submitPromise, {

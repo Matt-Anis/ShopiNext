@@ -3,6 +3,7 @@
 import { useTransition } from "react"
 
 import type { Category } from "./columns"
+import { deleteCategory } from "@/features/categories/actions"
 import { toast } from "@repo/ui/toast"
 import {
   AlertDialog,
@@ -30,8 +31,7 @@ export function DeleteCategoryDialog({
     if (!category) return
 
     startTransition(async () => {
-      // TODO: wire to deleteCategory server action
-      const deletePromise = Promise.resolve(console.log({ id: category.id }))
+      const deletePromise = deleteCategory(category.id)
 
       await toast
         .promise(deletePromise, {
