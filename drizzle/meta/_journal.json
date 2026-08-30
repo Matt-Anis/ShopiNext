@@ -92,6 +92,13 @@
       "when": 1787955700662,
       "tag": "0012_black_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788111119197,
+      "tag": "0013_fat_stature",
+      "breakpoints": true
     }
   ]
 }

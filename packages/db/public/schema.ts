@@ -19,13 +19,86 @@ export const products = pgTable(
     name: text().notNull(),
     slug: text().unique().notNull(),
     description: text(),
-    price: integer().notNull().default(0),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
       .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [index("products_createdAt_id_idx").on(table.createdAt, table.id)],
+);
+
+export const productOptions = pgTable(
+  "product_options",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    productId: uuid()
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+  },
+  (table) => [
+    unique("product_options_productId_name_unique").on(
+      table.productId,
+      table.name,
+    ),
+    index("product_options_productId_idx").on(table.productId),
+  ],
+);
+
+export const productOptionValues = pgTable(
+  "product_option_values",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    optionId: uuid()
+      .notNull()
+      .references(() => productOptions.id, { onDelete: "cascade" }),
+    value: text().notNull(),
+  },
+  (table) => [
+    unique("product_option_values_optionId_value_unique").on(
+      table.optionId,
+      table.value,
+    ),
+    index("product_option_values_optionId_idx").on(table.optionId),
+  ],
+);
+
+export const productVariants = pgTable(
+  "product_variants",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    productId: uuid()
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    sku: text().unique().notNull(),
+    price: integer().notNull().default(0),
+    stock: integer().notNull().default(0),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("product_variants_productId_idx").on(table.productId)],
+);
+
+export const variantOptionValues = pgTable(
+  "variant_option_values",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    variantId: uuid()
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "cascade" }),
+    optionValueId: uuid()
+      .notNull()
+      .references(() => productOptionValues.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    unique("variant_option_values_variantId_optionValueId_unique").on(
+      table.variantId,
+      table.optionValueId,
+    ),
+    index("variant_option_values_optionValueId_idx").on(table.optionValueId),
+  ],
 );
 
 export const images = pgTable(
@@ -94,15 +167,15 @@ export const cartItems = pgTable(
     cartId: uuid()
       .notNull()
       .references(() => cart.id, { onDelete: "cascade" }),
-    productId: uuid()
+    variantId: uuid()
       .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
+      .references(() => productVariants.id, { onDelete: "cascade" }),
     quantity: integer().notNull().default(1),
   },
   (table) => [
-    unique("cart_items_cartId_productId_unique").on(
+    unique("cart_items_cartId_variantId_unique").on(
       table.cartId,
-      table.productId,
+      table.variantId,
     ),
   ],
 );
@@ -124,9 +197,9 @@ export const orderItems = pgTable("order_items", {
   orderId: uuid()
     .notNull()
     .references(() => orders.id, { onDelete: "cascade" }),
-  productId: uuid()
+  variantId: uuid()
     .notNull()
-    .references(() => products.id),
+    .references(() => productVariants.id),
   priceAtPurchase: integer().notNull(),
   quantity: integer().notNull().default(1),
 });
@@ -134,6 +207,8 @@ export const orderItems = pgTable("order_items", {
 export const productsRelations = relations(products, ({ many }) => ({
   images: many(images),
   productCategories: many(productCategories),
+  options: many(productOptions),
+  variants: many(productVariants),
 }));
 
 export const imagesRelations = relations(images, ({ one }) => ({
@@ -142,6 +217,53 @@ export const imagesRelations = relations(images, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+export const productOptionsRelations = relations(
+  productOptions,
+  ({ one, many }) => ({
+    product: one(products, {
+      fields: [productOptions.productId],
+      references: [products.id],
+    }),
+    values: many(productOptionValues),
+  }),
+);
+
+export const productOptionValuesRelations = relations(
+  productOptionValues,
+  ({ one, many }) => ({
+    option: one(productOptions, {
+      fields: [productOptionValues.optionId],
+      references: [productOptions.id],
+    }),
+    variantOptionValues: many(variantOptionValues),
+  }),
+);
+
+export const productVariantsRelations = relations(
+  productVariants,
+  ({ one, many }) => ({
+    product: one(products, {
+      fields: [productVariants.productId],
+      references: [products.id],
+    }),
+    variantOptionValues: many(variantOptionValues),
+  }),
+);
+
+export const variantOptionValuesRelations = relations(
+  variantOptionValues,
+  ({ one }) => ({
+    variant: one(productVariants, {
+      fields: [variantOptionValues.variantId],
+      references: [productVariants.id],
+    }),
+    optionValue: one(productOptionValues, {
+      fields: [variantOptionValues.optionValueId],
+      references: [productOptionValues.id],
+    }),
+  }),
+);
 
 export const categoriesRelations = relations(categories, ({ many, one }) => ({
   productCategories: many(productCategories),
@@ -174,8 +296,19 @@ export const cartItemsRelations = relations(cartItems, ({ one }) => ({
     fields: [cartItems.cartId],
     references: [cart.id],
   }),
-  product: one(products, {
-    fields: [cartItems.productId],
-    references: [products.id],
+  variant: one(productVariants, {
+    fields: [cartItems.variantId],
+    references: [productVariants.id],
+  }),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  variant: one(productVariants, {
+    fields: [orderItems.variantId],
+    references: [productVariants.id],
   }),
 }));
