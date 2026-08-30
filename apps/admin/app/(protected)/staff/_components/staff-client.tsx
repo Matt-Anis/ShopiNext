@@ -38,6 +38,7 @@ export function StaffClient({ users }: StaffClientProps) {
         emptyTitle="No staff members yet"
         emptyDescription="Staff you add will appear here."
         emptyTestId="staff-empty-state"
+        tableId="staff"
       />
     </>
   )

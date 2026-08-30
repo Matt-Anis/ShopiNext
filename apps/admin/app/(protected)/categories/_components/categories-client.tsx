@@ -52,6 +52,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
         emptyTitle="No categories yet"
         emptyDescription="Categories you add will appear here."
         emptyTestId="categories-empty-state"
+        tableId="categories"
       />
 
       <CategoryDrawer
