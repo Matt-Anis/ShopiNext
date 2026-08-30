@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type ColumnOrderState,
   type OnChangeFn,
   type SortingState,
   type VisibilityState,
@@ -16,18 +17,16 @@ import {
 import {
   ArrowDown,
   ArrowUp,
+  Check,
+  ChevronDown,
   ChevronsUpDown,
+  ChevronUp,
   Columns3,
   Search,
 } from "lucide-react";
 
 import { Button } from "./button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./dropdown-menu";
 import { Input } from "./input";
 import {
   Table,
@@ -48,6 +47,10 @@ import { cn } from "../lib/utils";
 
 function getColumnVisibilityStorageKey(tableId: string) {
   return `data-table:${tableId}:column-visibility`;
+}
+
+function getColumnOrderStorageKey(tableId: string) {
+  return `data-table:${tableId}:column-order`;
 }
 
 interface DataTableProps<TData, TValue> {
@@ -79,6 +82,7 @@ export function DataTable<TData, TValue>({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [columnOrder, setColumnOrder] = React.useState<ColumnOrderState>([]);
 
   React.useEffect(() => {
     if (!tableId) return;
@@ -89,6 +93,14 @@ export function DataTable<TData, TValue>({
       if (stored) setColumnVisibility(JSON.parse(stored));
     } catch {
       // localStorage unavailable or value malformed — fall back to all columns visible
+    }
+    try {
+      const stored = window.localStorage.getItem(
+        getColumnOrderStorageKey(tableId),
+      );
+      if (stored) setColumnOrder(JSON.parse(stored));
+    } catch {
+      // localStorage unavailable or value malformed — fall back to definition order
     }
   }, [tableId]);
 
@@ -113,6 +125,27 @@ export function DataTable<TData, TValue>({
       [tableId],
     );
 
+  const handleColumnOrderChange: OnChangeFn<ColumnOrderState> =
+    React.useCallback(
+      (updater) => {
+        setColumnOrder((old) => {
+          const next = typeof updater === "function" ? updater(old) : updater;
+          if (tableId) {
+            try {
+              window.localStorage.setItem(
+                getColumnOrderStorageKey(tableId),
+                JSON.stringify(next),
+              );
+            } catch {
+              // ignore storage write failures (e.g. private browsing quota)
+            }
+          }
+          return next;
+        });
+      },
+      [tableId],
+    );
+
   const table = useReactTable({
     data,
     columns,
@@ -122,14 +155,47 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: handleColumnVisibilityChange,
+    onColumnOrderChange: handleColumnOrderChange,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      columnOrder,
     },
   });
 
   const rows = table.getRowModel().rows;
+
+  const orderedColumnIds =
+    columnOrder.length > 0
+      ? [
+          ...columnOrder.filter((id) => table.getColumn(id)),
+          ...table
+            .getAllLeafColumns()
+            .map((column) => column.id)
+            .filter((id) => !columnOrder.includes(id)),
+        ]
+      : table.getAllLeafColumns().map((column) => column.id);
+
+  const reorderableColumns = orderedColumnIds
+    .map((id) => table.getColumn(id))
+    .filter((column): column is NonNullable<typeof column> =>
+      Boolean(column?.getCanHide())
+    );
+
+  function moveColumn(columnId: string, direction: -1 | 1) {
+    const currentIndex = orderedColumnIds.indexOf(columnId);
+    const targetIndex = currentIndex + direction;
+    const targetId = orderedColumnIds[targetIndex];
+    if (!targetId || !table.getColumn(targetId)?.getCanHide()) return;
+
+    const next = [...orderedColumnIds];
+    [next[currentIndex], next[targetIndex]] = [
+      next[targetIndex],
+      next[currentIndex],
+    ];
+    handleColumnOrderChange(next);
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -170,23 +236,57 @@ export function DataTable<TData, TValue>({
                 </Button>
               }
             />
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
+            <DropdownMenuContent align="end" className="w-64">
+              {reorderableColumns.map((column, index) => {
+                const label =
+                  typeof column.columnDef.header === "string"
+                    ? column.columnDef.header
+                    : column.id;
+                const isVisible = column.getIsVisible();
+
+                return (
+                  <div
                     key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(checked) =>
-                      column.toggleVisibility(checked)
-                    }
+                    className="flex items-center gap-1 rounded-2xl px-1.5 py-1"
                   >
-                    {typeof column.columnDef.header === "string"
-                      ? column.columnDef.header
-                      : column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
+                    <button
+                      type="button"
+                      className="flex flex-1 items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-sm font-medium hover:bg-accent"
+                      onClick={() => column.toggleVisibility(!isVisible)}
+                    >
+                      <span
+                        className={cn(
+                          "flex size-4 shrink-0 items-center justify-center rounded-sm border border-input",
+                          isVisible && "border-primary bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {isVisible && <Check className="size-3" />}
+                      </span>
+                      {label}
+                    </button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      disabled={index === 0}
+                      onClick={() => moveColumn(column.id, -1)}
+                    >
+                      <ChevronUp />
+                      <span className="sr-only">Move {label} up</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      disabled={index === reorderableColumns.length - 1}
+                      onClick={() => moveColumn(column.id, 1)}
+                    >
+                      <ChevronDown />
+                      <span className="sr-only">Move {label} down</span>
+                    </Button>
+                  </div>
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
