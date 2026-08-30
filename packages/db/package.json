@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./public/schema": "./public/schema.ts",
+    "./public/schema": "./public/schema/index.ts",
     "./public/auth-schema": "./public/auth-schema.ts",
     "./admin/schema": "./admin/schema.ts",
     "./admin/auth-schema": "./admin/auth-schema.ts"
