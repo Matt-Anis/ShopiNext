@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table"
 import { ArrowDown, ArrowUp, ChevronsUpDown, Search } from "lucide-react"
 
-import { Input } from "@repo/ui/input"
+import { Input } from "./input"
 import {
   Table,
   TableBody,
@@ -21,15 +21,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/table"
+} from "./table"
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/empty"
-import { cn } from "@repo/ui/utils"
+} from "./empty"
+import { cn } from "../lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -39,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   emptyTitle: string
   emptyDescription: string
   emptyIcon: React.ReactNode
+  emptyTestId?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -49,6 +50,7 @@ export function DataTable<TData, TValue>({
   emptyTitle,
   emptyDescription,
   emptyIcon,
+  emptyTestId,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -92,7 +94,7 @@ export function DataTable<TData, TValue>({
       )}
 
       {data.length === 0 ? (
-        <Empty className="border-none" data-testid="categories-empty-state">
+        <Empty className="border-none" data-testid={emptyTestId}>
           <EmptyHeader>
             <EmptyMedia variant="icon">{emptyIcon}</EmptyMedia>
             <EmptyTitle>{emptyTitle}</EmptyTitle>

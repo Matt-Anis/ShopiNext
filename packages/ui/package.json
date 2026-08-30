@@ -13,6 +13,7 @@
     "./card": "./components/card.tsx",
     "./carousel": "./components/carousel.tsx",
     "./collapsible": "./components/collapsible.tsx",
+    "./data-table": "./components/data-table.tsx",
     "./dialog": "./components/dialog.tsx",
     "./drawer": "./components/drawer.tsx",
     "./dropdown-menu": "./components/dropdown-menu.tsx",
@@ -34,6 +35,7 @@
     "./utils": "./lib/utils.ts"
   },
   "dependencies": {
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
