@@ -5,7 +5,7 @@ import { FolderTree, Plus } from "lucide-react"
 
 import type { Category } from "./columns"
 import { getColumns } from "./columns"
-import { DataTable } from "./data-table"
+import { DataTable } from "@repo/ui/data-table"
 import { CategoryDrawer } from "./category-drawer"
 import { DeleteCategoryDialog } from "./delete-category-dialog"
 import { Button } from "@repo/ui/button"
@@ -51,6 +51,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
         emptyIcon={<FolderTree />}
         emptyTitle="No categories yet"
         emptyDescription="Categories you add will appear here."
+        emptyTestId="categories-empty-state"
       />
 
       <CategoryDrawer
