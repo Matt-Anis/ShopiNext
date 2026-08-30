@@ -84,6 +84,7 @@ export function getColumns({
       id: "actions",
       header: "",
       enableSorting: false,
+      enableHiding: false,
       cell: ({ row }) => {
         const category = row.original
 
