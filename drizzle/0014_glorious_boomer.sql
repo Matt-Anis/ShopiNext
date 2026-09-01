@@ -1,0 +1,2 @@
+ALTER TABLE "products" ADD COLUMN "minPrice" integer;--> statement-breakpoint
+CREATE INDEX "products_minPrice_id_idx" ON "products" USING btree ("minPrice","id") WHERE "products"."minPrice" is not null;
