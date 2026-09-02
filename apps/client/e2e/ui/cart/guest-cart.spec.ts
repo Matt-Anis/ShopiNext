@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { eq } from "drizzle-orm";
+import { productVariants } from "@repo/db/public/schema";
+import { testDb } from "../../utils/db";
 import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, DEFAULT_TEST_PRODUCT } from "../../utils/seed-product";
-import { clickUntilHydrated } from "../../utils/interaction";
+import { clickUntilHydrated, visible } from "../../utils/interaction";
 
 test.beforeEach(async () => {
   await resetCartTables();
@@ -134,5 +137,32 @@ test.describe("Guest cart", () => {
       "1 in cart",
     );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
+  });
+
+  test("a cookie entry referencing a deleted variant is pruned automatically", async ({
+    page,
+  }) => {
+    const product = await seedProduct({
+      name: "Deleted Variant Product",
+      slug: "deleted-variant-product",
+    });
+
+    await page.goto(`/products/${product.slug}`);
+    await clickUntilHydrated(visible(page, "cart-control-add"), () =>
+      expect(visible(page, "cart-control-quantity")).toHaveText(
+        "1 in cart",
+        { timeout: 1000 },
+      ),
+    );
+    await expect(page.getByTestId("cart-badge")).toHaveText("1");
+    await expect(visible(page, "cart-control-decrement")).toBeEnabled();
+
+    await testDb
+      .delete(productVariants)
+      .where(eq(productVariants.id, product.variant.id));
+
+    await page.reload();
+
+    await expect(page.getByTestId("cart-badge")).not.toBeVisible();
   });
 });
