@@ -101,7 +101,10 @@ export const getAllProducts = async ({
 
   // isNotNull(products.minPrice) above guarantees every row has a price;
   // narrow the type here so callers don't have to re-cast it.
-  const rows = rawRows.map((row) => ({ ...row, minPrice: row.minPrice as number }))
+  const rows = rawRows.map((row) => ({
+    ...row,
+    minPrice: row.minPrice as number,
+  }))
 
   const last = rows.at(-1)
   const nextCursor: ProductCursor | null =
@@ -122,11 +125,33 @@ export const getProductBySlug = async (slug: string) => {
       images: {
         orderBy: desc(images.isPrimary),
       },
+      options: {
+        with: {
+          values: true,
+        },
+      },
+      variants: {
+        with: {
+          variantOptionValues: true,
+        },
+      },
     },
   })
 
-  return product ?? null
+  if (!product) return null
+
+  return {
+    ...product,
+    variants: product.variants.map(({ variantOptionValues, ...variant }) => ({
+      ...variant,
+      optionValueIds: variantOptionValues.map((v) => v.optionValueId),
+    })),
+  }
 }
+
+export type ProductDetail = NonNullable<
+  Awaited<ReturnType<typeof getProductBySlug>>
+>
 
 export const getProductsByIds = async (ids: string[]) => {
   if (ids.length === 0) return []
