@@ -1,7 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { eq } from "drizzle-orm";
 import { testDb } from "../../utils/db";
-import { orders, orderItems, cart, cartItems } from "@repo/db/public/schema";
+import {
+  orders,
+  orderItems,
+  cart,
+  cartItems,
+  productVariants,
+} from "@repo/db/public/schema";
 import {
   resetAuthTables,
   resetCartTables,
@@ -12,7 +18,9 @@ import { seedProduct } from "../../utils/seed-product";
 import {
   createTestCheckoutSession,
   buildSignedCheckoutEvent,
+  createConfirmedTestPaymentIntent,
 } from "../../utils/checkout";
+import { testStripe } from "../../utils/stripe";
 
 test.beforeEach(async () => {
   await resetOrderTables();
@@ -47,9 +55,9 @@ test.describe("POST /api/webhooks/stripe", () => {
   }) => {
     const product = await seedProduct();
     const session = await createTestCheckoutSession({
-      productId: product.id,
+      variantId: product.variant.id,
       productName: product.name,
-      unitAmount: product.price,
+      unitAmount: product.variant.price,
       source: "cart",
     });
 
@@ -86,15 +94,104 @@ test.describe("POST /api/webhooks/stripe", () => {
       .where(eq(orderItems.orderId, order.id));
 
     expect(items).toHaveLength(1);
-    expect(items[0].productId).toBe(product.id);
-    expect(items[0].priceAtPurchase).toBe(product.price);
+    expect(items[0].variantId).toBe(product.variant.id);
+    expect(items[0].priceAtPurchase).toBe(product.variant.price);
+  });
+
+  test("decrements variant stock by the purchased quantity", async ({
+    request,
+  }) => {
+    const product = await seedProduct({ stock: 10 });
+    const session = await createTestCheckoutSession({
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
+      quantity: 3,
+      source: "cart",
+    });
+
+    const { body, signature } = buildSignedCheckoutEvent({
+      sessionId: session.id,
+      customerEmail: "guest@example.com",
+      amountTotal: session.amount_total!,
+      metadata: { source: "cart" },
+    });
+
+    await request.post("/api/webhooks/stripe", {
+      data: body,
+      headers: {
+        "content-type": "application/json",
+        "stripe-signature": signature,
+      },
+    });
+
+    const [variant] = await testDb
+      .select()
+      .from(productVariants)
+      .where(eq(productVariants.id, product.variant.id));
+
+    expect(variant.stock).toBe(7);
+  });
+
+  test("refunds the payment and creates no order when stock runs out before the webhook fires", async ({
+    request,
+  }) => {
+    const product = await seedProduct({ stock: 5 });
+    const session = await createTestCheckoutSession({
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
+      quantity: 5,
+      source: "cart",
+    });
+    const paymentIntent = await createConfirmedTestPaymentIntent(
+      session.amount_total!,
+    );
+
+    await testDb
+      .update(productVariants)
+      .set({ stock: 2 })
+      .where(eq(productVariants.id, product.variant.id));
+
+    const { body, signature } = buildSignedCheckoutEvent({
+      sessionId: session.id,
+      customerEmail: "guest@example.com",
+      amountTotal: session.amount_total!,
+      metadata: { source: "cart" },
+      paymentIntent: paymentIntent.id,
+    });
+
+    const response = await request.post("/api/webhooks/stripe", {
+      data: body,
+      headers: {
+        "content-type": "application/json",
+        "stripe-signature": signature,
+      },
+    });
+
+    expect(response.ok()).toBe(true);
+
+    const matches = await testDb
+      .select()
+      .from(orders)
+      .where(eq(orders.stripeSessionId, session.id));
+    expect(matches).toHaveLength(0);
+
+    const [variant] = await testDb
+      .select()
+      .from(productVariants)
+      .where(eq(productVariants.id, product.variant.id));
+    expect(variant.stock).toBe(2);
+
+    const refunds = await testStripe.refunds.list({
+      payment_intent: paymentIntent.id,
+    });
+    expect(refunds.data).toHaveLength(1);
   });
 
   test("is idempotent for a redelivered event", async ({ request }) => {
     const product = await seedProduct();
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       source: "cart",
     });
 
@@ -122,6 +219,13 @@ test.describe("POST /api/webhooks/stripe", () => {
       .where(eq(orders.stripeSessionId, session.id));
 
     expect(matches).toHaveLength(1);
+
+    const [variant] = await testDb
+      .select()
+      .from(productVariants)
+      .where(eq(productVariants.id, product.variant.id));
+
+    expect(variant.stock).toBe(product.variant.stock - 1);
   });
 
   test("ignores a session whose payment_status is not paid", async ({
@@ -129,8 +233,8 @@ test.describe("POST /api/webhooks/stripe", () => {
   }) => {
     const product = await seedProduct();
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       source: "cart",
     });
 
@@ -167,19 +271,21 @@ test.describe("POST /api/webhooks/stripe", () => {
     const [seededUser] = await testDb.query.user.findMany({
       where: (fields, { eq }) => eq(fields.email, credentials.email),
     });
-    const product = await seedProduct();
+    const product = await seedProduct({ stock: 10 });
 
     const [seededCart] = await testDb
       .insert(cart)
       .values({ userId: seededUser.id })
       .returning();
-    await testDb
-      .insert(cartItems)
-      .values({ cartId: seededCart.id, productId: product.id, quantity: 2 });
+    await testDb.insert(cartItems).values({
+      cartId: seededCart.id,
+      variantId: product.variant.id,
+      quantity: 2,
+    });
 
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       userId: seededUser.id,
       source: "buy-now",
     });
@@ -205,8 +311,8 @@ test.describe("POST /api/webhooks/stripe", () => {
     expect(remainingAfterBuyNow).toHaveLength(1);
 
     const cartSession = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       userId: seededUser.id,
       source: "cart",
     });

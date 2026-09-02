@@ -22,13 +22,15 @@ test.describe("GET /api/checkout/complete", () => {
     await page.context().addCookies([
       {
         ...CART_COOKIE,
-        value: JSON.stringify([{ productId: product.id, quantity: 1 }]),
+        value: JSON.stringify([
+          { variantId: product.variant.id, quantity: 1 },
+        ]),
       },
     ]);
 
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       source: "cart",
     });
 
@@ -45,13 +47,15 @@ test.describe("GET /api/checkout/complete", () => {
     await page.context().addCookies([
       {
         ...CART_COOKIE,
-        value: JSON.stringify([{ productId: product.id, quantity: 1 }]),
+        value: JSON.stringify([
+          { variantId: product.variant.id, quantity: 1 },
+        ]),
       },
     ]);
 
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       source: "buy-now",
     });
 
@@ -74,13 +78,15 @@ test.describe("GET /api/checkout/complete", () => {
       .insert(cart)
       .values({ userId: seededUser.id })
       .returning();
-    await testDb
-      .insert(cartItems)
-      .values({ cartId: seededCart.id, productId: product.id, quantity: 1 });
+    await testDb.insert(cartItems).values({
+      cartId: seededCart.id,
+      variantId: product.variant.id,
+      quantity: 1,
+    });
 
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       userId: seededUser.id,
       source: "cart",
     });
@@ -109,13 +115,15 @@ test.describe("GET /api/checkout/complete", () => {
       .insert(cart)
       .values({ userId: seededUser.id })
       .returning();
-    await testDb
-      .insert(cartItems)
-      .values({ cartId: seededCart.id, productId: product.id, quantity: 1 });
+    await testDb.insert(cartItems).values({
+      cartId: seededCart.id,
+      variantId: product.variant.id,
+      quantity: 1,
+    });
 
     const session = await createTestCheckoutSession({
-      productId: product.id,
-      unitAmount: product.price,
+      variantId: product.variant.id,
+      unitAmount: product.variant.price,
       userId: seededUser.id,
       source: "buy-now",
     });
