@@ -1,13 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
+import { visible } from "../../utils/interaction";
 
 test.beforeEach(async () => {
   await resetCartTables();
 });
-
-const visible = (page: Page, testId: string) =>
-  page.getByTestId(testId).and(page.locator(":visible"));
 
 test.describe("Product detail variant picker", () => {
   test("a product with no options shows its price with no pills", async ({
@@ -104,5 +102,87 @@ test.describe("Product detail variant picker", () => {
 
     await missingSize.hover();
     await expect(page.getByText("Not available")).toBeVisible();
+  });
+
+  test("no selection shows a disabled Select options for both add-to-cart and buy-now", async ({
+    page,
+  }) => {
+    const product = await seedProductWithVariants({
+      slug: "no-selection-combo-product",
+      options: [{ name: "Size", values: ["S", "M"] }],
+      variants: [
+        { values: { Size: "S" }, price: 1000, stock: 5 },
+        { values: { Size: "M" }, price: 1200, stock: 5 },
+      ],
+    });
+    await page.goto(`/products/${product.slug}`);
+
+    const selectOptionsButtons = page
+      .getByRole("button", { name: "Select options" })
+      .and(page.locator(":visible"));
+    await expect(selectOptionsButtons).toHaveCount(2);
+
+    for (const button of await selectOptionsButtons.all()) {
+      await expect(button).toBeDisabled();
+    }
+  });
+
+  test("a full multi-option selection adds the exact variant with a combined option label", async ({
+    page,
+  }) => {
+    const product = await seedProductWithVariants({
+      slug: "combo-label-product",
+      options: [
+        { name: "Color", values: ["Red", "Blue"] },
+        { name: "Size", values: ["S", "M"] },
+      ],
+      variants: [
+        { values: { Color: "Red", Size: "S" }, price: 1000, stock: 5 },
+        { values: { Color: "Blue", Size: "M" }, price: 1300, stock: 5 },
+      ],
+    });
+    await page.goto(`/products/${product.slug}`);
+
+    await visible(page, "variant-pill-Color-Blue").click();
+    await visible(page, "variant-pill-Size-M").click();
+    await visible(page, "cart-control-add").click();
+    await expect(visible(page, "cart-control-quantity")).toHaveText(
+      "1 in cart",
+    );
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.getByTestId("cart-trigger").click();
+    const drawer = page.getByTestId("cart-drawer-content");
+
+    await expect(drawer.getByText("Blue / M", { exact: true })).toBeVisible();
+    await expect(drawer.getByTestId("cart-item-price")).toHaveText("$13.00");
+  });
+
+  test("switching the selection shows Add to Cart for the newly selected variant, not the previous one's quantity", async ({
+    page,
+  }) => {
+    const product = await seedProductWithVariants({
+      slug: "switch-selection-product",
+      options: [{ name: "Size", values: ["S", "M"] }],
+      variants: [
+        { values: { Size: "S" }, price: 1000, stock: 5 },
+        { values: { Size: "M" }, price: 1200, stock: 5 },
+      ],
+    });
+    await page.goto(`/products/${product.slug}`);
+
+    await visible(page, "variant-pill-Size-S").click();
+    await visible(page, "cart-control-add").click();
+    await expect(visible(page, "cart-control-quantity")).toHaveText(
+      "1 in cart",
+    );
+
+    await visible(page, "variant-pill-Size-M").click();
+    await expect(visible(page, "cart-control-add")).toBeVisible();
+
+    await visible(page, "variant-pill-Size-S").click();
+    await expect(visible(page, "cart-control-quantity")).toHaveText(
+      "1 in cart",
+    );
   });
 });

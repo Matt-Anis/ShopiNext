@@ -1,4 +1,9 @@
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+
+// The PDP renders its add-to-cart controls twice (mobile sticky bar and
+// desktop sidebar); only one is actually visible at a given viewport.
+export const visible = (page: Page, testId: string) =>
+  page.getByTestId(testId).and(page.locator(":visible"));
 
 // A freshly loaded page can paint a client component's button before React
 // finishes hydrating it, so a click in that window reaches no listener and
