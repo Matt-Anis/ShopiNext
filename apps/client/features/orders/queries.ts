@@ -44,6 +44,7 @@ export const createOrder = async ({
           and(
             eq(productVariants.id, item.variantId),
             gte(productVariants.stock, item.quantity),
+            gte(productVariants.maxPerOrder, item.quantity),
           ),
         )
         .returning({ id: productVariants.id });
