@@ -18,9 +18,15 @@ export async function seedProduct(
   overrides: Partial<typeof DEFAULT_TEST_PRODUCT> & {
     price?: number;
     stock?: number;
+    maxPerOrder?: number;
   } = {},
 ) {
-  const { price = 1000, stock = 10, ...productOverrides } = overrides;
+  const {
+    price = 1000,
+    stock = 10,
+    maxPerOrder = 10,
+    ...productOverrides
+  } = overrides;
   const values = { ...DEFAULT_TEST_PRODUCT, ...productOverrides };
 
   const [product] = await testDb.insert(products).values(values).returning();
@@ -34,7 +40,13 @@ export async function seedProduct(
 
   const [variant] = await testDb
     .insert(productVariants)
-    .values({ productId: product.id, sku: `${product.slug}-default`, price, stock })
+    .values({
+      productId: product.id,
+      sku: `${product.slug}-default`,
+      price,
+      stock,
+      maxPerOrder,
+    })
     .returning();
 
   return { ...product, variant };
@@ -44,6 +56,7 @@ type VariantSpec = {
   values: Record<string, string>;
   price: number;
   stock: number;
+  maxPerOrder?: number;
 };
 
 export async function seedProductWithVariants(
@@ -90,6 +103,7 @@ export async function seedProductWithVariants(
         sku: `${product.slug}-${index}`,
         price: variant.price,
         stock: variant.stock,
+        maxPerOrder: variant.maxPerOrder ?? 10,
       })
       .returning();
 

@@ -61,6 +61,7 @@ export function ProductCard({ product }: { product: Product }) {
                 id: singleVariant.id,
                 price: singleVariant.price,
                 stock: singleVariant.stock,
+                maxPerOrder: singleVariant.maxPerOrder,
                 optionLabel: "",
                 product: cartProduct,
               }}

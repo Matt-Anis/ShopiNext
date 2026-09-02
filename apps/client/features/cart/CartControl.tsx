@@ -50,7 +50,7 @@ export function CartControl({
   };
 
   const handleIncrement = () => {
-    if (atStockLimit) return;
+    if (atQuantityLimit) return;
     updateItemQuantity(variant.id, quantity + 1);
   };
 
@@ -62,7 +62,7 @@ export function CartControl({
   const buttonSize = size === "lg" ? "lg" : "default";
   const iconButtonSize = size === "lg" ? "icon-lg" : "icon";
   const isOutOfStock = variant.stock <= 0;
-  const atStockLimit = quantity >= variant.stock;
+  const atQuantityLimit = quantity >= Math.min(variant.stock, variant.maxPerOrder);
 
   return (
     <>
@@ -96,7 +96,7 @@ export function CartControl({
           <span className="text-sm font-medium" data-testid="cart-control-quantity">
             {quantity} in cart
           </span>
-          {atStockLimit ? (
+          {atQuantityLimit ? (
             <Tooltip>
               <TooltipTrigger
                 render={

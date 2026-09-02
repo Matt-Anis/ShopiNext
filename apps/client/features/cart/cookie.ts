@@ -65,6 +65,7 @@ export const addCartItem = async (variantId: string, quantity = 1) => {
   const nextQuantity = Math.min(
     (existing?.quantity ?? 0) + quantity,
     variant.stock,
+    variant.maxPerOrder,
   );
 
   await setCookie(setItemQuantity(items, variantId, nextQuantity));
@@ -97,7 +98,11 @@ export const updateCartItemQuantity = async (
   if (!variant) return;
 
   await setCookie(
-    setItemQuantity(items, variantId, Math.min(quantity, variant.stock)),
+    setItemQuantity(
+      items,
+      variantId,
+      Math.min(quantity, variant.stock, variant.maxPerOrder),
+    ),
   );
 };
 

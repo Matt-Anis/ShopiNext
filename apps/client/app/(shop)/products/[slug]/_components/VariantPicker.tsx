@@ -238,6 +238,7 @@ export function VariantAddToCart({
         id: matchedVariant.id,
         price: matchedVariant.price,
         stock: matchedVariant.stock,
+        maxPerOrder: matchedVariant.maxPerOrder,
         optionLabel: selectedLabel,
         product,
       }}

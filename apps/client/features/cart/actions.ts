@@ -9,6 +9,7 @@ export type CartItemVariant = {
   id: string;
   price: number;
   stock: number;
+  maxPerOrder: number;
   optionLabel: string;
   product: {
     id: string;

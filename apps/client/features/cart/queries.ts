@@ -7,6 +7,7 @@ type RawCartVariant = {
   id: string
   price: number
   stock: number
+  maxPerOrder: number
   product: {
     id: string
     name: string
@@ -25,6 +26,7 @@ export const toCartItem = (item: {
     id: item.variant.id,
     price: item.variant.price,
     stock: item.variant.stock,
+    maxPerOrder: item.variant.maxPerOrder,
     optionLabel: item.variant.variantOptionValues
       .map((v) => v.optionValue.value)
       .join(" / "),
@@ -94,7 +96,7 @@ export const createCartItem = async (
     const cartId = await ensureCartId(userId)
 
     const [variant] = await tx
-      .select({ stock: productVariants.stock })
+      .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
       .from(productVariants)
       .where(eq(productVariants.id, variantId))
 
@@ -109,7 +111,8 @@ export const createCartItem = async (
 
     const nextQuantity = Math.min(
       (existing?.quantity ?? 0) + quantity,
-      variant.stock
+      variant.stock,
+      variant.maxPerOrder
     )
 
     if (nextQuantity <= 0) {
@@ -145,13 +148,13 @@ export const updateCartItemQuantity = async (
 
   await db.transaction(async (tx) => {
     const [variant] = await tx
-      .select({ stock: productVariants.stock })
+      .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
       .from(productVariants)
       .where(eq(productVariants.id, variantId))
 
     if (!variant) return
 
-    const nextQuantity = Math.min(quantity, variant.stock)
+    const nextQuantity = Math.min(quantity, variant.stock, variant.maxPerOrder)
 
     if (nextQuantity <= 0) {
       await tx
