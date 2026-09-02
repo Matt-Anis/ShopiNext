@@ -5,6 +5,7 @@ import {
   eq,
   gt,
   inArray,
+  isNotNull,
   lt,
   or,
   type Column,
@@ -49,33 +50,33 @@ export const getAllProducts = async ({
   limit = DEFAULT_LIMIT,
   sortBy = "newest",
 }: GetAllProductsParams = {}) => {
-  let where
+  let cursorWhere
   let orderBy
 
   switch (sortBy) {
     case "price_asc":
-      where = cursor
+      cursorWhere = cursor
         ? cursorCompare(
-            products.price,
+            products.minPrice,
             { id: cursor.id, value: cursor.value as number },
             "asc"
           )
         : undefined
-      orderBy = [asc(products.price), asc(products.id)]
+      orderBy = [asc(products.minPrice), asc(products.id)]
       break
     case "price_desc":
-      where = cursor
+      cursorWhere = cursor
         ? cursorCompare(
-            products.price,
+            products.minPrice,
             { id: cursor.id, value: cursor.value as number },
             "desc"
           )
         : undefined
-      orderBy = [desc(products.price), desc(products.id)]
+      orderBy = [desc(products.minPrice), desc(products.id)]
       break
     case "newest":
     default:
-      where = cursor
+      cursorWhere = cursor
         ? cursorCompare(
             products.createdAt,
             { id: cursor.id, value: cursor.value as Date },
@@ -87,7 +88,7 @@ export const getAllProducts = async ({
   }
 
   const rows = await db.query.products.findMany({
-    where,
+    where: and(isNotNull(products.minPrice), cursorWhere),
     orderBy,
     limit,
     with: {
@@ -103,7 +104,7 @@ export const getAllProducts = async ({
     rows.length === limit && last
       ? {
           id: last.id,
-          value: sortBy === "newest" ? last.createdAt : last.price,
+          value: sortBy === "newest" ? last.createdAt : (last.minPrice as number),
         }
       : null
 
