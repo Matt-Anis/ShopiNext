@@ -15,6 +15,7 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@repo/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
 import { useCart } from "@/features/cart/CartProvider";
 import { cn } from "@repo/ui/utils";
 import type { CartItemVariant } from "@/features/cart/actions";
@@ -49,6 +50,7 @@ export function CartControl({
   };
 
   const handleIncrement = () => {
+    if (atStockLimit) return;
     updateItemQuantity(variant.id, quantity + 1);
   };
 
@@ -94,16 +96,38 @@ export function CartControl({
           <span className="text-sm font-medium" data-testid="cart-control-quantity">
             {quantity} in cart
           </span>
-          <Button
-            type="button"
-            size={iconButtonSize}
-            variant="ghost"
-            onClick={handleIncrement}
-            disabled={isPending || atStockLimit}
-            data-testid="cart-control-increment"
-          >
-            <Plus className="size-4" />
-          </Button>
+          {atStockLimit ? (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span
+                    role="button"
+                    aria-disabled="true"
+                    tabIndex={0}
+                    data-testid="cart-control-increment"
+                    className={cn(
+                      "inline-flex shrink-0 cursor-not-allowed items-center justify-center rounded-full text-muted-foreground",
+                      size === "lg" ? "size-10" : "size-9"
+                    )}
+                  >
+                    <Plus className="size-4" />
+                  </span>
+                }
+              />
+              <TooltipContent>You&apos;ve reached the maximum quantity</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              type="button"
+              size={iconButtonSize}
+              variant="ghost"
+              onClick={handleIncrement}
+              disabled={isPending}
+              data-testid="cart-control-increment"
+            >
+              <Plus className="size-4" />
+            </Button>
+          )}
         </div>
       )}
 
