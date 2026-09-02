@@ -127,6 +127,7 @@ export function VariantOptionPills() {
                     key={value.id}
                     type="button"
                     onClick={() => select(option.id, value.id)}
+                    aria-pressed={isSelected}
                     data-testid={`variant-pill-${option.name}-${value.value}`}
                     className={pillClassName}
                   >
@@ -167,12 +168,24 @@ export function VariantPrice({ className }: { className?: string }) {
   const { matchedVariant, minPrice } = useVariantPicker()
 
   if (matchedVariant) {
-    return <p className={className}>{formatPrice(matchedVariant.price)}</p>
+    return (
+      <p data-testid="variant-price" className={className}>
+        {formatPrice(matchedVariant.price)}
+      </p>
+    )
   }
 
   if (minPrice == null) {
-    return <p className={className}>Sold out</p>
+    return (
+      <p data-testid="variant-price" className={className}>
+        Sold out
+      </p>
+    )
   }
 
-  return <p className={className}>From {formatPrice(minPrice)}</p>
+  return (
+    <p data-testid="variant-price" className={className}>
+      From {formatPrice(minPrice)}
+    </p>
+  )
 }
