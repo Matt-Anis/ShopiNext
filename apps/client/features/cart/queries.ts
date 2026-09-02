@@ -112,7 +112,16 @@ export const createCartItem = async (
       variant.stock
     )
 
-    if (nextQuantity <= 0) return
+    if (nextQuantity <= 0) {
+      if (existing) {
+        await tx
+          .delete(cartItems)
+          .where(
+            and(eq(cartItems.cartId, cartId), eq(cartItems.variantId, variantId))
+          )
+      }
+      return
+    }
 
     await tx
       .insert(cartItems)
@@ -143,6 +152,18 @@ export const updateCartItemQuantity = async (
     if (!variant) return
 
     const nextQuantity = Math.min(quantity, variant.stock)
+
+    if (nextQuantity <= 0) {
+      await tx
+        .delete(cartItems)
+        .where(
+          and(
+            inArray(cartItems.cartId, cartIdForUser(userId)),
+            eq(cartItems.variantId, variantId)
+          )
+        )
+      return
+    }
 
     await tx
       .update(cartItems)
