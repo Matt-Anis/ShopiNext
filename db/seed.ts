@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto"
-import { inArray } from "drizzle-orm"
-import { hashPassword } from "better-auth/crypto"
-import { db } from "./client"
+import { randomUUID } from "node:crypto";
+import { inArray } from "drizzle-orm";
+import { hashPassword } from "better-auth/crypto";
+import { db } from "./client";
 import {
   categories,
   productCategories,
@@ -11,11 +11,11 @@ import {
   productOptionValues,
   productVariants,
   variantOptionValues,
-} from "@repo/db/public/schema"
-import { user, account } from "@repo/db/public/auth-schema"
-import { seed, reset } from "drizzle-seed"
+} from "@repo/db/public/schema";
+import { user, account } from "@repo/db/public/auth-schema";
+import { seed, reset } from "drizzle-seed";
 
-const SEEDED_USER_PASSWORD = "secret password"
+const SEEDED_USER_PASSWORD = "secret password";
 
 const CATEGORY_NAMES = [
   "Electronics",
@@ -28,32 +28,32 @@ const CATEGORY_NAMES = [
   "Automotive",
   "Garden",
   "Furniture",
-]
+];
 
 const picsumUrls = Array.from(
   { length: 300 },
-  (_, i) => `https://picsum.photos/id/${i + 1}/800/600`
-)
+  (_, i) => `https://picsum.photos/id/${i + 1}/800/600`,
+);
 
 const OPTION_POOLS = [
   { name: "Size", values: ["Small", "Medium", "Large", "XLarge"] },
   { name: "Color", values: ["Black", "White", "Red", "Blue", "Green"] },
   { name: "Material", values: ["Cotton", "Leather", "Wool", "Denim"] },
-] as const
+] as const;
 
 function pickRandom<T>(arr: readonly T[], count: number): T[] {
-  return [...arr].sort(() => Math.random() - 0.5).slice(0, count)
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function cartesian<T>(arrays: T[][]): T[][] {
   return arrays.reduce<T[][]>(
     (acc, curr) => acc.flatMap((combo) => curr.map((item) => [...combo, item])),
-    [[]]
-  )
+    [[]],
+  );
 }
 
 async function main() {
@@ -68,7 +68,7 @@ async function main() {
     variantOptionValues,
     user,
     account,
-  })
+  });
 
   await seed(db, { categories }).refine((f) => ({
     categories: {
@@ -78,7 +78,7 @@ async function main() {
         description: f.loremIpsum({ sentencesCount: 3 }),
       },
     },
-  }))
+  }));
 
   await seed(db, { products, images, user }).refine((f) => ({
     products: {
@@ -104,77 +104,94 @@ async function main() {
         email: f.email(),
       },
     },
-  }))
+  }));
 
-  const seededCategories = await db.select({ id: categories.id }).from(categories)
+  const seededCategories = await db
+    .select({ id: categories.id })
+    .from(categories);
   const seededProducts = await db
     .select({ id: products.id, slug: products.slug })
-    .from(products)
+    .from(products);
 
   const productCategoryRows = seededProducts.flatMap((product) =>
     pickRandom(seededCategories, randomInt(1, 3)).map((category) => ({
       id: randomUUID(),
       productId: product.id,
       categoryId: category.id,
-    }))
-  )
-  await db.insert(productCategories).values(productCategoryRows)
+    })),
+  );
+  await db.insert(productCategories).values(productCategoryRows);
 
-  const optionRows: (typeof productOptions.$inferInsert)[] = []
-  const optionValueRows: (typeof productOptionValues.$inferInsert)[] = []
-  const variantRows: (typeof productVariants.$inferInsert)[] = []
-  const variantOptionValueRows: (typeof variantOptionValues.$inferInsert)[] = []
-  let variantCount = 0
+  const optionRows: (typeof productOptions.$inferInsert)[] = [];
+  const optionValueRows: (typeof productOptionValues.$inferInsert)[] = [];
+  const variantRows: (typeof productVariants.$inferInsert)[] = [];
+  const variantOptionValueRows: (typeof variantOptionValues.$inferInsert)[] =
+    [];
+  let variantCount = 0;
 
   for (const product of seededProducts) {
     // 20% simple products (no options, one default variant), rest get 1-2 options.
-    const optionCount = Math.random() < 0.2 ? 0 : randomInt(1, 2)
-    const chosenPools = pickRandom(OPTION_POOLS, optionCount)
+    const optionCount = Math.random() < 0.2 ? 0 : randomInt(1, 2);
+    const chosenPools = pickRandom(OPTION_POOLS, optionCount);
 
-    const valuesByOption: { id: string; value: string }[][] = []
+    const valuesByOption: { id: string; value: string }[][] = [];
 
     for (const pool of chosenPools) {
-      const optionId = randomUUID()
-      optionRows.push({ id: optionId, productId: product.id, name: pool.name })
+      const optionId = randomUUID();
+      optionRows.push({ id: optionId, productId: product.id, name: pool.name });
 
-      const chosenValues = pickRandom(pool.values, randomInt(2, 4))
-      const values = chosenValues.map((value) => ({ id: randomUUID(), value }))
+      const chosenValues = pickRandom(pool.values, randomInt(2, 4));
+      const values = chosenValues.map((value) => ({ id: randomUUID(), value }));
       values.forEach(({ id, value }) =>
-        optionValueRows.push({ id, optionId, value })
-      )
-      valuesByOption.push(values)
+        optionValueRows.push({ id, optionId, value }),
+      );
+      valuesByOption.push(values);
     }
 
-    const combinations = cartesian(valuesByOption)
+    let combinations = cartesian(valuesByOption);
+
+    if (combinations.length > 1) {
+      const kept = combinations.filter(() => Math.random() > 0.25);
+      combinations =
+        kept.length > 0
+          ? kept
+          : [combinations[randomInt(0, combinations.length - 1)]];
+    }
+
+    const productSoldOut = Math.random() < 0.1;
 
     for (const combo of combinations) {
-      const variantId = randomUUID()
+      const variantId = randomUUID();
       const skuSuffix =
         combo.length > 0
           ? "-" + combo.map((v) => v.value.toUpperCase()).join("-")
-          : ""
+          : "";
 
       variantRows.push({
         id: variantId,
         productId: product.id,
         sku: `${product.slug.toUpperCase()}${skuSuffix}`,
         price: randomInt(999, 99999),
-        stock: randomInt(0, 50),
-      })
+        stock: productSoldOut || Math.random() < 0.15 ? 0 : randomInt(1, 50),
+      });
 
       combo.forEach(({ id: optionValueId }) =>
-        variantOptionValueRows.push({ id: randomUUID(), variantId, optionValueId })
-      )
-      variantCount++
+        variantOptionValueRows.push({
+          id: randomUUID(),
+          variantId,
+          optionValueId,
+        }),
+      );
+      variantCount++;
     }
   }
 
-  if (optionRows.length > 0) await db.insert(productOptions).values(optionRows)
+  if (optionRows.length > 0) await db.insert(productOptions).values(optionRows);
   if (optionValueRows.length > 0)
-    await db.insert(productOptionValues).values(optionValueRows)
-  await db.insert(productVariants).values(variantRows)
+    await db.insert(productOptionValues).values(optionValueRows);
+  await db.insert(productVariants).values(variantRows);
   if (variantOptionValueRows.length > 0)
-    await db.insert(variantOptionValues).values(variantOptionValueRows)
+    await db.insert(variantOptionValues).values(variantOptionValueRows);
 
   await db
     .update(images)
@@ -185,12 +202,12 @@ async function main() {
         db
           .selectDistinctOn([images.productId], { id: images.id })
           .from(images)
-          .orderBy(images.productId, images.id)
-      )
-    )
+          .orderBy(images.productId, images.id),
+      ),
+    );
 
-  const passwordHash = await hashPassword(SEEDED_USER_PASSWORD)
-  const seededUsers = await db.select({ id: user.id }).from(user)
+  const passwordHash = await hashPassword(SEEDED_USER_PASSWORD);
+  const seededUsers = await db.select({ id: user.id }).from(user);
 
   await db.insert(account).values(
     seededUsers.map(({ id }) => ({
@@ -199,16 +216,16 @@ async function main() {
       providerId: "credential",
       userId: id,
       password: passwordHash,
-    }))
-  )
+    })),
+  );
 
   console.log(
-    `Seeded ${CATEGORY_NAMES.length} categories, 100 products with 300 images, ${variantCount} variants, and ${seededUsers.length} users (password: "${SEEDED_USER_PASSWORD}").`
-  )
-  process.exit(0)
+    `Seeded ${CATEGORY_NAMES.length} categories, 100 products with 300 images, ${variantCount} variants, and ${seededUsers.length} users (password: "${SEEDED_USER_PASSWORD}").`,
+  );
+  process.exit(0);
 }
 
 main().catch((err) => {
-  console.error("Seed failed:", err)
-  process.exit(1)
-})
+  console.error("Seed failed:", err);
+  process.exit(1);
+});
