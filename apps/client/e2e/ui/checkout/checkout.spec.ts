@@ -1,19 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { resetCartTables } from "../../utils/db-reset";
-import { seedProduct } from "../../utils/seed-product";
-import { clickUntilHydrated } from "../../utils/interaction";
+import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
+import { clickUntilHydrated, visible } from "../../utils/interaction";
 
 test.beforeEach(async () => {
   await resetCartTables();
 });
-
-// The product detail page renders CartControl and the buy-now button
-// twice, once for the mobile sticky footer and once for the desktop
-// sidebar, each CSS-hidden at the other breakpoint rather than unmounted.
-// Both instances share the same data-testid, so scope to whichever one is
-// actually visible at the current viewport.
-const visible = (page: Page, testId: string) =>
-  page.getByTestId(testId).and(page.locator(":visible"));
 
 test.describe("Checkout redirects", () => {
   test("buy now redirects to the Stripe hosted checkout page", async ({
@@ -90,5 +82,92 @@ test.describe("Buy now does not touch the cart", () => {
 
     await page.goto("/");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
+  });
+});
+
+test.describe("Buy now quantity picker", () => {
+  test("defaults to 1 and increments/decrements with a floor of 1 and a cap at maxPerOrder", async ({
+    page,
+  }) => {
+    const product = await seedProduct({ maxPerOrder: 3 });
+    await page.goto(`/products/${product.slug}`);
+
+    await clickUntilHydrated(visible(page, "buy-now-button"), () =>
+      expect(page.getByTestId("stripe-checkout-quantity")).toBeVisible({
+        timeout: 1_000,
+      }),
+    );
+    await expect(page.getByTestId("stripe-checkout-quantity")).toHaveText(
+      "1",
+    );
+    await expect(
+      page.getByTestId("stripe-checkout-quantity-decrement"),
+    ).toBeDisabled();
+
+    await page.getByTestId("stripe-checkout-quantity-increment").click();
+    await page.getByTestId("stripe-checkout-quantity-increment").click();
+    await expect(page.getByTestId("stripe-checkout-quantity")).toHaveText(
+      "3",
+    );
+    await expect(
+      page.getByTestId("stripe-checkout-quantity-increment"),
+    ).toBeDisabled();
+
+    await page.getByTestId("stripe-checkout-quantity-decrement").click();
+    await expect(page.getByTestId("stripe-checkout-quantity")).toHaveText(
+      "2",
+    );
+    await expect(
+      page.getByTestId("stripe-checkout-quantity-increment"),
+    ).toBeEnabled();
+  });
+
+  test("closing and reopening resets the quantity back to 1", async ({
+    page,
+  }) => {
+    const product = await seedProduct({ maxPerOrder: 5 });
+    await page.goto(`/products/${product.slug}`);
+
+    await clickUntilHydrated(visible(page, "buy-now-button"), () =>
+      expect(page.getByTestId("stripe-checkout-quantity")).toBeVisible({
+        timeout: 1_000,
+      }),
+    );
+    await page.getByTestId("stripe-checkout-quantity-increment").click();
+    await expect(page.getByTestId("stripe-checkout-quantity")).toHaveText(
+      "2",
+    );
+
+    await page.getByTestId("stripe-checkout-cancel").click();
+    await expect(page.getByTestId("stripe-checkout-quantity")).not.toBeVisible();
+
+    await visible(page, "buy-now-button").click();
+    await expect(page.getByTestId("stripe-checkout-quantity")).toHaveText(
+      "1",
+    );
+  });
+
+  test("the buy-now button only appears once a full variant selection is made", async ({
+    page,
+  }) => {
+    const product = await seedProductWithVariants({
+      slug: "buy-now-selection-product",
+      options: [{ name: "Size", values: ["S", "M"] }],
+      variants: [
+        { values: { Size: "S" }, price: 1000, stock: 5 },
+        { values: { Size: "M" }, price: 1200, stock: 5 },
+      ],
+    });
+    await page.goto(`/products/${product.slug}`);
+
+    await expect(page.getByTestId("buy-now-button")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Select options" }).and(
+        page.locator(":visible"),
+      ),
+    ).toHaveCount(2);
+
+    await visible(page, "variant-pill-Size-S").click();
+    await expect(visible(page, "buy-now-button")).toBeVisible();
   });
 });
