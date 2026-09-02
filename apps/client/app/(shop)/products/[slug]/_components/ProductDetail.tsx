@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { Skeleton } from "@repo/ui/skeleton";
 import { fetchProductBySlug } from "@/features/products/actions";
-import { CartControl } from "@/features/cart/CartControl";
 import { BuyNowButton } from "./BuyNowButton";
 import {
+  VariantAddToCart,
   VariantOptionPills,
   VariantPickerProvider,
   VariantPrice,
@@ -16,6 +16,13 @@ export default async function ProductDetail({ slug }: { slug: string }) {
   if (!product) {
     notFound();
   }
+
+  const cartProduct = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    image: product.images[0] ?? null,
+  };
 
   return (
     <VariantPickerProvider
@@ -49,8 +56,8 @@ export default async function ProductDetail({ slug }: { slug: string }) {
           )}
 
           <div className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-sm lg:hidden">
-            <CartControl
-              product={product}
+            <VariantAddToCart
+              product={cartProduct}
               size="lg"
               className="border-border bg-background text-foreground hover:bg-muted"
             />
@@ -62,8 +69,8 @@ export default async function ProductDetail({ slug }: { slug: string }) {
           <VariantPrice className="text-2xl font-medium" />
           {product.options.length > 0 && <VariantOptionPills />}
           <div className="flex flex-col gap-2">
-            <CartControl
-              product={product}
+            <VariantAddToCart
+              product={cartProduct}
               size="lg"
               className="border-border bg-background text-foreground hover:bg-muted"
             />

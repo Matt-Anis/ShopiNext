@@ -4,8 +4,11 @@ import { createContext, useContext, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 
 import { cn } from "@repo/ui/utils"
+import { Button } from "@repo/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { formatPrice } from "@/lib/utils"
+import { CartControl } from "@/features/cart/CartControl"
+import type { CartItemVariant } from "@/features/cart/actions"
 import type { ProductDetail } from "@/features/products/queries"
 
 type Option = ProductDetail["options"][number]
@@ -18,6 +21,7 @@ type VariantPickerContextValue = {
   select: (optionId: string, valueId: string) => void
   statusFor: (optionId: string, valueId: string) => PillStatus
   matchedVariant: Variant | null
+  selectedLabel: string
   minPrice: number | null
 }
 
@@ -87,9 +91,27 @@ export function VariantPickerProvider({
     )
   }, [selection, variants, options.length])
 
+  const selectedLabel = useMemo(() => {
+    return options
+      .map((option) => {
+        const valueId = selection[option.id]
+        return option.values.find((value) => value.id === valueId)?.value
+      })
+      .filter((value): value is string => Boolean(value))
+      .join(" / ")
+  }, [options, selection])
+
   return (
     <VariantPickerContext.Provider
-      value={{ options, selection, select, statusFor, matchedVariant, minPrice }}
+      value={{
+        options,
+        selection,
+        select,
+        statusFor,
+        matchedVariant,
+        selectedLabel,
+        minPrice,
+      }}
     >
       {children}
     </VariantPickerContext.Provider>
@@ -187,5 +209,40 @@ export function VariantPrice({ className }: { className?: string }) {
     <p data-testid="variant-price" className={className}>
       From {formatPrice(minPrice)}
     </p>
+  )
+}
+
+export function VariantAddToCart({
+  product,
+  size = "default",
+  className,
+}: {
+  product: CartItemVariant["product"]
+  size?: "default" | "lg"
+  className?: string
+}) {
+  const { matchedVariant, selectedLabel, options } = useVariantPicker()
+  const buttonSize = size === "lg" ? "lg" : "default"
+
+  if (!matchedVariant) {
+    return (
+      <Button type="button" size={buttonSize} className={cn("w-full", className)} disabled>
+        {options.length > 0 ? "Select options" : "Sold out"}
+      </Button>
+    )
+  }
+
+  return (
+    <CartControl
+      variant={{
+        id: matchedVariant.id,
+        price: matchedVariant.price,
+        stock: matchedVariant.stock,
+        optionLabel: selectedLabel,
+        product,
+      }}
+      size={size}
+      className={className}
+    />
   )
 }
