@@ -9,9 +9,6 @@ import { getVariantsByIds, optionLabelFor } from "@/features/products/queries";
 
 type LineItemInput = {
   variantId: string;
-  productName: string;
-  optionLabel: string;
-  price: number;
   quantity: number;
 };
 
@@ -28,36 +25,38 @@ const createCheckoutSession = async (
   const variants = await getVariantsByIds(items.map((item) => item.variantId));
   const variantById = new Map(variants.map((variant) => [variant.id, variant]));
 
-  for (const item of items) {
+  const lineItems = items.map((item) => {
     const variant = variantById.get(item.variantId);
     const available = variant
       ? Math.min(variant.stock, variant.maxPerOrder)
       : 0;
 
-    if (item.quantity > available) {
+    if (!variant || item.quantity > available) {
       throw new Error(
-        `${item.productName} is no longer available in the requested quantity`,
+        `${variant?.product.name ?? "This product"} is no longer available in the requested quantity`,
       );
     }
-  }
+
+    return {
+      quantity: item.quantity,
+      price_data: {
+        currency: "usd",
+        unit_amount: variant.price,
+        product_data: {
+          name: variant.product.name,
+          description: optionLabelFor(variant.variantOptionValues) || undefined,
+          metadata: { variantId: variant.id },
+        },
+      },
+    };
+  });
 
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "payment",
-    line_items: items.map((item) => ({
-      quantity: item.quantity,
-      price_data: {
-        currency: "usd",
-        unit_amount: item.price,
-        product_data: {
-          name: item.productName,
-          description: item.optionLabel || undefined,
-          metadata: { variantId: item.variantId },
-        },
-      },
-    })),
+    line_items: lineItems,
     customer_email: user?.email,
     metadata: {
       ...(user ? { userId: user.id } : {}),
@@ -74,28 +73,8 @@ const createCheckoutSession = async (
   redirect(checkoutSession.url);
 };
 
-export const checkoutNow = async (
-  variantId: string,
-  quantity: number,
-) => {
-  const [variant] = await getVariantsByIds([variantId]);
-
-  if (!variant) {
-    throw new Error("Product not found");
-  }
-
-  await createCheckoutSession(
-    [
-      {
-        variantId: variant.id,
-        productName: variant.product.name,
-        optionLabel: optionLabelFor(variant.variantOptionValues),
-        price: variant.price,
-        quantity,
-      },
-    ],
-    "buy-now",
-  );
+export const checkoutNow = async (variantId: string, quantity: number) => {
+  await createCheckoutSession([{ variantId, quantity }], "buy-now");
 };
 
 export const checkoutCart = async () => {
@@ -104,9 +83,6 @@ export const checkoutCart = async () => {
   await createCheckoutSession(
     cart.map((item) => ({
       variantId: item.variant.id,
-      productName: item.variant.product.name,
-      optionLabel: item.variant.optionLabel,
-      price: item.variant.price,
       quantity: item.quantity,
     })),
     "cart",
