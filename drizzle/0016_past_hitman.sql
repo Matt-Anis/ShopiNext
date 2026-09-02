@@ -1,0 +1,1 @@
+ALTER TABLE "product_variants" ADD COLUMN "maxPerOrder" integer DEFAULT 1 NOT NULL;

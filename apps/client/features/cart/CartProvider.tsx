@@ -14,44 +14,44 @@ import {
   deleteCartItem,
   updateCartItemQuantity,
   type CartItem,
+  type CartItemVariant,
 } from "@/features/cart/actions";
-import type { Product } from "@/features/products/queries";
 
 type CartAction =
-  | { type: "add"; product: Product; quantity: number }
-  | { type: "update"; productId: string; quantity: number }
-  | { type: "remove"; productId: string };
+  | { type: "add"; variant: CartItemVariant; quantity: number }
+  | { type: "update"; variantId: string; quantity: number }
+  | { type: "remove"; variantId: string };
 
 const cartReducer = (state: CartItem[], action: CartAction): CartItem[] => {
   switch (action.type) {
     case "add": {
       const existing = state.find(
-        (item) => item.product.id === action.product.id,
+        (item) => item.variant.id === action.variant.id,
       );
 
       if (existing) {
         return state.map((item) =>
-          item.product.id === action.product.id
+          item.variant.id === action.variant.id
             ? { ...item, quantity: item.quantity + action.quantity }
             : item,
         );
       }
 
-      return [...state, { product: action.product, quantity: action.quantity }];
+      return [...state, { variant: action.variant, quantity: action.quantity }];
     }
     case "update": {
       if (action.quantity <= 0) {
-        return state.filter((item) => item.product.id !== action.productId);
+        return state.filter((item) => item.variant.id !== action.variantId);
       }
 
       return state.map((item) =>
-        item.product.id === action.productId
+        item.variant.id === action.variantId
           ? { ...item, quantity: action.quantity }
           : item,
       );
     }
     case "remove":
-      return state.filter((item) => item.product.id !== action.productId);
+      return state.filter((item) => item.variant.id !== action.variantId);
   }
 };
 
@@ -59,9 +59,9 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   isPending: boolean;
-  addItem: (product: Product, quantity?: number) => void;
-  updateItemQuantity: (productId: string, quantity: number) => void;
-  removeItem: (productId: string) => void;
+  addItem: (variant: CartItemVariant, quantity?: number) => void;
+  updateItemQuantity: (variantId: string, quantity: number) => void;
+  removeItem: (variantId: string) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -77,26 +77,26 @@ export function CartProvider({
   const [optimisticItems, applyOptimistic] = useOptimistic(items, cartReducer);
   const [isPending, startTransition] = useTransition();
 
-  const addItem = (product: Product, quantity = 1) => {
+  const addItem = (variant: CartItemVariant, quantity = 1) => {
     startTransition(async () => {
-      applyOptimistic({ type: "add", product, quantity });
-      const updated = await addCartItem(product.id, quantity);
+      applyOptimistic({ type: "add", variant, quantity });
+      const updated = await addCartItem(variant.id, quantity);
       setItems(updated);
     });
   };
 
-  const updateItemQuantity = (productId: string, quantity: number) => {
+  const updateItemQuantity = (variantId: string, quantity: number) => {
     startTransition(async () => {
-      applyOptimistic({ type: "update", productId, quantity });
-      const updated = await updateCartItemQuantity(productId, quantity);
+      applyOptimistic({ type: "update", variantId, quantity });
+      const updated = await updateCartItemQuantity(variantId, quantity);
       setItems(updated);
     });
   };
 
-  const removeItem = (productId: string) => {
+  const removeItem = (variantId: string) => {
     startTransition(async () => {
-      applyOptimistic({ type: "remove", productId });
-      const updated = await deleteCartItem(productId);
+      applyOptimistic({ type: "remove", variantId });
+      const updated = await deleteCartItem(variantId);
       setItems(updated);
     });
   };

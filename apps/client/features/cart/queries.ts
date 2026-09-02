@@ -1,8 +1,43 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
-import { db } from "@/db";
-import { cart, cartItems, images } from "@repo/db/public/schema";
+import { and, eq, inArray } from "drizzle-orm"
+import { db } from "@/db"
+import { cart, cartItems, images, productVariants } from "@repo/db/public/schema"
+import { optionLabelFor } from "@/features/products/queries"
+import type { CartItem } from "@/features/cart/actions"
 
-export type Cart = Awaited<ReturnType<typeof getCartFromDb>>;
+type RawCartVariant = {
+  id: string
+  price: number
+  stock: number
+  maxPerOrder: number
+  product: {
+    id: string
+    name: string
+    slug: string
+    images: { url: string; altText: string | null }[]
+  }
+  variantOptionValues: { optionValue: { value: string } }[]
+}
+
+export const toCartItem = (item: {
+  quantity: number
+  variant: RawCartVariant
+}): CartItem => ({
+  quantity: item.quantity,
+  variant: {
+    id: item.variant.id,
+    price: item.variant.price,
+    maxPerOrder: Math.min(item.variant.stock, item.variant.maxPerOrder),
+    optionLabel: optionLabelFor(item.variant.variantOptionValues),
+    product: {
+      id: item.variant.product.id,
+      name: item.variant.product.name,
+      slug: item.variant.product.slug,
+      image: item.variant.product.images[0] ?? null,
+    },
+  },
+})
+
+export type Cart = Awaited<ReturnType<typeof getCartFromDb>>
 
 export const getCartFromDb = async (userId: string) => {
   const result = await db.query.cart.findFirst({
@@ -10,87 +45,147 @@ export const getCartFromDb = async (userId: string) => {
     with: {
       items: {
         with: {
-          product: {
+          variant: {
             with: {
-              images: {
-                where: eq(images.isPrimary, true),
-                limit: 1,
+              product: {
+                with: {
+                  images: {
+                    where: eq(images.isPrimary, true),
+                    limit: 1,
+                  },
+                },
+              },
+              variantOptionValues: {
+                with: {
+                  optionValue: true,
+                },
               },
             },
           },
         },
       },
     },
-  });
+  })
 
-  return result ?? null;
-};
+  return result ?? null
+}
 
 // Scalar subquery resolving a user's cart id inline, so callers don't
 // need a separate round trip before reading/writing cart_items.
 const cartIdForUser = (userId: string) =>
-  db.select({ id: cart.id }).from(cart).where(eq(cart.userId, userId));
-
-const ensureCartId = async (userId: string) => {
-  const [row] = await db
-    .insert(cart)
-    .values({ userId })
-    .onConflictDoUpdate({ target: cart.userId, set: { userId } })
-    .returning({ id: cart.id });
-
-  return row.id;
-};
+  db.select({ id: cart.id }).from(cart).where(eq(cart.userId, userId))
 
 export const createCartItem = async (
   userId: string,
-  productId: string,
-  quantity = 1,
+  variantId: string,
+  quantity = 1
 ) => {
-  const cartId = await ensureCartId(userId);
+  await db.transaction(async (tx) => {
+    const [cartRow] = await tx
+      .insert(cart)
+      .values({ userId })
+      .onConflictDoUpdate({ target: cart.userId, set: { userId } })
+      .returning({ id: cart.id })
+    const cartId = cartRow.id
 
-  await db
-    .insert(cartItems)
-    .values({ cartId, productId, quantity })
-    .onConflictDoUpdate({
-      target: [cartItems.cartId, cartItems.productId],
-      set: { quantity: sql`${cartItems.quantity} + ${quantity}` },
-    });
-};
+    const [variant] = await tx
+      .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
+      .from(productVariants)
+      .where(eq(productVariants.id, variantId))
+
+    if (!variant) return
+
+    const [existing] = await tx
+      .select({ quantity: cartItems.quantity })
+      .from(cartItems)
+      .where(
+        and(eq(cartItems.cartId, cartId), eq(cartItems.variantId, variantId))
+      )
+
+    const nextQuantity = Math.min(
+      (existing?.quantity ?? 0) + quantity,
+      variant.stock,
+      variant.maxPerOrder
+    )
+
+    if (nextQuantity <= 0) {
+      if (existing) {
+        await tx
+          .delete(cartItems)
+          .where(
+            and(eq(cartItems.cartId, cartId), eq(cartItems.variantId, variantId))
+          )
+      }
+      return
+    }
+
+    await tx
+      .insert(cartItems)
+      .values({ cartId, variantId, quantity: nextQuantity })
+      .onConflictDoUpdate({
+        target: [cartItems.cartId, cartItems.variantId],
+        set: { quantity: nextQuantity },
+      })
+  })
+}
 
 export const updateCartItemQuantity = async (
   userId: string,
-  productId: string,
-  quantity: number,
+  variantId: string,
+  quantity: number
 ) => {
   if (quantity <= 0) {
-    await deleteCartItem(userId, productId);
-    return;
+    await deleteCartItem(userId, variantId)
+    return
   }
 
-  await db
-    .update(cartItems)
-    .set({ quantity })
-    .where(
-      and(
-        inArray(cartItems.cartId, cartIdForUser(userId)),
-        eq(cartItems.productId, productId),
-      ),
-    );
-};
+  await db.transaction(async (tx) => {
+    const [variant] = await tx
+      .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
+      .from(productVariants)
+      .where(eq(productVariants.id, variantId))
 
-export const deleteCartItem = async (userId: string, productId: string) => {
+    if (!variant) return
+
+    const nextQuantity = Math.min(quantity, variant.stock, variant.maxPerOrder)
+
+    if (nextQuantity <= 0) {
+      await tx
+        .delete(cartItems)
+        .where(
+          and(
+            inArray(cartItems.cartId, cartIdForUser(userId)),
+            eq(cartItems.variantId, variantId)
+          )
+        )
+      return
+    }
+
+    await tx
+      .update(cartItems)
+      .set({ quantity: nextQuantity })
+      .where(
+        and(
+          inArray(cartItems.cartId, cartIdForUser(userId)),
+          eq(cartItems.variantId, variantId)
+        )
+      )
+  })
+}
+
+export const deleteCartItem = async (userId: string, variantId: string) => {
   await db
     .delete(cartItems)
     .where(
       and(
         inArray(cartItems.cartId, cartIdForUser(userId)),
-        eq(cartItems.productId, productId),
-      ),
-    );
-};
+        eq(cartItems.variantId, variantId)
+      )
+    )
+}
 
 export const clearCart = async (userId: string) => {
   await db
     .delete(cartItems)
-    .where(inArray(cartItems.cartId, cartIdForUser(userId)));
-};
+    .where(inArray(cartItems.cartId, cartIdForUser(userId)))
+}

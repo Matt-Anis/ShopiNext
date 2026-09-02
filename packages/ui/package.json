@@ -22,6 +22,7 @@
     "./floating-label-input": "./components/floating-label-input.tsx",
     "./input": "./components/input.tsx",
     "./label": "./components/label.tsx",
+    "./popover": "./components/popover.tsx",
     "./scroll-area": "./components/scroll-area.tsx",
     "./separator": "./components/separator.tsx",
     "./sheet": "./components/sheet.tsx",

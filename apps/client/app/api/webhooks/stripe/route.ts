@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import { createOrder } from "@/features/orders/queries";
+import { createOrder, OutOfStockError } from "@/features/orders/queries";
 import { clearCart } from "@/features/cart/queries";
 
 export async function POST(request: Request) {
@@ -41,20 +41,20 @@ export async function POST(request: Request) {
 
     const items = lineItems.data.map((item) => {
       const product = item.price?.product as Stripe.Product | undefined;
-      const productId = product?.metadata.productId;
+      const variantId = product?.metadata.variantId;
 
       if (
-        !productId ||
+        !variantId ||
         item.quantity == null ||
         item.price?.unit_amount == null
       ) {
         throw new Error(
-          `Malformed line item on session ${session.id}: missing productId, quantity, or unit_amount`,
+          `Malformed line item on session ${session.id}: missing variantId, quantity, or unit_amount`,
         );
       }
 
       return {
-        productId,
+        variantId,
         quantity: item.quantity,
         priceAtPurchase: item.price.unit_amount,
       };
@@ -83,6 +83,16 @@ export async function POST(request: Request) {
       await clearCart(userId);
     }
   } catch (error) {
+    if (error instanceof OutOfStockError) {
+      if (typeof session.payment_intent === "string") {
+        await stripe.refunds.create({ payment_intent: session.payment_intent });
+      }
+      console.error(
+        `Refunded session ${session.id}: variant ${error.variantId} sold out before the order could be created`,
+      );
+      return NextResponse.json({ received: true });
+    }
+
     console.error("Failed to process checkout.session.completed", error);
     return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }

@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import { getCart } from "@/features/cart/actions";
-import { getProductsByIds, type Product } from "@/features/products/queries";
+import { getVariantsByIds, optionLabelFor } from "@/features/products/queries";
 
 type LineItemInput = {
-  product: Product;
+  variantId: string;
   quantity: number;
 };
 
@@ -22,22 +22,41 @@ const createCheckoutSession = async (
     throw new Error("Cannot checkout with no items");
   }
 
+  const variants = await getVariantsByIds(items.map((item) => item.variantId));
+  const variantById = new Map(variants.map((variant) => [variant.id, variant]));
+
+  const lineItems = items.map((item) => {
+    const variant = variantById.get(item.variantId);
+    const available = variant
+      ? Math.min(variant.stock, variant.maxPerOrder)
+      : 0;
+
+    if (!variant || item.quantity > available) {
+      throw new Error(
+        `${variant?.product.name ?? "This product"} is no longer available in the requested quantity`,
+      );
+    }
+
+    return {
+      quantity: item.quantity,
+      price_data: {
+        currency: "usd",
+        unit_amount: variant.price,
+        product_data: {
+          name: variant.product.name,
+          description: optionLabelFor(variant.variantOptionValues) || undefined,
+          metadata: { variantId: variant.id },
+        },
+      },
+    };
+  });
+
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "payment",
-    line_items: items.map(({ product, quantity }) => ({
-      quantity,
-      price_data: {
-        currency: "usd",
-        unit_amount: product.price,
-        product_data: {
-          name: product.name,
-          metadata: { productId: product.id },
-        },
-      },
-    })),
+    line_items: lineItems,
     customer_email: user?.email,
     metadata: {
       ...(user ? { userId: user.id } : {}),
@@ -54,21 +73,18 @@ const createCheckoutSession = async (
   redirect(checkoutSession.url);
 };
 
-export const checkoutNow = async (productId: string, quantity = 1) => {
-  const [product] = await getProductsByIds([productId]);
-
-  if (!product) {
-    throw new Error("Product not found");
-  }
-
-  await createCheckoutSession([{ product, quantity }], "buy-now");
+export const checkoutNow = async (variantId: string, quantity: number) => {
+  await createCheckoutSession([{ variantId, quantity }], "buy-now");
 };
 
 export const checkoutCart = async () => {
   const cart = await getCart();
 
   await createCheckoutSession(
-    cart.map((item) => ({ product: item.product, quantity: item.quantity })),
+    cart.map((item) => ({
+      variantId: item.variant.id,
+      quantity: item.quantity,
+    })),
     "cart",
   );
 };

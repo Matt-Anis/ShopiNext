@@ -1,7 +1,7 @@
 import { testStripe } from "./stripe";
 
 type CreateTestSessionParams = {
-  productId: string;
+  variantId: string;
   productName?: string;
   unitAmount?: number;
   quantity?: number;
@@ -14,7 +14,7 @@ type CreateTestSessionParams = {
 // handler's stripe.checkout.sessions.listLineItems call has something
 // genuine to resolve against.
 export async function createTestCheckoutSession({
-  productId,
+  variantId,
   productName = "Test Product",
   unitAmount = 1000,
   quantity = 1,
@@ -29,7 +29,7 @@ export async function createTestCheckoutSession({
         price_data: {
           currency: "usd",
           unit_amount: unitAmount,
-          product_data: { name: productName, metadata: { productId } },
+          product_data: { name: productName, metadata: { variantId } },
         },
       },
     ],
@@ -50,6 +50,7 @@ type BuildCompletedEventParams = {
   amountTotal: number;
   metadata: Record<string, string>;
   paymentStatus?: "paid" | "unpaid";
+  paymentIntent?: string;
   eventType?: string;
 };
 
@@ -63,6 +64,7 @@ export function buildSignedCheckoutEvent({
   amountTotal,
   metadata,
   paymentStatus = "paid",
+  paymentIntent,
   eventType = "checkout.session.completed",
 }: BuildCompletedEventParams) {
   const payload = {
@@ -75,6 +77,7 @@ export function buildSignedCheckoutEvent({
         customer_details: { email: customerEmail },
         amount_total: amountTotal,
         metadata,
+        ...(paymentIntent ? { payment_intent: paymentIntent } : {}),
       },
     },
   };
@@ -87,4 +90,17 @@ export function buildSignedCheckoutEvent({
   });
 
   return { body, signature };
+}
+
+// A real, immediately-confirmed test-mode PaymentIntent, so a test can
+// verify the webhook handler actually issues a Stripe refund on an
+// oversold order rather than just checking that no order was created.
+export async function createConfirmedTestPaymentIntent(amount: number) {
+  return testStripe.paymentIntents.create({
+    amount,
+    currency: "usd",
+    payment_method: "pm_card_visa",
+    confirm: true,
+    automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+  });
 }

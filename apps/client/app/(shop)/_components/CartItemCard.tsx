@@ -7,8 +7,9 @@ import { formatPrice } from "@/lib/utils"
 import type { CartItem } from "@/features/cart/actions"
 
 export function CartItemCard({ item }: { item: CartItem }) {
-  const { product, quantity } = item
-  const image = product.images[0]
+  const { variant, quantity } = item
+  const { product } = variant
+  const image = product.image
 
   return (
     <Card className="gap-3 border border-border p-4 shadow-none ring-0">
@@ -27,20 +28,27 @@ export function CartItemCard({ item }: { item: CartItem }) {
         )}
       </AspectRatio>
       <div className="flex items-center justify-between gap-2">
-        <p
-          className="line-clamp-2 text-sm font-medium"
-          data-testid="cart-item-name"
-        >
-          {product.name}
-        </p>
+        <div>
+          <p
+            className="line-clamp-2 text-sm font-medium"
+            data-testid="cart-item-name"
+          >
+            {product.name}
+          </p>
+          {variant.optionLabel && (
+            <p className="text-sm text-muted-foreground">
+              {variant.optionLabel}
+            </p>
+          )}
+        </div>
         <p
           className="shrink-0 text-sm font-medium"
           data-testid="cart-item-price"
         >
-          {formatPrice(product.price * quantity)}
+          {formatPrice(variant.price * quantity)}
         </p>
       </div>
-      <CartControl product={product} />
+      <CartControl variant={variant} />
     </Card>
   )
 }
