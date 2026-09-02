@@ -36,16 +36,16 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             <VariantPrice className="text-2xl font-medium lg:hidden" />
           </div>
 
-          {product.description && (
-            <p className="leading-relaxed text-muted-foreground">
-              {product.description}
-            </p>
-          )}
-
           {product.options.length > 0 && (
             <div className="rounded-md border border-border p-6 lg:hidden">
               <VariantOptionPills />
             </div>
+          )}
+
+          {product.description && (
+            <p className="leading-relaxed text-muted-foreground">
+              {product.description}
+            </p>
           )}
 
           <div className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-sm lg:hidden">
