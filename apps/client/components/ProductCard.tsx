@@ -60,7 +60,6 @@ export function ProductCard({ product }: { product: Product }) {
               variant={{
                 id: singleVariant.id,
                 price: singleVariant.price,
-                stock: singleVariant.stock,
                 maxPerOrder: singleVariant.maxPerOrder,
                 optionLabel: "",
                 product: cartProduct,

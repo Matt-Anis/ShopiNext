@@ -61,8 +61,8 @@ export function CartControl({
 
   const buttonSize = size === "lg" ? "lg" : "default";
   const iconButtonSize = size === "lg" ? "icon-lg" : "icon";
-  const isOutOfStock = variant.stock <= 0;
-  const atQuantityLimit = quantity >= Math.min(variant.stock, variant.maxPerOrder);
+  const isOutOfStock = variant.maxPerOrder <= 0;
+  const atQuantityLimit = quantity >= variant.maxPerOrder;
 
   return (
     <>

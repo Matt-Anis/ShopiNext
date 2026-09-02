@@ -76,7 +76,7 @@ export function VariantPickerProvider({
     )
 
     if (matches.length === 0) return "unavailable"
-    return matches.some((variant) => variant.stock > 0)
+    return matches.some((variant) => variant.maxPerOrder > 0)
       ? "available"
       : "out-of-stock"
   }
@@ -237,7 +237,6 @@ export function VariantAddToCart({
       variant={{
         id: matchedVariant.id,
         price: matchedVariant.price,
-        stock: matchedVariant.stock,
         maxPerOrder: matchedVariant.maxPerOrder,
         optionLabel: selectedLabel,
         product,

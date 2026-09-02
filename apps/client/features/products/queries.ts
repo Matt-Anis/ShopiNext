@@ -14,13 +14,21 @@ import {
 import { db } from "@/db"
 import { images, productVariants, products } from "@repo/db/public/schema"
 
-const withOptionValueIds = <
-  T extends { variantOptionValues: { optionValueId: string }[] },
+const shapeVariant = <
+  T extends {
+    stock: number
+    maxPerOrder: number
+    variantOptionValues: { optionValueId: string }[]
+  },
 >(
   variant: T
 ) => {
-  const { variantOptionValues, ...rest } = variant
-  return { ...rest, optionValueIds: variantOptionValues.map((v) => v.optionValueId) }
+  const { variantOptionValues, stock, maxPerOrder, ...rest } = variant
+  return {
+    ...rest,
+    maxPerOrder: Math.min(stock, maxPerOrder),
+    optionValueIds: variantOptionValues.map((v) => v.optionValueId),
+  }
 }
 
 export type ProductSortBy = "newest" | "price_asc" | "price_desc"
@@ -121,7 +129,7 @@ export const getAllProducts = async ({
   const rows = rawRows.map((row) => ({
     ...row,
     minPrice: row.minPrice as number,
-    variants: row.variants.map(withOptionValueIds),
+    variants: row.variants.map(shapeVariant),
   }))
 
   const last = rows.at(-1)
@@ -160,7 +168,7 @@ export const getProductBySlug = async (slug: string) => {
 
   return {
     ...product,
-    variants: product.variants.map(withOptionValueIds),
+    variants: product.variants.map(shapeVariant),
   }
 }
 

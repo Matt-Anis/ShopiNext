@@ -25,8 +25,7 @@ export const toCartItem = (item: {
   variant: {
     id: item.variant.id,
     price: item.variant.price,
-    stock: item.variant.stock,
-    maxPerOrder: item.variant.maxPerOrder,
+    maxPerOrder: Math.min(item.variant.stock, item.variant.maxPerOrder),
     optionLabel: item.variant.variantOptionValues
       .map((v) => v.optionValue.value)
       .join(" / "),
