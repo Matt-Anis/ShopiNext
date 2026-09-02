@@ -4,11 +4,23 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import * as cartCookie from "@/features/cart/cookie";
 import * as cartDb from "@/features/cart/queries";
-import type { Product } from "@/features/products/queries";
+
+export type CartItemVariant = {
+  id: string;
+  price: number;
+  stock: number;
+  optionLabel: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    image: { url: string; altText: string | null } | null;
+  };
+};
 
 export type CartItem = {
   quantity: number;
-  product: Product;
+  variant: CartItemVariant;
 };
 
 const getUserId = async () => {
@@ -26,46 +38,43 @@ export const getCart = async (): Promise<CartItem[]> => {
   const cart = await cartDb.getCartFromDb(userId);
   if (!cart) return [];
 
-  return cart.items.map((item) => ({
-    quantity: item.quantity,
-    product: item.product,
-  }));
+  return cart.items.map(cartDb.toCartItem);
 };
 
-export const addCartItem = async (productId: string, quantity = 1) => {
+export const addCartItem = async (variantId: string, quantity = 1) => {
   const userId = await getUserId();
 
   if (userId) {
-    await cartDb.createCartItem(userId, productId, quantity);
+    await cartDb.createCartItem(userId, variantId, quantity);
   } else {
-    await cartCookie.addCartItem(productId, quantity);
+    await cartCookie.addCartItem(variantId, quantity);
   }
 
   return getCart();
 };
 
 export const updateCartItemQuantity = async (
-  productId: string,
+  variantId: string,
   quantity: number,
 ) => {
   const userId = await getUserId();
 
   if (userId) {
-    await cartDb.updateCartItemQuantity(userId, productId, quantity);
+    await cartDb.updateCartItemQuantity(userId, variantId, quantity);
   } else {
-    await cartCookie.updateCartItemQuantity(productId, quantity);
+    await cartCookie.updateCartItemQuantity(variantId, quantity);
   }
 
   return getCart();
 };
 
-export const deleteCartItem = async (productId: string) => {
+export const deleteCartItem = async (variantId: string) => {
   const userId = await getUserId();
 
   if (userId) {
-    await cartDb.deleteCartItem(userId, productId);
+    await cartDb.deleteCartItem(userId, variantId);
   } else {
-    await cartCookie.deleteCartItem(productId);
+    await cartCookie.deleteCartItem(variantId);
   }
 
   return getCart();

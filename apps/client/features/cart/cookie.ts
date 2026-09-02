@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
-import { getProductsByIds } from "@/features/products/queries";
+import { getVariantsByIds } from "@/features/products/queries";
+import { toCartItem } from "@/features/cart/queries";
+import type { CartItem } from "@/features/cart/actions";
 
 export const CART_COOKIE_NAME = "cart";
 
 export type CookieCartItem = {
-  productId: string;
+  variantId: string;
   quantity: number;
 };
 
@@ -23,47 +25,49 @@ const setCookie = async (items: CookieCartItem[]) => {
   store.set(CART_COOKIE_NAME, JSON.stringify(items));
 };
 
-// Drops items whose product no longer exists, so stale cookie entries
-// left by deleted products get swept out on the next cart write.
 const pruneStaleItems = async (items: CookieCartItem[]) => {
   if (items.length === 0) return items;
 
-  const products = await getProductsByIds(items.map((item) => item.productId));
-  const validIds = new Set(products.map((product) => product.id));
+  const variants = await getVariantsByIds(items.map((item) => item.variantId));
+  const validIds = new Set(variants.map((variant) => variant.id));
 
-  return items.filter((item) => validIds.has(item.productId));
+  return items.filter((item) => validIds.has(item.variantId));
 };
 
-// Shared guard: a quantity at or below 0 removes the item instead of
-// leaving a zero/negative-quantity entry in the cart.
 const setItemQuantity = (
   items: CookieCartItem[],
-  productId: string,
+  variantId: string,
   quantity: number,
 ): CookieCartItem[] => {
   if (quantity <= 0) {
-    return items.filter((item) => item.productId !== productId);
+    return items.filter((item) => item.variantId !== variantId);
   }
 
-  const existing = items.find((item) => item.productId === productId);
+  const existing = items.find((item) => item.variantId === variantId);
   if (existing) {
     existing.quantity = quantity;
     return items;
   }
 
-  return [...items, { productId, quantity }];
+  return [...items, { variantId, quantity }];
 };
 
-export const addCartItem = async (productId: string, quantity = 1) => {
+export const addCartItem = async (variantId: string, quantity = 1) => {
   const store = await cookies();
   const items = await pruneStaleItems(
     parseCookie(store.get(CART_COOKIE_NAME)?.value),
   );
 
-  const existing = items.find((item) => item.productId === productId);
-  const nextQuantity = (existing?.quantity ?? 0) + quantity;
+  const [variant] = await getVariantsByIds([variantId]);
+  if (!variant) return;
 
-  await setCookie(setItemQuantity(items, productId, nextQuantity));
+  const existing = items.find((item) => item.variantId === variantId);
+  const nextQuantity = Math.min(
+    (existing?.quantity ?? 0) + quantity,
+    variant.stock,
+  );
+
+  await setCookie(setItemQuantity(items, variantId, nextQuantity));
 };
 
 export const clearCart = async () => {
@@ -71,17 +75,17 @@ export const clearCart = async () => {
   store.delete(CART_COOKIE_NAME);
 };
 
-export const deleteCartItem = async (productId: string) => {
+export const deleteCartItem = async (variantId: string) => {
   const store = await cookies();
   const items = await pruneStaleItems(
     parseCookie(store.get(CART_COOKIE_NAME)?.value),
   );
 
-  await setCookie(items.filter((item) => item.productId !== productId));
+  await setCookie(items.filter((item) => item.variantId !== variantId));
 };
 
 export const updateCartItemQuantity = async (
-  productId: string,
+  variantId: string,
   quantity: number,
 ) => {
   const store = await cookies();
@@ -89,24 +93,27 @@ export const updateCartItemQuantity = async (
     parseCookie(store.get(CART_COOKIE_NAME)?.value),
   );
 
-  await setCookie(setItemQuantity(items, productId, quantity));
+  const [variant] = await getVariantsByIds([variantId]);
+  if (!variant) return;
+
+  await setCookie(
+    setItemQuantity(items, variantId, Math.min(quantity, variant.stock)),
+  );
 };
 
-export const getCartFromCookies = async () => {
+export const getCartFromCookies = async (): Promise<CartItem[]> => {
   const store = await cookies();
   const items = parseCookie(store.get(CART_COOKIE_NAME)?.value);
 
   if (items.length === 0) return [];
 
-  const products = await getProductsByIds(
-    items.map((item) => item.productId),
-  );
-  const productById = new Map(products.map((product) => [product.id, product]));
+  const variants = await getVariantsByIds(items.map((item) => item.variantId));
+  const variantById = new Map(variants.map((variant) => [variant.id, variant]));
 
   return items
     .map((item) => {
-      const product = productById.get(item.productId);
-      return product ? { quantity: item.quantity, product } : null;
+      const variant = variantById.get(item.variantId);
+      return variant ? toCartItem({ quantity: item.quantity, variant }) : null;
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 };

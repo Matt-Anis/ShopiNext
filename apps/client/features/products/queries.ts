@@ -12,7 +12,16 @@ import {
   type GetColumnData,
 } from "drizzle-orm"
 import { db } from "@/db"
-import { images, products } from "@repo/db/public/schema"
+import { images, productVariants, products } from "@repo/db/public/schema"
+
+const withOptionValueIds = <
+  T extends { variantOptionValues: { optionValueId: string }[] },
+>(
+  variant: T
+) => {
+  const { variantOptionValues, ...rest } = variant
+  return { ...rest, optionValueIds: variantOptionValues.map((v) => v.optionValueId) }
+}
 
 export type ProductSortBy = "newest" | "price_asc" | "price_desc"
 
@@ -96,14 +105,23 @@ export const getAllProducts = async ({
         where: eq(images.isPrimary, true),
         limit: 1,
       },
+      options: {
+        with: {
+          values: true,
+        },
+      },
+      variants: {
+        with: {
+          variantOptionValues: true,
+        },
+      },
     },
   })
 
-  // isNotNull(products.minPrice) above guarantees every row has a price;
-  // narrow the type here so callers don't have to re-cast it.
   const rows = rawRows.map((row) => ({
     ...row,
     minPrice: row.minPrice as number,
+    variants: row.variants.map(withOptionValueIds),
   }))
 
   const last = rows.at(-1)
@@ -142,10 +160,7 @@ export const getProductBySlug = async (slug: string) => {
 
   return {
     ...product,
-    variants: product.variants.map(({ variantOptionValues, ...variant }) => ({
-      ...variant,
-      optionValueIds: variantOptionValues.map((v) => v.optionValueId),
-    })),
+    variants: product.variants.map(withOptionValueIds),
   }
 }
 
@@ -162,6 +177,29 @@ export const getProductsByIds = async (ids: string[]) => {
       images: {
         where: eq(images.isPrimary, true),
         limit: 1,
+      },
+    },
+  })
+}
+
+export const getVariantsByIds = async (ids: string[]) => {
+  if (ids.length === 0) return []
+
+  return db.query.productVariants.findMany({
+    where: inArray(productVariants.id, ids),
+    with: {
+      product: {
+        with: {
+          images: {
+            where: eq(images.isPrimary, true),
+            limit: 1,
+          },
+        },
+      },
+      variantOptionValues: {
+        with: {
+          optionValue: true,
+        },
       },
     },
   })

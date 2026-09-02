@@ -42,7 +42,7 @@ export function CartDrawer({ children }: { children: ReactNode }) {
   )
 
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + item.variant.price * item.quantity,
     0
   )
 
@@ -73,7 +73,7 @@ export function CartDrawer({ children }: { children: ReactNode }) {
           <ScrollArea className="min-h-0 flex-1 p-4">
             <div className="flex flex-col gap-4 py-4">
               {items.map((item) => (
-                <CartItemCard key={item.product.id} item={item} />
+                <CartItemCard key={item.variant.id} item={item} />
               ))}
             </div>
           </ScrollArea>

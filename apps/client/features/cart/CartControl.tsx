@@ -17,14 +17,14 @@ import {
 } from "@repo/ui/alert-dialog";
 import { useCart } from "@/features/cart/CartProvider";
 import { cn } from "@repo/ui/utils";
-import type { Product } from "@/features/products/queries";
+import type { CartItemVariant } from "@/features/cart/actions";
 
 export function CartControl({
-  product,
+  variant,
   size = "default",
   className,
 }: {
-  product: Product;
+  variant: CartItemVariant;
   size?: "default" | "lg";
   className?: string;
 }) {
@@ -33,10 +33,10 @@ export function CartControl({
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
 
   const quantity =
-    items.find((item) => item.product.id === product.id)?.quantity ?? 0;
+    items.find((item) => item.variant.id === variant.id)?.quantity ?? 0;
 
   const handleAdd = () => {
-    addItem(product, 1);
+    addItem(variant, 1);
   };
 
   const handleDecrement = () => {
@@ -45,20 +45,22 @@ export function CartControl({
       return;
     }
 
-    updateItemQuantity(product.id, quantity - 1);
+    updateItemQuantity(variant.id, quantity - 1);
   };
 
   const handleIncrement = () => {
-    updateItemQuantity(product.id, quantity + 1);
+    updateItemQuantity(variant.id, quantity + 1);
   };
 
   const handleConfirmRemove = () => {
-    removeItem(product.id);
+    removeItem(variant.id);
     setRemoveDialogOpen(false);
   };
 
   const buttonSize = size === "lg" ? "lg" : "default";
   const iconButtonSize = size === "lg" ? "icon-lg" : "icon";
+  const isOutOfStock = variant.stock <= 0;
+  const atStockLimit = quantity >= variant.stock;
 
   return (
     <>
@@ -68,10 +70,10 @@ export function CartControl({
           size={buttonSize}
           className={cn("w-full", className)}
           onClick={handleAdd}
-          disabled={isPending}
+          disabled={isPending || isOutOfStock}
           data-testid="cart-control-add"
         >
-          Add to Cart
+          {isOutOfStock ? "Sold out" : "Add to Cart"}
         </Button>
       ) : (
         <div className="flex w-full items-center justify-between rounded-4xl border border-border p-1">
@@ -97,7 +99,7 @@ export function CartControl({
             size={iconButtonSize}
             variant="ghost"
             onClick={handleIncrement}
-            disabled={isPending}
+            disabled={isPending || atStockLimit}
             data-testid="cart-control-increment"
           >
             <Plus className="size-4" />
@@ -113,7 +115,7 @@ export function CartControl({
             </AlertDialogMedia>
             <AlertDialogTitle>Remove item?</AlertDialogTitle>
             <AlertDialogDescription>
-              {product.name} will be removed from your cart.
+              {variant.product.name} will be removed from your cart.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
