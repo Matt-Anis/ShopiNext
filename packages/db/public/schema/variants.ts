@@ -56,6 +56,7 @@ export const productVariants = pgTable(
     sku: text().unique().notNull(),
     price: integer().notNull().default(0),
     stock: integer().notNull().default(0),
+    maxPerOrder: integer().notNull(),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
       .$onUpdate(() => new Date())

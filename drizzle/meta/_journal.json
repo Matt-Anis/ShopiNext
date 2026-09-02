@@ -113,6 +113,20 @@
       "when": 1788289731745,
       "tag": "0015_add_products_min_price_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1788379358709,
+      "tag": "0016_past_hitman",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1788379443015,
+      "tag": "0017_numerous_tusk",
+      "breakpoints": true
     }
   ]
 }
