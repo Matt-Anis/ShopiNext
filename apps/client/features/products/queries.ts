@@ -87,7 +87,7 @@ export const getAllProducts = async ({
       break
   }
 
-  const rows = await db.query.products.findMany({
+  const rawRows = await db.query.products.findMany({
     where: and(isNotNull(products.minPrice), cursorWhere),
     orderBy,
     limit,
@@ -99,12 +99,16 @@ export const getAllProducts = async ({
     },
   })
 
+  // isNotNull(products.minPrice) above guarantees every row has a price;
+  // narrow the type here so callers don't have to re-cast it.
+  const rows = rawRows.map((row) => ({ ...row, minPrice: row.minPrice as number }))
+
   const last = rows.at(-1)
   const nextCursor: ProductCursor | null =
     rows.length === limit && last
       ? {
           id: last.id,
-          value: sortBy === "newest" ? last.createdAt : (last.minPrice as number),
+          value: sortBy === "newest" ? last.createdAt : last.minPrice,
         }
       : null
 

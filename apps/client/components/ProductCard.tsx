@@ -34,7 +34,7 @@ export function ProductCard({ product }: { product: Product }) {
             <div>
               <CardTitle className="line-clamp-4  ">{product.name}</CardTitle>
               <span className="shrink-0 text-2xl font-medium">
-                {formatPrice(product.minPrice as number)}
+                {formatPrice(product.minPrice)}
               </span>
             </div>
           </CardContent>
