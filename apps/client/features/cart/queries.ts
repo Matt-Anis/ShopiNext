@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm"
 import { db } from "@/db"
 import { cart, cartItems, images, productVariants } from "@repo/db/public/schema"
+import { optionLabelFor } from "@/features/products/queries"
 import type { CartItem } from "@/features/cart/actions"
 
 type RawCartVariant = {
@@ -26,9 +27,7 @@ export const toCartItem = (item: {
     id: item.variant.id,
     price: item.variant.price,
     maxPerOrder: Math.min(item.variant.stock, item.variant.maxPerOrder),
-    optionLabel: item.variant.variantOptionValues
-      .map((v) => v.optionValue.value)
-      .join(" / "),
+    optionLabel: optionLabelFor(item.variant.variantOptionValues),
     product: {
       id: item.variant.product.id,
       name: item.variant.product.name,

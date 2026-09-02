@@ -5,10 +5,13 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import { getCart } from "@/features/cart/actions";
-import { getProductsByIds, type Product } from "@/features/products/queries";
+import { getVariantsByIds, optionLabelFor } from "@/features/products/queries";
 
 type LineItemInput = {
-  product: Product;
+  variantId: string;
+  productName: string;
+  optionLabel: string;
+  price: number;
   quantity: number;
 };
 
@@ -22,19 +25,36 @@ const createCheckoutSession = async (
     throw new Error("Cannot checkout with no items");
   }
 
+  const variants = await getVariantsByIds(items.map((item) => item.variantId));
+  const variantById = new Map(variants.map((variant) => [variant.id, variant]));
+
+  for (const item of items) {
+    const variant = variantById.get(item.variantId);
+    const available = variant
+      ? Math.min(variant.stock, variant.maxPerOrder)
+      : 0;
+
+    if (item.quantity > available) {
+      throw new Error(
+        `${item.productName} is no longer available in the requested quantity`,
+      );
+    }
+  }
+
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "payment",
-    line_items: items.map(({ product, quantity }) => ({
-      quantity,
+    line_items: items.map((item) => ({
+      quantity: item.quantity,
       price_data: {
         currency: "usd",
-        unit_amount: product.price,
+        unit_amount: item.price,
         product_data: {
-          name: product.name,
-          metadata: { productId: product.id },
+          name: item.productName,
+          description: item.optionLabel || undefined,
+          metadata: { variantId: item.variantId },
         },
       },
     })),
@@ -54,21 +74,41 @@ const createCheckoutSession = async (
   redirect(checkoutSession.url);
 };
 
-export const checkoutNow = async (productId: string, quantity = 1) => {
-  const [product] = await getProductsByIds([productId]);
+export const checkoutNow = async (
+  variantId: string,
+  quantity: number,
+) => {
+  const [variant] = await getVariantsByIds([variantId]);
 
-  if (!product) {
+  if (!variant) {
     throw new Error("Product not found");
   }
 
-  await createCheckoutSession([{ product, quantity }], "buy-now");
+  await createCheckoutSession(
+    [
+      {
+        variantId: variant.id,
+        productName: variant.product.name,
+        optionLabel: optionLabelFor(variant.variantOptionValues),
+        price: variant.price,
+        quantity,
+      },
+    ],
+    "buy-now",
+  );
 };
 
 export const checkoutCart = async () => {
   const cart = await getCart();
 
   await createCheckoutSession(
-    cart.map((item) => ({ product: item.product, quantity: item.quantity })),
+    cart.map((item) => ({
+      variantId: item.variant.id,
+      productName: item.variant.product.name,
+      optionLabel: item.variant.optionLabel,
+      price: item.variant.price,
+      quantity: item.quantity,
+    })),
     "cart",
   );
 };

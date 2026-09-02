@@ -14,6 +14,10 @@ import {
 import { db } from "@/db"
 import { images, productVariants, products } from "@repo/db/public/schema"
 
+export const optionLabelFor = (
+  variantOptionValues: { optionValue: { value: string } }[]
+) => variantOptionValues.map((v) => v.optionValue.value).join(" / ")
+
 const shapeVariant = <
   T extends {
     stock: number
