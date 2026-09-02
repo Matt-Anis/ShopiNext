@@ -2,14 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { AspectRatio } from "@repo/ui/aspect-ratio";
+import { Button } from "@repo/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@repo/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover";
 import { Skeleton } from "@repo/ui/skeleton";
 import type { Product } from "@/features/products/queries";
 import { CartControl } from "@/features/cart/CartControl";
+import {
+  VariantAddToCart,
+  VariantOptionPills,
+  VariantPickerProvider,
+} from "@/app/(shop)/products/[slug]/_components/VariantPicker";
 import { formatPrice } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const image = product.images[0];
+  const cartProduct = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    image: image ?? null,
+  };
+  const singleVariant =
+    product.variants.length === 1 ? product.variants[0] : null;
 
   return (
     <div className="block h-full">
@@ -40,7 +55,41 @@ export function ProductCard({ product }: { product: Product }) {
           </CardContent>
         </Link>
         <CardFooter className="px-4 py-4">
-          <CartControl product={product} />
+          {singleVariant ? (
+            <CartControl
+              variant={{
+                id: singleVariant.id,
+                price: singleVariant.price,
+                stock: singleVariant.stock,
+                optionLabel: "",
+                product: cartProduct,
+              }}
+            />
+          ) : (
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <Button
+                    type="button"
+                    className="w-full"
+                    data-testid="product-card-add-to-cart"
+                  >
+                    Add to Cart
+                  </Button>
+                }
+              />
+              <PopoverContent align="start">
+                <VariantPickerProvider
+                  options={product.options}
+                  variants={product.variants}
+                  minPrice={product.minPrice}
+                >
+                  <VariantOptionPills />
+                  <VariantAddToCart product={cartProduct} />
+                </VariantPickerProvider>
+              </PopoverContent>
+            </Popover>
+          )}
         </CardFooter>
       </Card>
     </div>
