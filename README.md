@@ -27,6 +27,7 @@ See [`docs/database.md`](./docs/database.md) for database setup notes.
 - [ ] Product images
 - [x] Product categories
 - [x] Product variants (size, color, stock per variant)
+- [x] Stock & per-order purchase limits enforced at checkout
 - [ ] Address management
 - [ ] Basic SEO
 - [ ] Promotional
