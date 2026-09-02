@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils"
 import { CartControl } from "@/features/cart/CartControl"
 import type { CartItemVariant } from "@/features/cart/actions"
 import type { ProductDetail } from "@/features/products/queries"
+import { BuyNowButton } from "./BuyNowButton"
 
 type Option = ProductDetail["options"][number]
 type Variant = ProductDetail["variants"][number]
@@ -242,6 +243,26 @@ export function VariantAddToCart({
         product,
       }}
       size={size}
+      className={className}
+    />
+  )
+}
+
+export function VariantBuyNow({ className }: { className?: string }) {
+  const { matchedVariant, options } = useVariantPicker()
+
+  if (!matchedVariant || matchedVariant.maxPerOrder <= 0) {
+    return (
+      <Button type="button" size="lg" className={cn("w-full", className)} disabled>
+        {!matchedVariant && options.length > 0 ? "Select options" : "Sold out"}
+      </Button>
+    )
+  }
+
+  return (
+    <BuyNowButton
+      variantId={matchedVariant.id}
+      maxPerOrder={matchedVariant.maxPerOrder}
       className={className}
     />
   )

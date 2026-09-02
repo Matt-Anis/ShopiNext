@@ -7,23 +7,29 @@ import { StripeCheckoutDialog } from "@/app/(shop)/_components/StripeCheckoutDia
 import { checkoutNow } from "@/features/checkout/actions"
 
 export function BuyNowButton({
-  productId,
+  variantId,
+  maxPerOrder,
   className,
 }: {
-  productId: string
+  variantId: string
+  maxPerOrder: number
   className?: string
 }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const formRef = useRef<HTMLFormElement>(null)
 
   return (
     <>
-      <form ref={formRef} action={checkoutNow.bind(null, productId, 1)}>
+      <form ref={formRef} action={checkoutNow.bind(null, variantId, quantity)}>
         <Button
           type="button"
           size="lg"
           className={className}
-          onClick={() => setDialogOpen(true)}
+          onClick={() => {
+            setQuantity(1)
+            setDialogOpen(true)
+          }}
           data-testid="buy-now-button"
         >
           Buy now
@@ -33,6 +39,9 @@ export function BuyNowButton({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onConfirm={() => formRef.current?.requestSubmit()}
+        quantity={quantity}
+        onQuantityChange={setQuantity}
+        maxQuantity={maxPerOrder}
       />
     </>
   )

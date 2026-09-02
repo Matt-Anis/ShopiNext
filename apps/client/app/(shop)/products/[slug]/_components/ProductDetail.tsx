@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { Skeleton } from "@repo/ui/skeleton";
 import { fetchProductBySlug } from "@/features/products/actions";
-import { BuyNowButton } from "./BuyNowButton";
 import {
   VariantAddToCart,
+  VariantBuyNow,
   VariantOptionPills,
   VariantPickerProvider,
   VariantPrice,
@@ -61,7 +61,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
               size="lg"
               className="border-border bg-background text-foreground hover:bg-muted"
             />
-            <BuyNowButton productId={product.id} className="w-full" />
+            <VariantBuyNow className="w-full" />
           </div>
         </div>
 
@@ -74,7 +74,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
               size="lg"
               className="border-border bg-background text-foreground hover:bg-muted"
             />
-            <BuyNowButton productId={product.id} className="w-full" />
+            <VariantBuyNow className="w-full" />
           </div>
         </div>
       </section>
