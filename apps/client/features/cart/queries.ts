@@ -75,23 +75,18 @@ export const getCartFromDb = async (userId: string) => {
 const cartIdForUser = (userId: string) =>
   db.select({ id: cart.id }).from(cart).where(eq(cart.userId, userId))
 
-const ensureCartId = async (userId: string) => {
-  const [row] = await db
-    .insert(cart)
-    .values({ userId })
-    .onConflictDoUpdate({ target: cart.userId, set: { userId } })
-    .returning({ id: cart.id })
-
-  return row.id
-}
-
 export const createCartItem = async (
   userId: string,
   variantId: string,
   quantity = 1
 ) => {
   await db.transaction(async (tx) => {
-    const cartId = await ensureCartId(userId)
+    const [cartRow] = await tx
+      .insert(cart)
+      .values({ userId })
+      .onConflictDoUpdate({ target: cart.userId, set: { userId } })
+      .returning({ id: cart.id })
+    const cartId = cartRow.id
 
     const [variant] = await tx
       .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
