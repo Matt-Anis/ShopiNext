@@ -11,7 +11,17 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": true
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@repo/ui/components": ["./components"],
+      "@repo/ui/components/*": ["./components/*"],
+      "@repo/ui/utils": ["./lib/utils"],
+      "@repo/ui/lib": ["./lib"],
+      "@repo/ui/lib/*": ["./lib/*"],
+      "@repo/ui/hooks": ["./hooks"],
+      "@repo/ui/hooks/*": ["./hooks/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
