@@ -1,0 +1,23 @@
+/**
+ * Staging file only — not imported anywhere and not a source of truth.
+ * apps/client and apps/admin each have their own globals.css with their
+ * own token values (different themes), so this file only exists so the
+ * shadcn CLI has somewhere real to write CSS variables when a component
+ * needs them. See the commit that introduced this file for the full
+ * explanation and workflow.
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+}
+
+:root {
+}
+
+.dark {
+}
