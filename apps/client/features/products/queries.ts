@@ -109,7 +109,11 @@ export const getAllProducts = async ({
   }
 
   const rawRows = await db.query.products.findMany({
-    where: and(isNotNull(products.minPrice), cursorWhere),
+    where: and(
+      isNotNull(products.minPrice),
+      eq(products.isActive, true),
+      cursorWhere
+    ),
     orderBy,
     limit,
     with: {
@@ -123,6 +127,7 @@ export const getAllProducts = async ({
         },
       },
       variants: {
+        where: eq(productVariants.isActive, true),
         with: {
           variantOptionValues: true,
         },
@@ -150,7 +155,7 @@ export const getAllProducts = async ({
 
 export const getProductBySlug = async (slug: string) => {
   const product = await db.query.products.findFirst({
-    where: eq(products.slug, slug),
+    where: and(eq(products.slug, slug), eq(products.isActive, true)),
     with: {
       images: {
         orderBy: desc(images.isPrimary),
@@ -161,6 +166,7 @@ export const getProductBySlug = async (slug: string) => {
         },
       },
       variants: {
+        where: eq(productVariants.isActive, true),
         with: {
           variantOptionValues: true,
         },
@@ -184,7 +190,7 @@ export const getProductsByIds = async (ids: string[]) => {
   if (ids.length === 0) return []
 
   return db.query.products.findMany({
-    where: inArray(products.id, ids),
+    where: and(inArray(products.id, ids), eq(products.isActive, true)),
     with: {
       images: {
         where: eq(images.isPrimary, true),
@@ -198,7 +204,10 @@ export const getVariantsByIds = async (ids: string[]) => {
   if (ids.length === 0) return []
 
   return db.query.productVariants.findMany({
-    where: inArray(productVariants.id, ids),
+    where: and(
+      inArray(productVariants.id, ids),
+      eq(productVariants.isActive, true)
+    ),
     with: {
       product: {
         with: {

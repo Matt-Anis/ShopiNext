@@ -67,7 +67,12 @@ export const getCartFromDb = async (userId: string) => {
     },
   })
 
-  return result ?? null
+  if (!result) return null
+
+  return {
+    ...result,
+    items: result.items.filter((item) => item.variant.isActive),
+  }
 }
 
 // Scalar subquery resolving a user's cart id inline, so callers don't
@@ -91,7 +96,9 @@ export const createCartItem = async (
     const [variant] = await tx
       .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
       .from(productVariants)
-      .where(eq(productVariants.id, variantId))
+      .where(
+        and(eq(productVariants.id, variantId), eq(productVariants.isActive, true))
+      )
 
     if (!variant) return
 
@@ -143,7 +150,9 @@ export const updateCartItemQuantity = async (
     const [variant] = await tx
       .select({ stock: productVariants.stock, maxPerOrder: productVariants.maxPerOrder })
       .from(productVariants)
-      .where(eq(productVariants.id, variantId))
+      .where(
+        and(eq(productVariants.id, variantId), eq(productVariants.isActive, true))
+      )
 
     if (!variant) return
 
