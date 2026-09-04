@@ -1,18 +1,36 @@
-import { index, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import {
+  boolean,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
 import { adminUser } from "../../admin/auth-schema";
 import { products } from "./products";
 
-export const categories = pgTable("categories", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: text().unique().notNull(),
-  description: text(),
-  updatedBy: text().references(() => adminUser.id, { onDelete: "set null" }),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const categories = pgTable(
+  "categories",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    name: text().notNull(),
+    description: text(),
+    isActive: boolean().notNull().default(true),
+    updatedBy: text().references(() => adminUser.id, { onDelete: "set null" }),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("categories_name_active_unique")
+      .on(table.name)
+      .where(sql`${table.isActive}`),
+  ],
+);
 
 export const productCategories = pgTable(
   "product_categories",
