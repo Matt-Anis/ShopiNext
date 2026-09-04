@@ -1,7 +1,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { CircleOff, MoreHorizontal, Pencil } from "lucide-react"
 
 import type { categories } from "@repo/db/public/schema"
 import type { adminUser } from "@repo/db/admin/auth-schema"
@@ -107,8 +107,8 @@ export function getColumns({
                 variant="destructive"
                 onClick={() => onDelete(category)}
               >
-                <Trash2 />
-                Delete
+                <CircleOff />
+                Deactivate
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

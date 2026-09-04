@@ -1,13 +1,15 @@
 import {
+  boolean,
   index,
   integer,
   pgTable,
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { products } from "./products";
 
 export const productOptions = pgTable(
@@ -53,16 +55,22 @@ export const productVariants = pgTable(
     productId: uuid()
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
-    sku: text().unique().notNull(),
+    sku: text().notNull(),
     price: integer().notNull().default(0),
     stock: integer().notNull().default(0),
     maxPerOrder: integer().notNull(),
+    isActive: boolean().notNull().default(true),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("product_variants_productId_idx").on(table.productId)],
+  (table) => [
+    index("product_variants_productId_idx").on(table.productId),
+    uniqueIndex("product_variants_sku_active_unique")
+      .on(table.sku)
+      .where(sql`${table.isActive}`),
+  ],
 );
 
 export const variantOptionValues = pgTable(

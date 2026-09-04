@@ -43,6 +43,7 @@ export const createOrder = async ({
         .where(
           and(
             eq(productVariants.id, item.variantId),
+            eq(productVariants.isActive, true),
             gte(productVariants.stock, item.quantity),
             gte(productVariants.maxPerOrder, item.quantity),
           ),

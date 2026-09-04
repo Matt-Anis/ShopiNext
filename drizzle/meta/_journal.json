@@ -127,6 +127,20 @@
       "when": 1788379443015,
       "tag": "0017_numerous_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788558656081,
+      "tag": "0018_short_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788558673202,
+      "tag": "0019_isactive_triggers",
+      "breakpoints": true
     }
   ]
 }

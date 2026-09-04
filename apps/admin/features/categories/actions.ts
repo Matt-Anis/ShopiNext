@@ -73,7 +73,10 @@ export async function deleteCategory(id: string) {
   if (!session) throw new Error("Unauthorized")
 
   try {
-    await db.delete(categories).where(eq(categories.id, id))
+    await db
+      .update(categories)
+      .set({ isActive: false, updatedBy: session.user.id })
+      .where(eq(categories.id, id))
   } catch (error) {
     console.error("[categories] deleteCategory failed:", error)
     throw error

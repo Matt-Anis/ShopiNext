@@ -172,30 +172,30 @@ test.describe("Edit category", () => {
   })
 })
 
-test.describe("Delete category", () => {
-  test("deletes a category after confirming", async ({ page }) => {
+test.describe("Deactivate category", () => {
+  test("deactivates a category after confirming", async ({ page }) => {
     const category = await seedCategory()
     await signIn(page)
     await page.goto("/categories")
 
     await openRowMenu(page, category.name)
-    await page.getByRole("menuitem", { name: "Delete" }).click()
+    await page.getByRole("menuitem", { name: "Deactivate" }).click()
 
     const dialog = page.getByRole("alertdialog")
     await expect(dialog).toContainText(category.name)
-    await dialog.getByRole("button", { name: "Delete" }).click()
+    await dialog.getByRole("button", { name: "Deactivate" }).click()
 
-    await expect(page.getByText("Category deleted")).toBeVisible()
+    await expect(page.getByText("Category deactivated")).toBeVisible()
     await expect(page.getByTestId("categories-empty-state")).toBeVisible()
 
-    const remaining = await testDb
+    const [remaining] = await testDb
       .select()
       .from(categories)
       .where(eq(categories.id, category.id))
-    expect(remaining).toHaveLength(0)
+    expect(remaining!.isActive).toBe(false)
   })
 
-  test("does not delete when the confirmation is cancelled", async ({
+  test("does not deactivate when the confirmation is cancelled", async ({
     page,
   }) => {
     const category = await seedCategory()
@@ -203,20 +203,20 @@ test.describe("Delete category", () => {
     await page.goto("/categories")
 
     await openRowMenu(page, category.name)
-    await page.getByRole("menuitem", { name: "Delete" }).click()
+    await page.getByRole("menuitem", { name: "Deactivate" }).click()
 
     const dialog = page.getByRole("alertdialog")
     await dialog.getByRole("button", { name: "Cancel" }).click()
 
     await expect(dialog).toBeHidden()
-    await expect(page.getByText("Category deleted")).toBeHidden()
+    await expect(page.getByText("Category deactivated")).toBeHidden()
     await expect(page.locator("tr", { hasText: category.name })).toBeVisible()
 
     const [stillThere] = await testDb
       .select()
       .from(categories)
       .where(eq(categories.id, category.id))
-    expect(stillThere).toBeDefined()
+    expect(stillThere!.isActive).toBe(true)
   })
 })
 

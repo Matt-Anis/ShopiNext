@@ -35,13 +35,13 @@ export function DeleteCategoryDialog({
 
       await toast
         .promise(deletePromise, {
-          loading: { title: "Deleting category..." },
+          loading: { title: "Deactivating category..." },
           success: () => {
             onOpenChange(false)
-            return { title: "Category deleted" }
+            return { title: "Category deactivated" }
           },
           error: (error: Error) => ({
-            title: "Failed to delete category",
+            title: "Failed to deactivate category",
             description: error.message,
           }),
         })
@@ -53,14 +53,14 @@ export function DeleteCategoryDialog({
     <AlertDialog open={!!category} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete category</AlertDialogTitle>
+          <AlertDialogTitle>Deactivate category</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete{" "}
+            This will deactivate{" "}
             <span className="font-medium text-foreground">
               {category?.name}
             </span>
-            . Products in this category will not be deleted, only
-            unassigned from it.
+            . It will be hidden from this list but products keep their
+            association with it, and it can be reactivated later.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -70,7 +70,7 @@ export function DeleteCategoryDialog({
             disabled={isPending}
             onClick={handleDelete}
           >
-            Delete
+            Deactivate
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
