@@ -64,6 +64,8 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS products_cascade_deactivation ON "products";
+
 CREATE TRIGGER products_cascade_deactivation
 AFTER UPDATE OF "isActive" ON "products"
 FOR EACH ROW
