@@ -35,6 +35,26 @@ The root `.env.local` (used only for running migrations) should keep using
 the database superuser — `admin_app`/`client_app` don't have `CREATE`/`ALTER`
 privileges.
 
+## `isActive` is soft-delete, not draft/publish state
+
+`isActive` on [`products`](../packages/db/public/schema/products.ts),
+[`product_variants`](../packages/db/public/schema/variants.ts), and
+[`categories`](../packages/db/public/schema/categories.ts) exists purely to
+avoid hard-deleting rows that other data references — a hard `DELETE` on a
+product or variant already sold would corrupt order history (an order line
+pointing at a row that no longer exists), and a hard `DELETE` on a category
+in use would silently lose which products had it. `isActive: false` means
+"trashed," full stop.
+
+It is **not** a draft/unpublished flag. Whether a product is still being
+assembled through the admin creation wizard (no categories/options/variants
+yet) is tracked separately via `products.status` (`draft` / `active`) —
+conflating the two would mean an admin can't tell "deleted" from "still being
+created" apart, and a soft-deleted row could never be distinguished from an
+in-progress draft. Client-facing queries that read products must check both
+`isActive = true` and `status = 'active'` — they're independent gates, not
+interchangeable.
+
 ## Derived `products.minPrice`
 
 Since pricing moved from a single `products.price` column to per-variant

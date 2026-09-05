@@ -18,6 +18,9 @@ export const categories = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     name: text().notNull(),
     description: text(),
+    // Soft-delete only: false means trashed, to preserve product-category
+    // associations for products that reference this row. Not a draft/unpublished
+    // flag — see docs/database.md.
     isActive: boolean().notNull().default(true),
     updatedBy: text().references(() => adminUser.id, { onDelete: "set null" }),
     createdAt: timestamp().defaultNow().notNull(),

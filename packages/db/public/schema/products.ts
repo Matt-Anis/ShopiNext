@@ -21,6 +21,8 @@ export const products = pgTable(
     slug: text().notNull(),
     description: text(),
     minPrice: integer(),
+    // Soft-delete only: false means trashed, to preserve order history that
+    // references this row. Not a draft/unpublished flag — see docs/database.md.
     isActive: boolean().notNull().default(true),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
