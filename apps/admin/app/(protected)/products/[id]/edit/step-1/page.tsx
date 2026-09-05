@@ -14,10 +14,10 @@ export default async function ProductStep1Page({
   }
 
   return (
-    <div className="px-8 pt-9">
+    <div className="flex gap-10 px-8 pt-9">
+      <ProductWizardSteps step={1} productId={id} />
       <div className="max-w-[480px]">
-        <ProductWizardSteps step={1} productId={id} />
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl font-semibold tracking-tight">
           {product.name}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

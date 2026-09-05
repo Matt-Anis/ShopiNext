@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@repo/ui/utils";
 import { Toaster } from "@repo/ui/toast";
+import { TooltipProvider } from "@repo/ui/tooltip";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
@@ -24,7 +25,9 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
         <Toaster />
       </body>
     </html>
