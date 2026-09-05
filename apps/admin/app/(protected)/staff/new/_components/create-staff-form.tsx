@@ -8,8 +8,13 @@ import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
+import { useBreadcrumb } from "../../../_components/breadcrumb-provider"
+
+const breadcrumbItems = [{ label: "Staff", href: "/staff" }, { label: "New staff" }]
 
 export function CreateStaffForm() {
+  useBreadcrumb(breadcrumbItems)
+
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 

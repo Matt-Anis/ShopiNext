@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
 import { AppSidebar } from "./_components/app-sidebar"
+import { BreadcrumbProvider } from "./_components/breadcrumb-provider"
+import { HeaderBreadcrumb } from "./_components/header-breadcrumb"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@repo/ui/sidebar"
 
 export default async function ProtectedLayout({
@@ -20,12 +22,13 @@ export default async function ProtectedLayout({
     <SidebarProvider>
       <AppSidebar user={session.user} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
+        <BreadcrumbProvider>
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
             <SidebarTrigger className="-ml-1" />
-          </div>
-        </header>
-        {children}
+            <HeaderBreadcrumb />
+          </header>
+          {children}
+        </BreadcrumbProvider>
       </SidebarInset>
     </SidebarProvider>
   )

@@ -10,7 +10,7 @@ export default async function StaffPage() {
   })
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 px-4 py-6">
       <StaffClient users={users} />
     </div>
   )
