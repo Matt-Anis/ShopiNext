@@ -666,7 +666,7 @@ function SidebarMenuSubItem({
     >
       <span
         aria-hidden="true"
-        className="absolute top-1/2 left-[-11.5px] h-4 w-0.5 -translate-y-1/2 rounded-full bg-sidebar-primary opacity-0 transition-opacity group-has-data-active/menu-sub-item:opacity-100"
+        className="absolute top-1/2 left-[-11.5px] h-4 w-0.5 -translate-y-1/2 rounded-full bg-primary opacity-0 transition-opacity group-has-data-active/menu-sub-item:opacity-100"
       />
       {children}
     </li>

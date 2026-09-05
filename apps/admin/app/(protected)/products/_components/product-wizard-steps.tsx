@@ -18,7 +18,7 @@ const STEPS = [
 
 interface ProductWizardStepsProps {
   step: 1 | 2 | 3
-  productId: string
+  productId?: string
 }
 
 export function ProductWizardSteps({
@@ -30,7 +30,7 @@ export function ProductWizardSteps({
     ...STEPS.slice(0, step).map(({ label }, index) => ({
       label,
       href:
-        index === step - 1
+        index === step - 1 || !productId
           ? undefined
           : `/products/${productId}/edit/step-${index + 1}`,
     })),
@@ -43,9 +43,10 @@ export function ProductWizardSteps({
         const isComplete = stepNumber < step
         const isCurrent = stepNumber === step
         const isLast = stepNumber === STEPS.length
-        const href = isComplete
-          ? `/products/${productId}/edit/step-${stepNumber}`
-          : undefined
+        const href =
+          isComplete && productId
+            ? `/products/${productId}/edit/step-${stepNumber}`
+            : undefined
 
         const circle = (
           <span

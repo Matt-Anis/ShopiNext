@@ -9,12 +9,6 @@ import { Button } from "@repo/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
 import { Textarea } from "@repo/ui/textarea"
-import { useBreadcrumb } from "../../../_components/breadcrumb-provider"
-
-const breadcrumbItems = [
-  { label: "Products", href: "/products" },
-  { label: "New product" },
-]
 
 function slugify(value: string) {
   return value
@@ -25,8 +19,6 @@ function slugify(value: string) {
 }
 
 export function CreateProductForm() {
-  useBreadcrumb(breadcrumbItems)
-
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const slugInputRef = useRef<HTMLInputElement>(null)
