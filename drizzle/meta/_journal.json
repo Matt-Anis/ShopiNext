@@ -141,6 +141,20 @@
       "when": 1788558673202,
       "tag": "0019_isactive_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788637569178,
+      "tag": "0020_jazzy_ser_duncan",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1788637972946,
+      "tag": "0021_backfill_products_status_active",
+      "breakpoints": true
     }
   ]
 }

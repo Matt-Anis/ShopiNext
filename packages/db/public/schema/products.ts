@@ -1,5 +1,6 @@
 import {
   boolean,
+  check,
   index,
   integer,
   pgTable,
@@ -24,6 +25,7 @@ export const products = pgTable(
     // Soft-delete only: false means trashed, to preserve order history that
     // references this row. Not a draft/unpublished flag — see docs/database.md.
     isActive: boolean().notNull().default(true),
+    status: text().notNull().default("draft").$type<"draft" | "active">(),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
       .$onUpdate(() => new Date())
@@ -35,10 +37,13 @@ export const products = pgTable(
       .where(sql`${table.isActive}`),
     index("products_createdAt_id_idx")
       .on(table.createdAt, table.id)
-      .where(sql`${table.isActive}`),
+      .where(sql`${table.isActive} and ${table.status} = 'active'`),
     index("products_minPrice_id_idx")
       .on(table.minPrice, table.id)
-      .where(sql`${table.minPrice} is not null and ${table.isActive}`),
+      .where(
+        sql`${table.minPrice} is not null and ${table.isActive} and ${table.status} = 'active'`
+      ),
+    check("products_status_check", sql`${table.status} in ('draft', 'active')`),
   ],
 );
 
