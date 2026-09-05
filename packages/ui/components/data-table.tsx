@@ -58,6 +58,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchColumn?: string;
   searchPlaceholder?: string;
+  actions?: React.ReactNode;
   emptyTitle: string;
   emptyDescription: string;
   emptyIcon: React.ReactNode;
@@ -70,6 +71,7 @@ export function DataTable<TData, TValue>({
   data,
   searchColumn,
   searchPlaceholder = "Search...",
+  actions,
   emptyTitle,
   emptyDescription,
   emptyIcon,
@@ -199,9 +201,9 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      {data.length > 0 && (
-        <div className="flex items-center gap-4 pb-4">
-          {searchColumn ? (
+      {(data.length > 0 || actions) && (
+        <div className="flex items-center justify-between gap-4 pb-4">
+          {data.length > 0 && searchColumn ? (
             <div className="relative max-w-sm flex-1">
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -223,72 +225,78 @@ export function DataTable<TData, TValue>({
             <div />
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  data-testid="data-table-columns-button"
-                >
-                  <Columns3 />
-                  Columns
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="w-64">
-              {reorderableColumns.map((column, index) => {
-                const label =
-                  typeof column.columnDef.header === "string"
-                    ? column.columnDef.header
-                    : column.id;
-                const isVisible = column.getIsVisible();
+          <div className="flex items-center gap-2">
+            {data.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      data-testid="data-table-columns-button"
+                    >
+                      <Columns3 />
+                      Columns
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end" className="w-64">
+                  {reorderableColumns.map((column, index) => {
+                    const label =
+                      typeof column.columnDef.header === "string"
+                        ? column.columnDef.header
+                        : column.id;
+                    const isVisible = column.getIsVisible();
 
-                return (
-                  <div
-                    key={column.id}
-                    className="flex items-center gap-1 rounded-2xl px-1.5 py-1"
-                  >
-                    <button
-                      type="button"
-                      className="flex flex-1 items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-sm font-medium hover:bg-accent"
-                      onClick={() => column.toggleVisibility(!isVisible)}
-                    >
-                      <span
-                        className={cn(
-                          "flex size-4 shrink-0 items-center justify-center rounded-sm border border-input",
-                          isVisible && "border-primary bg-primary text-primary-foreground"
-                        )}
+                    return (
+                      <div
+                        key={column.id}
+                        className="flex items-center gap-1 rounded-2xl px-1.5 py-1"
                       >
-                        {isVisible && <Check className="size-3" />}
-                      </span>
-                      {label}
-                    </button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      disabled={index === 0}
-                      onClick={() => moveColumn(column.id, -1)}
-                    >
-                      <ChevronUp />
-                      <span className="sr-only">Move {label} up</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      disabled={index === reorderableColumns.length - 1}
-                      onClick={() => moveColumn(column.id, 1)}
-                    >
-                      <ChevronDown />
-                      <span className="sr-only">Move {label} down</span>
-                    </Button>
-                  </div>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                        <button
+                          type="button"
+                          className="flex flex-1 items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-sm font-medium hover:bg-accent"
+                          onClick={() => column.toggleVisibility(!isVisible)}
+                        >
+                          <span
+                            className={cn(
+                              "flex size-4 shrink-0 items-center justify-center rounded-sm border border-input",
+                              isVisible && "border-primary bg-primary text-primary-foreground"
+                            )}
+                          >
+                            {isVisible && <Check className="size-3" />}
+                          </span>
+                          {label}
+                        </button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          disabled={index === 0}
+                          onClick={() => moveColumn(column.id, -1)}
+                        >
+                          <ChevronUp />
+                          <span className="sr-only">Move {label} up</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          disabled={index === reorderableColumns.length - 1}
+                          onClick={() => moveColumn(column.id, 1)}
+                        >
+                          <ChevronDown />
+                          <span className="sr-only">Move {label} down</span>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {actions}
+          </div>
         </div>
       )}
 

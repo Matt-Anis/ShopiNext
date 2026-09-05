@@ -112,6 +112,7 @@ export const getAllProducts = async ({
     where: and(
       isNotNull(products.minPrice),
       eq(products.isActive, true),
+      eq(products.status, "active"),
       cursorWhere
     ),
     orderBy,
@@ -155,7 +156,11 @@ export const getAllProducts = async ({
 
 export const getProductBySlug = async (slug: string) => {
   const product = await db.query.products.findFirst({
-    where: and(eq(products.slug, slug), eq(products.isActive, true)),
+    where: and(
+      eq(products.slug, slug),
+      eq(products.isActive, true),
+      eq(products.status, "active")
+    ),
     with: {
       images: {
         orderBy: desc(images.isPrimary),
@@ -190,7 +195,11 @@ export const getProductsByIds = async (ids: string[]) => {
   if (ids.length === 0) return []
 
   return db.query.products.findMany({
-    where: and(inArray(products.id, ids), eq(products.isActive, true)),
+    where: and(
+      inArray(products.id, ids),
+      eq(products.isActive, true),
+      eq(products.status, "active")
+    ),
     with: {
       images: {
         where: eq(images.isPrimary, true),
@@ -203,7 +212,7 @@ export const getProductsByIds = async (ids: string[]) => {
 export const getVariantsByIds = async (ids: string[]) => {
   if (ids.length === 0) return []
 
-  return db.query.productVariants.findMany({
+  const rows = await db.query.productVariants.findMany({
     where: and(
       inArray(productVariants.id, ids),
       eq(productVariants.isActive, true)
@@ -224,4 +233,8 @@ export const getVariantsByIds = async (ids: string[]) => {
       },
     },
   })
+
+  // productVariants has no column to filter on directly — the relational
+  // query API can't express "where the joined product is active" in `where`.
+  return rows.filter((row) => row.product.status === "active")
 }

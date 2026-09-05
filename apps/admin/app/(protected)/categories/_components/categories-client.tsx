@@ -9,6 +9,7 @@ import { DataTable } from "@repo/ui/data-table"
 import { CategoryDrawer } from "./category-drawer"
 import { DeleteCategoryDialog } from "./delete-category-dialog"
 import { Button } from "@repo/ui/button"
+import { useBreadcrumb } from "../../_components/breadcrumb-provider"
 
 type DrawerState =
   | { mode: "closed" }
@@ -19,7 +20,11 @@ interface CategoriesClientProps {
   categories: Category[]
 }
 
+const breadcrumbItems = [{ label: "Categories" }]
+
 export function CategoriesClient({ categories }: CategoriesClientProps) {
+  useBreadcrumb(breadcrumbItems)
+
   const [drawerState, setDrawerState] = useState<DrawerState>({
     mode: "closed",
   })
@@ -32,22 +37,20 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Categories</h1>
-        <Button
-          onClick={() => setDrawerState({ mode: "create" })}
-          data-testid="new-category-button"
-        >
-          <Plus />
-          New category
-        </Button>
-      </div>
-
       <DataTable
         columns={columns}
         data={categories}
         searchColumn="name"
         searchPlaceholder="Search categories..."
+        actions={
+          <Button
+            onClick={() => setDrawerState({ mode: "create" })}
+            data-testid="new-category-button"
+          >
+            <Plus />
+            New category
+          </Button>
+        }
         emptyIcon={<FolderTree />}
         emptyTitle="No categories yet"
         emptyDescription="Categories you add will appear here."

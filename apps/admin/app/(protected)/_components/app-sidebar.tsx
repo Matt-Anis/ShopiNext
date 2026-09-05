@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, FolderTree, Users } from "lucide-react"
+import { ChevronRight, FolderTree, Package, Users } from "lucide-react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
@@ -56,6 +56,37 @@ export function AppSidebar({
                         isActive={pathname === "/staff/new"}
                       >
                         New staff
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+            <Collapsible defaultOpen>
+              <SidebarMenuItem>
+                <CollapsibleTrigger
+                  render={<SidebarMenuButton className="group/collapsible" />}
+                >
+                  <Package />
+                  Products
+                  <ChevronRight className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/products" />}
+                        isActive={pathname === "/products"}
+                      >
+                        All products
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/products/new" />}
+                        isActive={pathname === "/products/new"}
+                      >
+                        New product
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>

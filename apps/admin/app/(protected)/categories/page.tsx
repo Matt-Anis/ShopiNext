@@ -11,7 +11,7 @@ export default async function CategoriesPage() {
   })
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 px-4 py-6">
       <CategoriesClient categories={categories} />
     </div>
   )
