@@ -7,11 +7,7 @@ import { eq } from "drizzle-orm"
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { categories } from "@repo/db/public/schema"
-
-function isUniqueViolation(error: unknown) {
-  const cause = error instanceof Error ? error.cause : undefined
-  return cause instanceof Error && "code" in cause && cause.code === "23505"
-}
+import { isUniqueViolation } from "@/lib/utils"
 
 export async function createCategory(name: string, description: string) {
   const session = await auth.api.getSession({ headers: await headers() })
