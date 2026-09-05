@@ -16,7 +16,7 @@ export default async function ProductStep1Page({
   return (
     <div className="px-8 pt-9">
       <div className="max-w-[480px]">
-        <ProductWizardSteps step={1} />
+        <ProductWizardSteps step={1} productId={id} />
         <h1 className="mt-4 text-2xl font-semibold tracking-tight">
           {product.name}
         </h1>

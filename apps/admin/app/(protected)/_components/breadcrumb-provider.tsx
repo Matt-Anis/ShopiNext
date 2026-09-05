@@ -60,11 +60,20 @@ export function useBreadcrumbItems() {
   return useBreadcrumbContext().items
 }
 
+function itemsKey(items: BreadcrumbItem[]) {
+  return items.map((item) => `${item.label}|${item.href ?? ""}`).join(">")
+}
+
 export function useBreadcrumb(items: BreadcrumbItem[]) {
   const { setItems } = useBreadcrumbContext()
+  const key = itemsKey(items)
 
   useEffect(() => {
     setItems(items)
     return () => setItems([])
-  }, [items, setItems])
+    // `key` (derived from `items` above, in this same render) is what
+    // should actually trigger this effect — not `items`' own reference,
+    // which changes on every render for callers that build it inline.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, setItems])
 }
