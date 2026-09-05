@@ -13,6 +13,7 @@
     "./button": "./components/button.tsx",
     "./card": "./components/card.tsx",
     "./carousel": "./components/carousel.tsx",
+    "./checkbox": "./components/checkbox.tsx",
     "./collapsible": "./components/collapsible.tsx",
     "./data-table": "./components/data-table.tsx",
     "./dialog": "./components/dialog.tsx",
