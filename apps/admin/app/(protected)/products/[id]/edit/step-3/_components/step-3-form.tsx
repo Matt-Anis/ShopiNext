@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Save, Trash2 } from "lucide-react"
 
 import {
   createProductVariant,
@@ -12,56 +11,21 @@ import {
 } from "@/features/products/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
-import { Badge } from "@repo/ui/badge"
-import { Input } from "@repo/ui/input"
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@repo/ui/input-group"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@repo/ui/combobox"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/table"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@repo/ui/alert-dialog"
+import { ConfirmDialog } from "@repo/ui/confirm-dialog"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/table"
 
-interface OptionValue {
-  id: string
-  value: string
-}
-
-interface Option {
-  id: string
-  name: string
-  values: OptionValue[]
-}
-
-interface Variant {
-  id: string
-  sku: string
-  price: number
-  stock: number
-  maxPerOrder: number
-  optionValueIds: string[]
-}
+import {
+  displayToCents,
+  labelsForValueIds,
+  toRow,
+  type Option,
+  type Row,
+  type ValueLookup,
+  type Variant,
+} from "./variant-utils"
+import { VariantRow } from "./variant-row"
+import { NewVariantRow, type NewVariantDraft } from "./new-variant-row"
 
 interface Step3FormProps {
   productId: string
@@ -70,55 +34,9 @@ interface Step3FormProps {
   variants: Variant[]
 }
 
-interface Row {
-  id: string
-  optionValueIds: string[]
-  sku: string
-  price: string
-  stock: string
-  maxPerOrder: string
-  saved: { sku: string; price: string; stock: string; maxPerOrder: string }
-}
-
-function centsToDisplay(cents: number) {
-  return (cents / 100).toFixed(2)
-}
-
-function displayToCents(display: string) {
-  const value = Number(display)
-  return Number.isFinite(value) ? Math.round(value * 100) : 0
-}
-
-function toRow(variant: Variant): Row {
-  const saved = {
-    sku: variant.sku,
-    price: centsToDisplay(variant.price),
-    stock: String(variant.stock),
-    maxPerOrder: String(variant.maxPerOrder),
-  }
-  return {
-    id: variant.id,
-    optionValueIds: variant.optionValueIds,
-    ...saved,
-    saved,
-  }
-}
-
-function isRowDirty(row: Row) {
-  return (
-    row.sku !== row.saved.sku ||
-    row.price !== row.saved.price ||
-    row.stock !== row.saved.stock ||
-    row.maxPerOrder !== row.saved.maxPerOrder
-  )
-}
-
-function slugifyLabel(label: string) {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-}
+type PendingAction =
+  | { kind: "create-variant"; draft: NewVariantDraft }
+  | { kind: "delete-variant"; row: Row }
 
 export function Step3Form({
   productId,
@@ -131,24 +49,14 @@ export function Step3Form({
   const [rows, setRows] = useState<Row[]>(() => initialVariants.map(toRow))
   const [savingId, setSavingId] = useState<string | null>(null)
   const [isFinishing, setIsFinishing] = useState(false)
-
-  const [draftSelections, setDraftSelections] = useState<
-    Record<string, string | null>
-  >({})
-  const [draftSku, setDraftSku] = useState("")
-  const [skuTouched, setSkuTouched] = useState(false)
-  const [draftPrice, setDraftPrice] = useState("0.00")
-  const [draftStock, setDraftStock] = useState("0")
-  const [draftMaxPerOrder, setDraftMaxPerOrder] = useState("1")
   const [isCreating, setIsCreating] = useState(false)
-  const [pendingAction, setPendingAction] = useState<
-    | { kind: "create-variant" }
-    | { kind: "delete-variant"; row: Row }
-    | null
-  >(null)
+  const [draftResetCount, setDraftResetCount] = useState(0)
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
+    null
+  )
 
-  const valueLookup = useMemo(() => {
-    const map = new Map<string, { value: string; optionName: string }>()
+  const valueLookup: ValueLookup = useMemo(() => {
+    const map: ValueLookup = new Map()
     for (const option of options) {
       for (const value of option.values) {
         map.set(value.id, { value: value.value, optionName: option.name })
@@ -157,80 +65,28 @@ export function Step3Form({
     return map
   }, [options])
 
-  function labelsForValueIds(optionValueIds: string[]) {
-    return optionValueIds.map((id) => valueLookup.get(id)?.value ?? "?")
-  }
-
-  function updateOptionSelection(optionId: string, valueName: string | null) {
-    setDraftSelections((prev) => {
-      const next = { ...prev, [optionId]: valueName }
-
-      if (!skuTouched) {
-        const label = options
-          .map((option) => next[option.id])
-          .filter((name): name is string => Boolean(name))
-          .join("-")
-        setDraftSku(
-          label ? `${productSlug}-${slugifyLabel(label)}` : productSlug
-        )
-      }
-
-      return next
-    })
-  }
-
-  function resolveDraftOptionValueIds() {
-    const ids: string[] = []
-    for (const option of options) {
-      const selectedName = draftSelections[option.id]
-      if (!selectedName) continue
-      const value = option.values.find((v) => v.value === selectedName)
-      if (value) ids.push(value.id)
-    }
-    return ids
-  }
-
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((prev) =>
       prev.map((row) => (row.id === id ? { ...row, ...patch } : row))
     )
   }
 
-  function requestCreate() {
-    const trimmedSku = draftSku.trim()
-    if (!trimmedSku) {
-      toast.add({ title: "SKU is required", type: "error" })
-      return
-    }
-
-    const optionValueIds = resolveDraftOptionValueIds()
-
-    if (optionValueIds.length === 0 && options.length > 0) {
-      toast.add({
-        title: "Select at least one option value",
-        type: "error",
-      })
-      return
-    }
-
-    setPendingAction({ kind: "create-variant" })
+  function handleNewVariantRequest(draft: NewVariantDraft) {
+    setPendingAction({ kind: "create-variant", draft })
   }
 
-  function confirmCreate() {
-    const trimmedSku = draftSku.trim()
-    const optionValueIds = resolveDraftOptionValueIds()
-
+  function confirmCreate(draft: NewVariantDraft) {
     setIsCreating(true)
     startTransition(async () => {
       const promise = createProductVariant(
         productId,
         {
-          sku: trimmedSku,
-          price: displayToCents(draftPrice),
-          stock: Number(draftStock),
-          maxPerOrder: Number(draftMaxPerOrder),
+          sku: draft.sku,
+          price: displayToCents(draft.price),
+          stock: Number(draft.stock),
+          maxPerOrder: Number(draft.maxPerOrder),
         },
-        optionValueIds
+        draft.optionValueIds
       )
 
       await toast
@@ -239,15 +95,10 @@ export function Step3Form({
           success: (variant) => {
             setRows((prev) => [
               ...prev,
-              toRow({ ...variant, optionValueIds }),
+              toRow({ ...variant, optionValueIds: draft.optionValueIds }),
             ])
-            setDraftSelections({})
-            setDraftSku(productSlug)
-            setSkuTouched(false)
-            setDraftPrice("0.00")
-            setDraftStock("0")
-            setDraftMaxPerOrder("1")
             setPendingAction(null)
+            setDraftResetCount((count) => count + 1)
             return { title: "Variant created" }
           },
           error: (error: Error) => ({
@@ -350,6 +201,24 @@ export function Step3Form({
     })
   }
 
+  const dialogTitle =
+    pendingAction?.kind === "delete-variant" ? "Delete variant" : "Create variant"
+
+  const dialogDescription =
+    pendingAction?.kind === "delete-variant"
+      ? `Delete "${pendingAction.row.sku}"${
+          pendingAction.row.optionValueIds.length
+            ? ` (${labelsForValueIds(valueLookup, pendingAction.row.optionValueIds).join(", ")})`
+            : ""
+        }? This can't be undone.`
+      : pendingAction?.kind === "create-variant"
+        ? `Create "${pendingAction.draft.sku}"${
+            pendingAction.draft.optionValueIds.length
+              ? ` (${labelsForValueIds(valueLookup, pendingAction.draft.optionValueIds).join(", ")})`
+              : ""
+          }?`
+        : ""
+
   return (
     <div className="mt-8 flex flex-col gap-6">
       <div className="rounded-2xl border border-border">
@@ -360,9 +229,7 @@ export function Step3Form({
               {rows.length} combination{rows.length === 1 ? "" : "s"}
             </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            Prices in USD
-          </span>
+          <span className="text-xs text-muted-foreground">Prices in USD</span>
         </div>
         <Table>
           <TableHeader>
@@ -376,206 +243,26 @@ export function Step3Form({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row) => {
-              const isSaving = savingId === row.id
-              return (
-                <TableRow key={row.id}>
-                  <TableCell>
-                    {row.optionValueIds.length === 0 ? (
-                      <span className="text-sm text-muted-foreground">
-                        No options
-                      </span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {labelsForValueIds(row.optionValueIds).map(
-                          (label, index) => (
-                            <Badge key={index} variant="secondary">
-                              {label}
-                            </Badge>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={row.sku}
-                      onChange={(event) =>
-                        updateRow(row.id, { sku: event.target.value })
-                      }
-                      className="h-8 w-40 border-border bg-transparent font-mono text-xs"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <InputGroup className="h-8 w-28">
-                      <InputGroupAddon>
-                        <InputGroupText>$</InputGroupText>
-                      </InputGroupAddon>
-                      <InputGroupInput
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={row.price}
-                        onChange={(event) =>
-                          updateRow(row.id, { price: event.target.value })
-                        }
-                      />
-                    </InputGroup>
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.stock}
-                      onChange={(event) =>
-                        updateRow(row.id, { stock: event.target.value })
-                      }
-                      className="h-8 w-20 border-border bg-transparent"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={row.maxPerOrder}
-                      onChange={(event) =>
-                        updateRow(row.id, {
-                          maxPerOrder: event.target.value,
-                        })
-                      }
-                      className="h-8 w-20 border-border bg-transparent"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon-sm"
-                        aria-label="Save changes"
-                        disabled={isSaving || !isRowDirty(row)}
-                        onClick={() => handleUpdate(row)}
-                      >
-                        <Save className="size-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Delete variant"
-                        disabled={isSaving}
-                        onClick={() => requestDelete(row)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
+            {rows.map((row) => (
+              <VariantRow
+                key={row.id}
+                row={row}
+                valueLookup={valueLookup}
+                isSaving={savingId === row.id}
+                onUpdate={(patch) => updateRow(row.id, patch)}
+                onSave={() => handleUpdate(row)}
+                onDelete={() => requestDelete(row)}
+              />
+            ))}
 
-            <TableRow>
-              <TableCell className="align-top">
-                {options.length > 0 && (
-                  <div className="flex flex-col gap-1.5">
-                    {options.map((option) =>
-                      option.values.length === 0 ? (
-                        <p
-                          key={option.id}
-                          className="text-xs text-muted-foreground"
-                        >
-                          {option.name}: no values yet
-                        </p>
-                      ) : (
-                        <Combobox
-                          key={option.id}
-                          items={option.values.map((v) => v.value)}
-                          value={draftSelections[option.id] ?? null}
-                          onValueChange={(name) =>
-                            updateOptionSelection(option.id, name)
-                          }
-                        >
-                          <ComboboxInput
-                            showClear
-                            placeholder={option.name}
-                            className="h-8 w-32"
-                          />
-                          <ComboboxContent>
-                            <ComboboxEmpty>No values found.</ComboboxEmpty>
-                            <ComboboxList>
-                              {(item: string) => (
-                                <ComboboxItem key={item} value={item}>
-                                  {item}
-                                </ComboboxItem>
-                              )}
-                            </ComboboxList>
-                          </ComboboxContent>
-                        </Combobox>
-                      )
-                    )}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell className="align-top">
-                <Input
-                  value={draftSku}
-                  onChange={(event) => {
-                    setSkuTouched(true)
-                    setDraftSku(event.target.value)
-                  }}
-                  className="h-8 w-40 border-border bg-transparent font-mono text-xs"
-                />
-                {!skuTouched && draftSku && (
-                  <p className="mt-1 text-[11px] text-muted-foreground italic">
-                    Suggested from the combination
-                  </p>
-                )}
-              </TableCell>
-              <TableCell className="align-top">
-                <InputGroup className="h-8 w-28">
-                  <InputGroupAddon>
-                    <InputGroupText>$</InputGroupText>
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={draftPrice}
-                    onChange={(event) => setDraftPrice(event.target.value)}
-                  />
-                </InputGroup>
-              </TableCell>
-              <TableCell className="align-top">
-                <Input
-                  type="number"
-                  min={0}
-                  value={draftStock}
-                  onChange={(event) => setDraftStock(event.target.value)}
-                  className="h-8 w-20 border-border bg-transparent"
-                />
-              </TableCell>
-              <TableCell className="align-top">
-                <Input
-                  type="number"
-                  min={1}
-                  value={draftMaxPerOrder}
-                  onChange={(event) => setDraftMaxPerOrder(event.target.value)}
-                  className="h-8 w-20 border-border bg-transparent"
-                />
-              </TableCell>
-              <TableCell className="align-top">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isCreating}
-                  onClick={requestCreate}
-                >
-                  <Plus className="size-4" />
-                  Add variant
-                </Button>
-              </TableCell>
-            </TableRow>
+            <NewVariantRow
+              key={draftResetCount}
+              productSlug={productSlug}
+              options={options}
+              initialSku={draftResetCount === 0 ? "" : productSlug}
+              isCreating={isCreating}
+              onCreate={handleNewVariantRequest}
+            />
           </TableBody>
         </Table>
       </div>
@@ -625,56 +312,23 @@ export function Step3Form({
         )}
       </div>
 
-      <AlertDialog
+      <ConfirmDialog
         open={pendingAction !== null}
         onOpenChange={(open) => !open && setPendingAction(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {pendingAction?.kind === "delete-variant"
-                ? "Delete variant"
-                : "Create variant"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingAction?.kind === "delete-variant"
-                ? `Delete "${pendingAction.row.sku}"${
-                    pendingAction.row.optionValueIds.length
-                      ? ` (${labelsForValueIds(pendingAction.row.optionValueIds).join(", ")})`
-                      : ""
-                  }? This can't be undone.`
-                : `Create "${draftSku.trim()}"${
-                    resolveDraftOptionValueIds().length
-                      ? ` (${labelsForValueIds(resolveDraftOptionValueIds()).join(", ")})`
-                      : ""
-                  }?`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCreating || savingId !== null}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant={
-                pendingAction?.kind === "delete-variant"
-                  ? "destructive"
-                  : "default"
-              }
-              disabled={isCreating || savingId !== null}
-              onClick={() => {
-                if (!pendingAction) return
-                if (pendingAction.kind === "delete-variant") {
-                  confirmDelete(pendingAction.row)
-                } else {
-                  confirmCreate()
-                }
-              }}
-            >
-              {pendingAction?.kind === "delete-variant" ? "Delete" : "Create"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={dialogTitle}
+        description={dialogDescription}
+        confirmLabel={pendingAction?.kind === "delete-variant" ? "Delete" : "Create"}
+        destructive={pendingAction?.kind === "delete-variant"}
+        disabled={isCreating || savingId !== null}
+        onConfirm={() => {
+          if (!pendingAction) return
+          if (pendingAction.kind === "delete-variant") {
+            confirmDelete(pendingAction.row)
+          } else {
+            confirmCreate(pendingAction.draft)
+          }
+        }}
+      />
     </div>
   )
 }
