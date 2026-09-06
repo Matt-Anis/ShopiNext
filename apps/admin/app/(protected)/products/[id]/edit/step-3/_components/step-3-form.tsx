@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Save, Trash2 } from "lucide-react"
 
 import {
   createProductVariant,
@@ -12,8 +12,9 @@ import {
 } from "@/features/products/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
 import { Input } from "@repo/ui/input"
-import { Field, FieldLabel } from "@repo/ui/field"
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@repo/ui/input-group"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import {
   Combobox,
@@ -69,10 +70,19 @@ interface Row {
   saved: { sku: string; price: string; stock: string; maxPerOrder: string }
 }
 
+function centsToDisplay(cents: number) {
+  return (cents / 100).toFixed(2)
+}
+
+function displayToCents(display: string) {
+  const value = Number(display)
+  return Number.isFinite(value) ? Math.round(value * 100) : 0
+}
+
 function toRow(variant: Variant): Row {
   const saved = {
     sku: variant.sku,
-    price: String(variant.price),
+    price: centsToDisplay(variant.price),
     stock: String(variant.stock),
     maxPerOrder: String(variant.maxPerOrder),
   }
@@ -117,7 +127,7 @@ export function Step3Form({
   >({})
   const [draftSku, setDraftSku] = useState("")
   const [skuTouched, setSkuTouched] = useState(false)
-  const [draftPrice, setDraftPrice] = useState("0")
+  const [draftPrice, setDraftPrice] = useState("0.00")
   const [draftStock, setDraftStock] = useState("0")
   const [draftMaxPerOrder, setDraftMaxPerOrder] = useState("1")
   const [isCreating, setIsCreating] = useState(false)
@@ -132,11 +142,8 @@ export function Step3Form({
     return map
   }, [options])
 
-  function labelForValueIds(optionValueIds: string[]) {
-    if (optionValueIds.length === 0) return "No options"
-    return optionValueIds
-      .map((id) => valueLookup.get(id)?.value ?? "?")
-      .join(" / ")
+  function labelsForValueIds(optionValueIds: string[]) {
+    return optionValueIds.map((id) => valueLookup.get(id)?.value ?? "?")
   }
 
   function updateOptionSelection(optionId: string, valueName: string | null) {
@@ -197,7 +204,7 @@ export function Step3Form({
         productId,
         {
           sku: trimmedSku,
-          price: Number(draftPrice),
+          price: displayToCents(draftPrice),
           stock: Number(draftStock),
           maxPerOrder: Number(draftMaxPerOrder),
         },
@@ -215,7 +222,7 @@ export function Step3Form({
             setDraftSelections({})
             setDraftSku(productSlug)
             setSkuTouched(false)
-            setDraftPrice("0")
+            setDraftPrice("0.00")
             setDraftStock("0")
             setDraftMaxPerOrder("1")
             return { title: "Variant created" }
@@ -235,7 +242,7 @@ export function Step3Form({
     startTransition(async () => {
       const promise = updateProductVariant(productId, row.id, {
         sku: row.sku,
-        price: Number(row.price),
+        price: displayToCents(row.price),
         stock: Number(row.stock),
         maxPerOrder: Number(row.maxPerOrder),
       })
@@ -317,213 +324,232 @@ export function Step3Form({
 
   return (
     <div className="mt-8 flex flex-col gap-6">
-      {rows.length > 0 && (
-        <div className="rounded-2xl border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Options</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Max/order</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => {
-                const isSaving = savingId === row.id
-                return (
-                  <TableRow key={row.id}>
-                    <TableCell className="text-sm font-medium">
-                      {labelForValueIds(row.optionValueIds)}
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.sku}
-                        onChange={(event) =>
-                          updateRow(row.id, { sku: event.target.value })
-                        }
-                        className="h-8 w-40 border-border bg-transparent font-mono text-xs"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
+      <div className="rounded-2xl border border-border">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-semibold">Variants</span>
+            <span className="text-xs text-muted-foreground">
+              {rows.length} combination{rows.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            Prices in USD
+          </span>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Combination</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Max/order</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => {
+              const isSaving = savingId === row.id
+              return (
+                <TableRow key={row.id}>
+                  <TableCell>
+                    {row.optionValueIds.length === 0 ? (
+                      <span className="text-sm text-muted-foreground">
+                        No options
+                      </span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {labelsForValueIds(row.optionValueIds).map(
+                          (label, index) => (
+                            <Badge key={index} variant="secondary">
+                              {label}
+                            </Badge>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={row.sku}
+                      onChange={(event) =>
+                        updateRow(row.id, { sku: event.target.value })
+                      }
+                      className="h-8 w-40 border-border bg-transparent font-mono text-xs"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputGroup className="h-8 w-28">
+                      <InputGroupAddon>
+                        <InputGroupText>$</InputGroupText>
+                      </InputGroupAddon>
+                      <InputGroupInput
                         type="number"
                         min={0}
+                        step="0.01"
                         value={row.price}
                         onChange={(event) =>
                           updateRow(row.id, { price: event.target.value })
                         }
-                        className="h-8 w-24 border-border bg-transparent"
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={row.stock}
-                        onChange={(event) =>
-                          updateRow(row.id, { stock: event.target.value })
-                        }
-                        className="h-8 w-20 border-border bg-transparent"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={row.maxPerOrder}
-                        onChange={(event) =>
-                          updateRow(row.id, {
-                            maxPerOrder: event.target.value,
-                          })
-                        }
-                        className="h-8 w-20 border-border bg-transparent"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={isSaving || !isRowDirty(row)}
-                          onClick={() => handleUpdate(row)}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          disabled={isSaving}
-                          onClick={() => handleDelete(row)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-
-      <div className="rounded-2xl border border-border p-4">
-        <h2 className="text-sm font-medium text-foreground/80">
-          Add a variant
-        </h2>
-
-        {options.length > 0 && (
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {options.map((option) => (
-              <Field key={option.id} className="gap-1.5">
-                <FieldLabel htmlFor={`draft-option-${option.id}`} className="text-xs">
-                  {option.name}
-                </FieldLabel>
-                {option.values.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    No values yet.
-                  </p>
-                ) : (
-                  <Combobox
-                    items={option.values.map((v) => v.value)}
-                    value={draftSelections[option.id] ?? null}
-                    onValueChange={(name) =>
-                      updateOptionSelection(option.id, name)
-                    }
-                  >
-                    <ComboboxInput
-                      id={`draft-option-${option.id}`}
-                      showClear
-                      placeholder={`Select ${option.name.toLowerCase()}`}
+                    </InputGroup>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={row.stock}
+                      onChange={(event) =>
+                        updateRow(row.id, { stock: event.target.value })
+                      }
+                      className="h-8 w-20 border-border bg-transparent"
                     />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No values found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(item: string) => (
-                          <ComboboxItem key={item} value={item}>
-                            {item}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={row.maxPerOrder}
+                      onChange={(event) =>
+                        updateRow(row.id, {
+                          maxPerOrder: event.target.value,
+                        })
+                      }
+                      className="h-8 w-20 border-border bg-transparent"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label="Save changes"
+                        disabled={isSaving || !isRowDirty(row)}
+                        onClick={() => handleUpdate(row)}
+                      >
+                        <Save className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Delete variant"
+                        disabled={isSaving}
+                        onClick={() => handleDelete(row)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+
+            <TableRow>
+              <TableCell className="align-top">
+                {options.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {options.map((option) =>
+                      option.values.length === 0 ? (
+                        <p
+                          key={option.id}
+                          className="text-xs text-muted-foreground"
+                        >
+                          {option.name}: no values yet
+                        </p>
+                      ) : (
+                        <Combobox
+                          key={option.id}
+                          items={option.values.map((v) => v.value)}
+                          value={draftSelections[option.id] ?? null}
+                          onValueChange={(name) =>
+                            updateOptionSelection(option.id, name)
+                          }
+                        >
+                          <ComboboxInput
+                            showClear
+                            placeholder={option.name}
+                            className="h-8 w-32"
+                          />
+                          <ComboboxContent>
+                            <ComboboxEmpty>No values found.</ComboboxEmpty>
+                            <ComboboxList>
+                              {(item: string) => (
+                                <ComboboxItem key={item} value={item}>
+                                  {item}
+                                </ComboboxItem>
+                              )}
+                            </ComboboxList>
+                          </ComboboxContent>
+                        </Combobox>
+                      )
+                    )}
+                  </div>
                 )}
-              </Field>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-4 grid grid-cols-4 gap-2">
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="draft-sku" className="text-xs">
-              SKU
-            </FieldLabel>
-            <Input
-              id="draft-sku"
-              value={draftSku}
-              onChange={(event) => {
-                setSkuTouched(true)
-                setDraftSku(event.target.value)
-              }}
-              className="h-9 border-border bg-transparent font-mono text-sm"
-            />
-          </Field>
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="draft-price" className="text-xs">
-              Price
-            </FieldLabel>
-            <Input
-              id="draft-price"
-              type="number"
-              min={0}
-              value={draftPrice}
-              onChange={(event) => setDraftPrice(event.target.value)}
-              className="h-9 border-border bg-transparent"
-            />
-          </Field>
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="draft-stock" className="text-xs">
-              Stock
-            </FieldLabel>
-            <Input
-              id="draft-stock"
-              type="number"
-              min={0}
-              value={draftStock}
-              onChange={(event) => setDraftStock(event.target.value)}
-              className="h-9 border-border bg-transparent"
-            />
-          </Field>
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="draft-max-per-order" className="text-xs">
-              Max/order
-            </FieldLabel>
-            <Input
-              id="draft-max-per-order"
-              type="number"
-              min={1}
-              value={draftMaxPerOrder}
-              onChange={(event) => setDraftMaxPerOrder(event.target.value)}
-              className="h-9 border-border bg-transparent"
-            />
-          </Field>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-3"
-          disabled={isCreating}
-          onClick={handleCreate}
-        >
-          <Plus className="size-4" />
-          Add variant
-        </Button>
+              </TableCell>
+              <TableCell className="align-top">
+                <Input
+                  value={draftSku}
+                  onChange={(event) => {
+                    setSkuTouched(true)
+                    setDraftSku(event.target.value)
+                  }}
+                  className="h-8 w-40 border-border bg-transparent font-mono text-xs"
+                />
+                {!skuTouched && draftSku && (
+                  <p className="mt-1 text-[11px] text-muted-foreground italic">
+                    Suggested from the combination
+                  </p>
+                )}
+              </TableCell>
+              <TableCell className="align-top">
+                <InputGroup className="h-8 w-28">
+                  <InputGroupAddon>
+                    <InputGroupText>$</InputGroupText>
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={draftPrice}
+                    onChange={(event) => setDraftPrice(event.target.value)}
+                  />
+                </InputGroup>
+              </TableCell>
+              <TableCell className="align-top">
+                <Input
+                  type="number"
+                  min={0}
+                  value={draftStock}
+                  onChange={(event) => setDraftStock(event.target.value)}
+                  className="h-8 w-20 border-border bg-transparent"
+                />
+              </TableCell>
+              <TableCell className="align-top">
+                <Input
+                  type="number"
+                  min={1}
+                  value={draftMaxPerOrder}
+                  onChange={(event) => setDraftMaxPerOrder(event.target.value)}
+                  className="h-8 w-20 border-border bg-transparent"
+                />
+              </TableCell>
+              <TableCell className="align-top">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isCreating}
+                  onClick={handleCreate}
+                >
+                  <Plus className="size-4" />
+                  Add variant
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex items-center gap-3">
@@ -552,13 +578,22 @@ export function Step3Form({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <Button
-            type="button"
-            disabled={isFinishing}
-            onClick={() => handleFinish("active")}
-          >
-            Publish
-          </Button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  disabled={isFinishing}
+                  onClick={() => handleFinish("active")}
+                >
+                  Publish
+                </Button>
+              }
+            />
+            <TooltipContent>
+              Makes this product visible in the storefront
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </div>
