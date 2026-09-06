@@ -59,6 +59,7 @@ export const productVariants = pgTable(
     price: integer().notNull().default(0),
     stock: integer().notNull().default(0),
     maxPerOrder: integer().notNull(),
+    optionSignature: text().notNull().default(""),
     // Soft-delete only: false means trashed, to preserve order history that
     // references this row. Not a draft/unpublished flag — see docs/database.md.
     isActive: boolean().notNull().default(true),
@@ -71,6 +72,9 @@ export const productVariants = pgTable(
     index("product_variants_productId_idx").on(table.productId),
     uniqueIndex("product_variants_sku_active_unique")
       .on(table.sku)
+      .where(sql`${table.isActive}`),
+    uniqueIndex("product_variants_productId_optionSignature_active_unique")
+      .on(table.productId, table.optionSignature)
       .where(sql`${table.isActive}`),
   ],
 );

@@ -1,0 +1,2 @@
+ALTER TABLE "product_variants" ADD COLUMN "optionSignature" text DEFAULT '' NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "product_variants_productId_optionSignature_active_unique" ON "product_variants" USING btree ("productId","optionSignature") WHERE "product_variants"."isActive";
