@@ -6,6 +6,7 @@ import { Plus } from "lucide-react"
 import { addProductCategory, removeProductCategory } from "@/features/products/actions"
 import { createCategory } from "@/features/categories/actions"
 import { toast } from "@repo/ui/toast"
+import { ConfirmDialog } from "@repo/ui/confirm-dialog"
 import {
   Combobox,
   ComboboxChip,
@@ -44,6 +45,9 @@ export function CategoriesSection({
   )
   const [categoryQuery, setCategoryQuery] = useState("")
   const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+  const [pendingCategoryName, setPendingCategoryName] = useState<
+    string | null
+  >(null)
   const anchor = useComboboxAnchor()
 
   const categoryByName = useMemo(
@@ -119,6 +123,7 @@ export function CategoriesSection({
             )
             setSelectedNames((prev) => [...prev, category.name])
             setCategoryQuery("")
+            setPendingCategoryName(null)
             addProductCategory(productId, category.id).catch(() => {})
             return { title: "Category created" }
           },
@@ -161,7 +166,7 @@ export function CategoriesSection({
               <button
                 type="button"
                 disabled={isCreatingCategory}
-                onClick={() => handleCreateCategory(categoryQuery)}
+                onClick={() => setPendingCategoryName(categoryQuery.trim())}
                 className="flex w-full items-center gap-2 rounded-2xl px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 <Plus className="size-4" />
@@ -180,6 +185,18 @@ export function CategoriesSection({
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
+
+      <ConfirmDialog
+        open={pendingCategoryName !== null}
+        onOpenChange={(open) => !open && setPendingCategoryName(null)}
+        title="Create category"
+        description={`Create the category "${pendingCategoryName}"?`}
+        confirmLabel="Create"
+        disabled={isCreatingCategory}
+        onConfirm={() => {
+          if (pendingCategoryName) handleCreateCategory(pendingCategoryName)
+        }}
+      />
     </section>
   )
 }
