@@ -25,3 +25,16 @@ export async function getProductStep2Data(productId: string) {
     },
   })
 }
+
+export async function getProductStep3Data(productId: string) {
+  return db.query.products.findFirst({
+    where: eq(products.id, productId),
+    with: {
+      options: { with: { values: true } },
+      variants: {
+        where: (variant, { eq }) => eq(variant.isActive, true),
+        with: { variantOptionValues: { columns: { optionValueId: true } } },
+      },
+    },
+  })
+}
