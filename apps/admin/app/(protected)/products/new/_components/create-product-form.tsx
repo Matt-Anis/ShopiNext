@@ -9,6 +9,7 @@ import { Button } from "@repo/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
 import { Textarea } from "@repo/ui/textarea"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 
 function slugify(value: string) {
   return value
@@ -114,13 +115,23 @@ export function CreateProductForm() {
       </FieldGroup>
 
       <div className="mt-7 flex items-center gap-3 pt-4">
-        <Button
-          type="submit"
-          disabled={isPending}
-          data-testid="create-product-submit-button"
-        >
-          Continue
-        </Button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="submit"
+                disabled={isPending}
+                data-testid="create-product-submit-button"
+              >
+                Continue
+              </Button>
+            }
+          />
+          <TooltipContent>
+            Saved as a draft. It won&apos;t appear in the storefront until
+            you&apos;ve added variants.
+          </TooltipContent>
+        </Tooltip>
         <Button type="button" variant="ghost" onClick={() => router.back()}>
           Cancel
         </Button>

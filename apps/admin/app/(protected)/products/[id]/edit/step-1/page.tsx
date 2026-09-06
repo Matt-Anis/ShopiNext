@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 
 import { getProductForWizard } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
+import { EditProductForm } from "./_components/edit-product-form"
 
 export default async function ProductStep1Page({
   params,
@@ -16,13 +17,16 @@ export default async function ProductStep1Page({
   return (
     <div className="flex gap-10 px-8 pt-9">
       <ProductWizardSteps step={1} productId={id} />
-      <div className="max-w-[480px]">
+      <div className="w-full max-w-2xl">
         <h1 className="text-2xl font-semibold tracking-tight">
           {product.name}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Details — coming soon.
-        </p>
+        <EditProductForm
+          productId={id}
+          name={product.name}
+          slug={product.slug}
+          description={product.description}
+        />
       </div>
     </div>
   )
