@@ -175,6 +175,10 @@ async function main() {
         price: randomInt(999, 99999),
         stock: productSoldOut || Math.random() < 0.15 ? 0 : randomInt(1, 50),
         maxPerOrder: randomInt(1, 5),
+        optionSignature: combo
+          .map(({ id }) => id)
+          .sort()
+          .join(","),
       });
 
       combo.forEach(({ id: optionValueId }) =>

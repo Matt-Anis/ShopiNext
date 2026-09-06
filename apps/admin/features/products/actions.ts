@@ -13,7 +13,7 @@ import {
   variantOptionValues,
   orderItems,
 } from "@repo/db/public/schema"
-import { isUniqueViolation } from "@/lib/utils"
+import { isUniqueViolation, uniqueViolationConstraint } from "@/lib/utils"
 import { requireSession } from "@/lib/session"
 
 export async function createProduct(
@@ -280,11 +280,27 @@ export async function createProductVariant(
 
   const { sku, price, stock, maxPerOrder } = validateVariantFields(fields)
 
+  if (optionValueIds.length === 0) {
+    const [option] = await db
+      .select({ id: productOptions.id })
+      .from(productOptions)
+      .where(eq(productOptions.productId, productId))
+      .limit(1)
+
+    if (option) {
+      throw new Error(
+        "This product has options, so every variant needs at least one option value"
+      )
+    }
+  }
+
+  const optionSignature = [...optionValueIds].sort().join(",")
+
   try {
     const variant = await db.transaction(async (tx) => {
       const [insertedVariant] = await tx
         .insert(productVariants)
-        .values({ productId, sku, price, stock, maxPerOrder })
+        .values({ productId, sku, price, stock, maxPerOrder, optionSignature })
         .returning()
 
       if (optionValueIds.length) {
@@ -303,6 +319,14 @@ export async function createProductVariant(
     return variant
   } catch (error) {
     if (isUniqueViolation(error)) {
+      if (
+        uniqueViolationConstraint(error) ===
+        "product_variants_productId_optionSignature_active_unique"
+      ) {
+        throw new Error(
+          "A variant with this exact option combination already exists"
+        )
+      }
       throw new Error("This SKU is already in use")
     }
     console.error("[products] createProductVariant failed:", error)

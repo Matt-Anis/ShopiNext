@@ -97,17 +97,6 @@ export async function seedProductWithVariants(
   }
 
   for (const [index, variant] of variants.entries()) {
-    const [variantRow] = await testDb
-      .insert(productVariants)
-      .values({
-        productId: product.id,
-        sku: `${product.slug}-${index}`,
-        price: variant.price,
-        stock: variant.stock,
-        maxPerOrder: variant.maxPerOrder ?? 10,
-      })
-      .returning();
-
     const optionValueIds = Object.entries(variant.values).map(
       ([optionName, value]) => {
         const id = valueIdByOptionAndValue.get(`${optionName}:${value}`);
@@ -119,6 +108,18 @@ export async function seedProductWithVariants(
         return id;
       },
     );
+
+    const [variantRow] = await testDb
+      .insert(productVariants)
+      .values({
+        productId: product.id,
+        sku: `${product.slug}-${index}`,
+        price: variant.price,
+        stock: variant.stock,
+        maxPerOrder: variant.maxPerOrder ?? 10,
+        optionSignature: [...optionValueIds].sort().join(","),
+      })
+      .returning();
 
     if (optionValueIds.length > 0) {
       await testDb
