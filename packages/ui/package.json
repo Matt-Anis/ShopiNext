@@ -16,6 +16,7 @@
     "./checkbox": "./components/checkbox.tsx",
     "./collapsible": "./components/collapsible.tsx",
     "./combobox": "./components/combobox.tsx",
+    "./confirm-dialog": "./components/confirm-dialog.tsx",
     "./data-table": "./components/data-table.tsx",
     "./dialog": "./components/dialog.tsx",
     "./drawer": "./components/drawer.tsx",
