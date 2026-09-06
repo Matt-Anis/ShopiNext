@@ -85,6 +85,7 @@ async function main() {
       count: 100,
       columns: {
         description: f.loremIpsum({ sentencesCount: 10 }),
+        status: f.default({ defaultValue: "active" }),
       },
       with: {
         images: 3,

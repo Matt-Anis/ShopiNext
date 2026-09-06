@@ -12,6 +12,7 @@ export const DEFAULT_TEST_PRODUCT = {
   name: "Test Product",
   slug: "test-product",
   description: "A product used for end-to-end tests.",
+  status: "active" as const,
 };
 
 export async function seedProduct(
