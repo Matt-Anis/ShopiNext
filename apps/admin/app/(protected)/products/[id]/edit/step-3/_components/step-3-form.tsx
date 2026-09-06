@@ -32,6 +32,16 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@repo/ui/alert-dialog"
 
 interface OptionValue {
   id: string
@@ -131,6 +141,11 @@ export function Step3Form({
   const [draftStock, setDraftStock] = useState("0")
   const [draftMaxPerOrder, setDraftMaxPerOrder] = useState("1")
   const [isCreating, setIsCreating] = useState(false)
+  const [pendingAction, setPendingAction] = useState<
+    | { kind: "create-variant" }
+    | { kind: "delete-variant"; row: Row }
+    | null
+  >(null)
 
   const valueLookup = useMemo(() => {
     const map = new Map<string, { value: string; optionName: string }>()
@@ -181,7 +196,7 @@ export function Step3Form({
     )
   }
 
-  function handleCreate() {
+  function requestCreate() {
     const trimmedSku = draftSku.trim()
     if (!trimmedSku) {
       toast.add({ title: "SKU is required", type: "error" })
@@ -197,6 +212,13 @@ export function Step3Form({
       })
       return
     }
+
+    setPendingAction({ kind: "create-variant" })
+  }
+
+  function confirmCreate() {
+    const trimmedSku = draftSku.trim()
+    const optionValueIds = resolveDraftOptionValueIds()
 
     setIsCreating(true)
     startTransition(async () => {
@@ -225,6 +247,7 @@ export function Step3Form({
             setDraftPrice("0.00")
             setDraftStock("0")
             setDraftMaxPerOrder("1")
+            setPendingAction(null)
             return { title: "Variant created" }
           },
           error: (error: Error) => ({
@@ -271,7 +294,11 @@ export function Step3Form({
     })
   }
 
-  function handleDelete(row: Row) {
+  function requestDelete(row: Row) {
+    setPendingAction({ kind: "delete-variant", row })
+  }
+
+  function confirmDelete(row: Row) {
     setSavingId(row.id)
     startTransition(async () => {
       const promise = deleteProductVariant(productId, row.id)
@@ -281,6 +308,7 @@ export function Step3Form({
           loading: { title: "Deleting variant..." },
           success: () => {
             setRows((prev) => prev.filter((r) => r.id !== row.id))
+            setPendingAction(null)
             return { title: "Variant deleted" }
           },
           error: (error: Error) => ({
@@ -436,7 +464,7 @@ export function Step3Form({
                         size="icon-sm"
                         aria-label="Delete variant"
                         disabled={isSaving}
-                        onClick={() => handleDelete(row)}
+                        onClick={() => requestDelete(row)}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -541,7 +569,7 @@ export function Step3Form({
                   variant="outline"
                   size="sm"
                   disabled={isCreating}
-                  onClick={handleCreate}
+                  onClick={requestCreate}
                 >
                   <Plus className="size-4" />
                   Add variant
@@ -596,6 +624,57 @@ export function Step3Form({
           </Tooltip>
         )}
       </div>
+
+      <AlertDialog
+        open={pendingAction !== null}
+        onOpenChange={(open) => !open && setPendingAction(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAction?.kind === "delete-variant"
+                ? "Delete variant"
+                : "Create variant"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.kind === "delete-variant"
+                ? `Delete "${pendingAction.row.sku}"${
+                    pendingAction.row.optionValueIds.length
+                      ? ` (${labelsForValueIds(pendingAction.row.optionValueIds).join(", ")})`
+                      : ""
+                  }? This can't be undone.`
+                : `Create "${draftSku.trim()}"${
+                    resolveDraftOptionValueIds().length
+                      ? ` (${labelsForValueIds(resolveDraftOptionValueIds()).join(", ")})`
+                      : ""
+                  }?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isCreating || savingId !== null}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant={
+                pendingAction?.kind === "delete-variant"
+                  ? "destructive"
+                  : "default"
+              }
+              disabled={isCreating || savingId !== null}
+              onClick={() => {
+                if (!pendingAction) return
+                if (pendingAction.kind === "delete-variant") {
+                  confirmDelete(pendingAction.row)
+                } else {
+                  confirmCreate()
+                }
+              }}
+            >
+              {pendingAction?.kind === "delete-variant" ? "Delete" : "Create"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

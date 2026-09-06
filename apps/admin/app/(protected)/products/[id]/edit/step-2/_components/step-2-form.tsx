@@ -29,6 +29,16 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@repo/ui/combobox"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@repo/ui/alert-dialog"
 
 interface Category {
   id: string
@@ -53,6 +63,22 @@ interface Step2FormProps {
   options: Option[]
 }
 
+type PendingAction =
+  | { kind: "create-option"; name: string }
+  | { kind: "delete-option"; optionId: string; name: string }
+  | { kind: "add-value"; optionId: string; optionName: string; value: string }
+  | {
+      kind: "delete-value"
+      optionId: string
+      valueId: string
+      optionName: string
+      value: string
+    }
+
+function isDestructive(action: PendingAction) {
+  return action.kind === "delete-option" || action.kind === "delete-value"
+}
+
 export function Step2Form({
   productId,
   categories: initialCategories,
@@ -72,6 +98,10 @@ export function Step2Form({
   const [options, setOptions] = useState(initialOptions)
   const [newOptionName, setNewOptionName] = useState("")
   const [valueDrafts, setValueDrafts] = useState<Record<string, string>>({})
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
+    null
+  )
+  const [isConfirming, setIsConfirming] = useState(false)
   const anchor = useComboboxAnchor()
 
   const categoryByName = useMemo(
@@ -160,109 +190,138 @@ export function Step2Form({
     })
   }
 
-  function handleCreateOption(event: React.FormEvent<HTMLFormElement>) {
+  function requestCreateOption(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmedName = newOptionName.trim()
     if (!trimmedName) return
+    setPendingAction({ kind: "create-option", name: trimmedName })
+  }
 
-    startTransition(async () => {
-      const promise = createProductOption(productId, trimmedName)
-
-      await toast
-        .promise(promise, {
-          loading: { title: "Adding option..." },
-          success: (option) => {
-            setOptions((prev) => [...prev, { ...option, values: [] }])
-            setNewOptionName("")
-            return { title: "Option added" }
-          },
-          error: (error: Error) => ({
-            title: "Failed to add option",
-            description: error.message,
-          }),
-        })
-        .catch(() => {})
+  function requestDeleteOption(option: Option) {
+    setPendingAction({
+      kind: "delete-option",
+      optionId: option.id,
+      name: option.name,
     })
   }
 
-  function handleDeleteOption(optionId: string) {
-    startTransition(async () => {
-      const promise = deleteProductOption(productId, optionId)
-
-      await toast
-        .promise(promise, {
-          loading: { title: "Removing option..." },
-          success: () => {
-            setOptions((prev) => prev.filter((option) => option.id !== optionId))
-            return { title: "Option removed" }
-          },
-          error: (error: Error) => ({
-            title: "Failed to remove option",
-            description: error.message,
-          }),
-        })
-        .catch(() => {})
-    })
-  }
-
-  function handleAddValue(optionId: string) {
-    const draft = valueDrafts[optionId]?.trim()
+  function requestAddValue(option: Option) {
+    const draft = valueDrafts[option.id]?.trim()
     if (!draft) return
-
-    startTransition(async () => {
-      const promise = addProductOptionValue(productId, optionId, draft)
-
-      await toast
-        .promise(promise, {
-          loading: { title: "Adding value..." },
-          success: (optionValue) => {
-            setOptions((prev) =>
-              prev.map((option) =>
-                option.id === optionId
-                  ? { ...option, values: [...option.values, optionValue] }
-                  : option
-              )
-            )
-            setValueDrafts((prev) => ({ ...prev, [optionId]: "" }))
-            return { title: "Value added" }
-          },
-          error: (error: Error) => ({
-            title: "Failed to add value",
-            description: error.message,
-          }),
-        })
-        .catch(() => {})
+    setPendingAction({
+      kind: "add-value",
+      optionId: option.id,
+      optionName: option.name,
+      value: draft,
     })
   }
 
-  function handleDeleteValue(optionId: string, valueId: string) {
-    startTransition(async () => {
-      const promise = deleteProductOptionValue(productId, valueId)
-
-      await toast
-        .promise(promise, {
-          loading: { title: "Removing value..." },
-          success: () => {
-            setOptions((prev) =>
-              prev.map((option) =>
-                option.id === optionId
-                  ? {
-                      ...option,
-                      values: option.values.filter((v) => v.id !== valueId),
-                    }
-                  : option
-              )
-            )
-            return { title: "Value removed" }
-          },
-          error: (error: Error) => ({
-            title: "Failed to remove value",
-            description: error.message,
-          }),
-        })
-        .catch(() => {})
+  function requestDeleteValue(option: Option, value: OptionValue) {
+    setPendingAction({
+      kind: "delete-value",
+      optionId: option.id,
+      valueId: value.id,
+      optionName: option.name,
+      value: value.value,
     })
   }
+
+  function handleConfirm() {
+    if (!pendingAction) return
+    const action = pendingAction
+
+    setIsConfirming(true)
+    startTransition(async () => {
+      if (action.kind === "create-option") {
+        await toast
+          .promise(createProductOption(productId, action.name), {
+            loading: { title: "Adding option..." },
+            success: (option) => {
+              setOptions((prev) => [...prev, { ...option, values: [] }])
+              setNewOptionName("")
+              setPendingAction(null)
+              return { title: "Option added" }
+            },
+            error: (error: Error) => ({
+              title: "Failed to add option",
+              description: error.message,
+            }),
+          })
+          .catch(() => {})
+      } else if (action.kind === "delete-option") {
+        await toast
+          .promise(deleteProductOption(productId, action.optionId), {
+            loading: { title: "Removing option..." },
+            success: () => {
+              setOptions((prev) =>
+                prev.filter((option) => option.id !== action.optionId)
+              )
+              setPendingAction(null)
+              return { title: "Option removed" }
+            },
+            error: (error: Error) => ({
+              title: "Failed to remove option",
+              description: error.message,
+            }),
+          })
+          .catch(() => {})
+      } else if (action.kind === "add-value") {
+        await toast
+          .promise(
+            addProductOptionValue(productId, action.optionId, action.value),
+            {
+              loading: { title: "Adding value..." },
+              success: (optionValue) => {
+                setOptions((prev) =>
+                  prev.map((option) =>
+                    option.id === action.optionId
+                      ? { ...option, values: [...option.values, optionValue] }
+                      : option
+                  )
+                )
+                setValueDrafts((prev) => ({ ...prev, [action.optionId]: "" }))
+                setPendingAction(null)
+                return { title: "Value added" }
+              },
+              error: (error: Error) => ({
+                title: "Failed to add value",
+                description: error.message,
+              }),
+            }
+          )
+          .catch(() => {})
+      } else if (action.kind === "delete-value") {
+        await toast
+          .promise(deleteProductOptionValue(productId, action.valueId), {
+            loading: { title: "Removing value..." },
+            success: () => {
+              setOptions((prev) =>
+                prev.map((option) =>
+                  option.id === action.optionId
+                    ? {
+                        ...option,
+                        values: option.values.filter(
+                          (v) => v.id !== action.valueId
+                        ),
+                      }
+                    : option
+                )
+              )
+              setPendingAction(null)
+              return { title: "Value removed" }
+            },
+            error: (error: Error) => ({
+              title: "Failed to remove value",
+              description: error.message,
+            }),
+          })
+          .catch(() => {})
+      }
+      setIsConfirming(false)
+    })
+  }
+
+  const dialogContent = pendingAction && getDialogContent(pendingAction)
 
   return (
     <div className="mt-8 flex flex-col gap-8">
@@ -329,7 +388,7 @@ export function Step2Form({
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  onClick={() => handleDeleteOption(option.id)}
+                  onClick={() => requestDeleteOption(option)}
                 >
                   <X className="size-4" />
                 </Button>
@@ -341,7 +400,7 @@ export function Step2Form({
                       {value.value}
                       <button
                         type="button"
-                        onClick={() => handleDeleteValue(option.id, value.id)}
+                        onClick={() => requestDeleteValue(option, value)}
                       >
                         <X className="size-3" />
                       </button>
@@ -362,7 +421,7 @@ export function Step2Form({
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                       event.preventDefault()
-                      handleAddValue(option.id)
+                      requestAddValue(option)
                     }
                   }}
                   className="h-8 border-border bg-transparent text-sm"
@@ -371,7 +430,7 @@ export function Step2Form({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleAddValue(option.id)}
+                  onClick={() => requestAddValue(option)}
                 >
                   Add
                 </Button>
@@ -379,7 +438,7 @@ export function Step2Form({
             </div>
           ))}
 
-          <form onSubmit={handleCreateOption} className="flex gap-2">
+          <form onSubmit={requestCreateOption} className="flex gap-2">
             <Input
               placeholder="e.g. Size, Color"
               value={newOptionName}
@@ -409,6 +468,65 @@ export function Step2Form({
           Save & exit
         </Button>
       </div>
+
+      <AlertDialog
+        open={pendingAction !== null}
+        onOpenChange={(open) => !open && setPendingAction(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogContent?.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialogContent?.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isConfirming}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant={
+                pendingAction && isDestructive(pendingAction)
+                  ? "destructive"
+                  : "default"
+              }
+              disabled={isConfirming}
+              onClick={handleConfirm}
+            >
+              {dialogContent?.confirmLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
+}
+
+function getDialogContent(action: PendingAction) {
+  switch (action.kind) {
+    case "create-option":
+      return {
+        title: "Create option",
+        description: `Create the option "${action.name}"?`,
+        confirmLabel: "Create",
+      }
+    case "delete-option":
+      return {
+        title: "Delete option",
+        description: `Delete "${action.name}" and all its values? This can't be undone.`,
+        confirmLabel: "Delete",
+      }
+    case "add-value":
+      return {
+        title: "Add value",
+        description: `Add "${action.value}" to ${action.optionName}?`,
+        confirmLabel: "Add",
+      }
+    case "delete-value":
+      return {
+        title: "Delete value",
+        description: `Delete "${action.value}" from ${action.optionName}?`,
+        confirmLabel: "Delete",
+      }
+  }
 }
