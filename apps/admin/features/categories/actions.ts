@@ -1,27 +1,31 @@
 "use server"
 
-import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { eq } from "drizzle-orm"
 
-import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { categories } from "@repo/db/public/schema"
 import { isUniqueViolation } from "@/lib/utils"
+import { requireSession } from "@/lib/session"
 
 export async function createCategory(name: string, description: string) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) throw new Error("Unauthorized")
+  const session = await requireSession()
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
 
   try {
-    await db.insert(categories).values({
-      name: trimmedName,
-      description: description.trim() || null,
-      updatedBy: session.user.id,
-    })
+    const [category] = await db
+      .insert(categories)
+      .values({
+        name: trimmedName,
+        description: description.trim() || null,
+        updatedBy: session.user.id,
+      })
+      .returning({ id: categories.id, name: categories.name })
+
+    revalidatePath("/categories")
+    return category
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new Error("A category with this name already exists")
@@ -29,8 +33,6 @@ export async function createCategory(name: string, description: string) {
     console.error("[categories] createCategory failed:", error)
     throw error
   }
-
-  revalidatePath("/categories")
 }
 
 export async function updateCategory(
@@ -38,8 +40,7 @@ export async function updateCategory(
   name: string,
   description: string
 ) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) throw new Error("Unauthorized")
+  const session = await requireSession()
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
@@ -65,8 +66,7 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) throw new Error("Unauthorized")
+  const session = await requireSession()
 
   try {
     await db
