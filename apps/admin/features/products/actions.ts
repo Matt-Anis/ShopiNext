@@ -51,6 +51,41 @@ export async function createProduct(
   }
 }
 
+export async function updateProductDetails(
+  productId: string,
+  name: string,
+  slug: string,
+  description: string
+) {
+  await requireSession()
+
+  const trimmedName = name.trim()
+  if (!trimmedName) throw new Error("Name is required")
+
+  const trimmedSlug = slug.trim()
+  if (!trimmedSlug) throw new Error("Slug is required")
+
+  try {
+    await db
+      .update(products)
+      .set({
+        name: trimmedName,
+        slug: trimmedSlug,
+        description: description.trim() || null,
+      })
+      .where(eq(products.id, productId))
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new Error("A product with this slug already exists")
+    }
+    console.error("[products] updateProductDetails failed:", error)
+    throw error
+  }
+
+  revalidatePath(`/products/${productId}/edit/step-1`)
+  revalidatePath("/products")
+}
+
 export async function addProductCategory(
   productId: string,
   categoryId: string
