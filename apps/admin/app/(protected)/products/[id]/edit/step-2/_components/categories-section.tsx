@@ -31,6 +31,31 @@ interface CategoriesSectionProps {
   selectedCategoryIds: string[]
 }
 
+type PendingAction =
+  | { kind: "create-category"; name: string }
+  | { kind: "remove-category"; categoryId: string; name: string }
+
+function isDestructive(action: PendingAction) {
+  return action.kind === "remove-category"
+}
+
+function getDialogContent(action: PendingAction) {
+  switch (action.kind) {
+    case "create-category":
+      return {
+        title: "Create category",
+        description: `Create the category "${action.name}"?`,
+        confirmLabel: "Create",
+      }
+    case "remove-category":
+      return {
+        title: "Remove category",
+        description: `Remove "${action.name}" from this product?`,
+        confirmLabel: "Remove",
+      }
+  }
+}
+
 export function CategoriesSection({
   productId,
   categories: initialCategories,
@@ -44,10 +69,10 @@ export function CategoriesSection({
       .map((category) => category.name)
   )
   const [categoryQuery, setCategoryQuery] = useState("")
-  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
-  const [pendingCategoryName, setPendingCategoryName] = useState<
-    string | null
-  >(null)
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
+    null
+  )
+  const [isConfirming, setIsConfirming] = useState(false)
   const anchor = useComboboxAnchor()
 
   const categoryByName = useMemo(
@@ -62,8 +87,22 @@ export function CategoriesSection({
   function handleCategoriesChange(names: string[]) {
     const added = names.filter((name) => !selectedNames.includes(name))
     const removed = selectedNames.filter((name) => !names.includes(name))
-    const previous = selectedNames
-    setSelectedNames(names)
+
+    if (removed.length > 0) {
+      const name = removed[0]
+      const category = categoryByName.get(name)
+      if (category) {
+        setPendingAction({
+          kind: "remove-category",
+          categoryId: category.id,
+          name,
+        })
+      }
+    }
+
+    if (added.length === 0) return
+
+    setSelectedNames((prev) => [...prev, ...added])
 
     startTransition(async () => {
       for (const name of added) {
@@ -75,26 +114,7 @@ export function CategoriesSection({
             loading: { title: "Updating categories..." },
             success: () => ({ title: "Categories updated" }),
             error: (error: Error) => {
-              setSelectedNames(previous)
-              return {
-                title: "Failed to update categories",
-                description: error.message,
-              }
-            },
-          })
-          .catch(() => {})
-      }
-
-      for (const name of removed) {
-        const category = categoryByName.get(name)
-        if (!category) continue
-
-        await toast
-          .promise(removeProductCategory(productId, category.id), {
-            loading: { title: "Updating categories..." },
-            success: () => ({ title: "Categories updated" }),
-            error: (error: Error) => {
-              setSelectedNames(previous)
+              setSelectedNames((prev) => prev.filter((n) => n !== name))
               return {
                 title: "Failed to update categories",
                 description: error.message,
@@ -110,7 +130,7 @@ export function CategoriesSection({
     const trimmedName = name.trim()
     if (!trimmedName) return
 
-    setIsCreatingCategory(true)
+    setIsConfirming(true)
     startTransition(async () => {
       const promise = createCategory(trimmedName, "")
 
@@ -123,7 +143,7 @@ export function CategoriesSection({
             )
             setSelectedNames((prev) => [...prev, category.name])
             setCategoryQuery("")
-            setPendingCategoryName(null)
+            setPendingAction(null)
             addProductCategory(productId, category.id).catch(() => {})
             return { title: "Category created" }
           },
@@ -133,9 +153,41 @@ export function CategoriesSection({
           }),
         })
         .catch(() => {})
-      setIsCreatingCategory(false)
+      setIsConfirming(false)
     })
   }
+
+  function handleRemoveCategory(categoryId: string, name: string) {
+    setIsConfirming(true)
+    startTransition(async () => {
+      await toast
+        .promise(removeProductCategory(productId, categoryId), {
+          loading: { title: "Updating categories..." },
+          success: () => {
+            setSelectedNames((prev) => prev.filter((n) => n !== name))
+            setPendingAction(null)
+            return { title: "Categories updated" }
+          },
+          error: (error: Error) => ({
+            title: "Failed to update categories",
+            description: error.message,
+          }),
+        })
+        .catch(() => {})
+      setIsConfirming(false)
+    })
+  }
+
+  function handleConfirm() {
+    if (!pendingAction) return
+    if (pendingAction.kind === "create-category") {
+      handleCreateCategory(pendingAction.name)
+    } else {
+      handleRemoveCategory(pendingAction.categoryId, pendingAction.name)
+    }
+  }
+
+  const dialogContent = pendingAction && getDialogContent(pendingAction)
 
   return (
     <section>
@@ -165,8 +217,13 @@ export function CategoriesSection({
             {categoryQuery.trim() ? (
               <button
                 type="button"
-                disabled={isCreatingCategory}
-                onClick={() => setPendingCategoryName(categoryQuery.trim())}
+                disabled={isConfirming}
+                onClick={() =>
+                  setPendingAction({
+                    kind: "create-category",
+                    name: categoryQuery.trim(),
+                  })
+                }
                 className="flex w-full items-center gap-2 rounded-2xl px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 <Plus className="size-4" />
@@ -187,15 +244,14 @@ export function CategoriesSection({
       </Combobox>
 
       <ConfirmDialog
-        open={pendingCategoryName !== null}
-        onOpenChange={(open) => !open && setPendingCategoryName(null)}
-        title="Create category"
-        description={`Create the category "${pendingCategoryName}"?`}
-        confirmLabel="Create"
-        disabled={isCreatingCategory}
-        onConfirm={() => {
-          if (pendingCategoryName) handleCreateCategory(pendingCategoryName)
-        }}
+        open={pendingAction !== null}
+        onOpenChange={(open) => !open && setPendingAction(null)}
+        title={dialogContent?.title}
+        description={dialogContent?.description}
+        confirmLabel={dialogContent?.confirmLabel}
+        destructive={pendingAction !== null && isDestructive(pendingAction)}
+        disabled={isConfirming}
+        onConfirm={handleConfirm}
       />
     </section>
   )
