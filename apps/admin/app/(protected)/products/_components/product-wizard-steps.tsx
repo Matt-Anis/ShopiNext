@@ -37,7 +37,7 @@ export function ProductWizardSteps({
   ])
 
   return (
-    <div className="flex max-w-40 flex-col">
+    <div className="sticky top-9 flex w-fit flex-col self-start">
       {STEPS.map((s, index) => {
         const stepNumber = index + 1
         const isComplete = stepNumber < step
@@ -64,42 +64,29 @@ export function ProductWizardSteps({
         )
 
         return (
-          <div key={s.label} className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    href ? (
-                      <Link href={href}>{circle}</Link>
-                    ) : (
-                      <span role="button" aria-disabled="true" tabIndex={0}>
-                        {circle}
-                      </span>
-                    )
-                  }
-                />
-                <TooltipContent side="right">{s.description}</TooltipContent>
-              </Tooltip>
-              {!isLast && (
-                <div
-                  className={cn(
-                    "my-1 h-8 w-px",
-                    isComplete ? "bg-primary" : "bg-border"
-                  )}
-                />
-              )}
-            </div>
-            <span
-              className={cn(
-                "pt-1.5 text-xs",
-                isCurrent
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground",
-                !isLast && "pb-6"
-              )}
-            >
-              {s.label}
-            </span>
+          <div key={s.label} className="flex flex-col items-center">
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  href ? (
+                    <Link href={href}>{circle}</Link>
+                  ) : (
+                    <span role="button" aria-disabled="true" tabIndex={0}>
+                      {circle}
+                    </span>
+                  )
+                }
+              />
+              <TooltipContent side="right">{s.description}</TooltipContent>
+            </Tooltip>
+            {!isLast && (
+              <div
+                className={cn(
+                  "my-1 h-8 w-px",
+                  isComplete ? "bg-primary" : "bg-border"
+                )}
+              />
+            )}
           </div>
         )
       })}
