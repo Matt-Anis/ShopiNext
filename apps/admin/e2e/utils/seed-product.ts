@@ -17,7 +17,9 @@ export const DEFAULT_TEST_PRODUCT = {
 };
 
 export async function seedProduct(
-  overrides: Partial<typeof DEFAULT_TEST_PRODUCT> = {},
+  overrides: Partial<Omit<typeof DEFAULT_TEST_PRODUCT, "status">> & {
+    status?: "draft" | "active";
+  } = {},
 ) {
   const [product] = await testDb
     .insert(products)
