@@ -19,14 +19,19 @@ const STEPS = [
 interface ProductWizardStepsProps {
   step: 1 | 2 | 3
   productId?: string
+  productName?: string
 }
 
 export function ProductWizardSteps({
   step,
   productId,
+  productName,
 }: ProductWizardStepsProps) {
   useBreadcrumb([
     { label: "Products", href: "/products" },
+    ...(productId && productName
+      ? [{ label: productName, href: `/products/${productId}` }]
+      : []),
     ...STEPS.slice(0, step).map(({ label }, index) => ({
       label,
       href:

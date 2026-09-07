@@ -16,7 +16,7 @@ export default async function ProductStep1Page({
 
   return (
     <div className="flex gap-10 px-8 pt-9 pb-16">
-      <ProductWizardSteps step={1} productId={id} />
+      <ProductWizardSteps step={1} productId={id} productName={product.name} />
       <div className="w-full max-w-2xl">
         <h1 className="text-2xl font-semibold tracking-tight">
           {product.name}
