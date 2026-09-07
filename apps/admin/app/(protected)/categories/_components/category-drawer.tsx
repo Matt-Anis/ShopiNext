@@ -40,9 +40,9 @@ export function CategoryDrawer({
     const description = formData.get("description") as string
 
     startTransition(async () => {
-      const submitPromise = isEditing
+      const submitPromise: Promise<void> = isEditing
         ? updateCategory(category.id, name, description)
-        : createCategory(name, description)
+        : createCategory(name, description).then(() => {})
 
       await toast
         .promise(submitPromise, {

@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation"
 import { createProduct } from "@/features/products/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
-import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
-import { Input } from "@repo/ui/input"
-import { Textarea } from "@repo/ui/textarea"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
+import { ProductDetailsFields } from "../../_components/product-details-fields"
 
 function slugify(value: string) {
   return value
@@ -58,69 +57,34 @@ export function CreateProductForm() {
 
   return (
     <form onSubmit={handleSubmit} data-testid="create-product-form">
-      <FieldGroup className="mt-8 gap-5">
-        <Field className="gap-1.5">
-          <FieldLabel
-            htmlFor="name"
-            className="text-sm font-medium text-foreground/80"
-          >
-            Name
-          </FieldLabel>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            required
-            placeholder="Classic Tee"
-            className="h-9 border-border bg-transparent"
-            onChange={handleNameChange}
-            data-testid="create-product-name-input"
-          />
-        </Field>
-        <Field className="gap-1.5">
-          <FieldLabel
-            htmlFor="slug"
-            className="text-sm font-medium text-foreground/80"
-          >
-            Slug
-          </FieldLabel>
-          <Input
-            id="slug"
-            name="slug"
-            type="text"
-            required
-            placeholder="classic-tee"
-            className="h-9 border-border bg-transparent font-mono text-sm"
-            ref={slugInputRef}
-            onChange={() => setSlugEdited(true)}
-            data-testid="create-product-slug-input"
-          />
-        </Field>
-        <Field className="gap-1.5">
-          <FieldLabel
-            htmlFor="description"
-            className="text-sm font-medium text-foreground/80"
-          >
-            Description
-          </FieldLabel>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="A short description customers will see on the product page"
-            className="border-border bg-transparent"
-            data-testid="create-product-description-input"
-          />
-        </Field>
-      </FieldGroup>
+      <ProductDetailsFields
+        testIdPrefix="create-product"
+        namePlaceholder="Classic Tee"
+        slugPlaceholder="classic-tee"
+        descriptionPlaceholder="A short description customers will see on the product page"
+        slugInputRef={slugInputRef}
+        onNameChange={handleNameChange}
+        onSlugChange={() => setSlugEdited(true)}
+      />
 
       <div className="mt-7 flex items-center gap-3 pt-4">
-        <Button
-          type="submit"
-          disabled={isPending}
-          data-testid="create-product-submit-button"
-        >
-          Continue
-        </Button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="submit"
+                disabled={isPending}
+                data-testid="create-product-submit-button"
+              >
+                Continue
+              </Button>
+            }
+          />
+          <TooltipContent>
+            Saved as a draft. It won&apos;t appear in the storefront until
+            you&apos;ve added variants.
+          </TooltipContent>
+        </Tooltip>
         <Button type="button" variant="ghost" onClick={() => router.back()}>
           Cancel
         </Button>

@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm"
 import { adminUser, adminAccount } from "@repo/db/admin/auth-schema"
 import { testDb, getResetPasswordToken } from "../../utils/db"
 import { resetAuthTables } from "../../utils/db-reset"
-import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
+import { seedAdmin } from "../../utils/seed-user"
+import { signIn } from "../../utils/auth"
 
 const NEW_STAFF = {
   name: "New Staff",
@@ -14,16 +15,6 @@ test.beforeEach(async () => {
   await resetAuthTables()
   await seedAdmin()
 })
-
-async function signIn(page: Page) {
-  await page.goto("/login")
-  await page.getByTestId("login-email-input").fill(DEFAULT_TEST_ADMIN.email)
-  await page
-    .getByTestId("login-password-input")
-    .fill(DEFAULT_TEST_ADMIN.password)
-  await page.getByTestId("login-submit-button").click()
-  await page.waitForURL("/")
-}
 
 async function createStaff(page: Page) {
   await page.goto("/staff/new")

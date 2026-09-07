@@ -1,24 +1,15 @@
-import { test, expect, type Page } from "@playwright/test"
+import { test, expect } from "@playwright/test"
 import { adminSession } from "@repo/db/admin/auth-schema"
 import { testDb } from "../../utils/db"
 import { resetAuthTables } from "../../utils/db-reset"
-import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
+import { seedAdmin } from "../../utils/seed-user"
+import { signIn } from "../../utils/auth"
 import { TEST_COOKIE_CACHE_MAX_AGE_SECONDS } from "../../../playwright.config"
 
 test.beforeEach(async () => {
   await resetAuthTables()
   await seedAdmin()
 })
-
-async function signIn(page: Page) {
-  await page.goto("/login")
-  await page.getByTestId("login-email-input").fill(DEFAULT_TEST_ADMIN.email)
-  await page
-    .getByTestId("login-password-input")
-    .fill(DEFAULT_TEST_ADMIN.password)
-  await page.getByTestId("login-submit-button").click()
-  await page.waitForURL("/")
-}
 
 test.describe("Session cookie cache", () => {
   test("serves a cached session within maxAge even if the DB session is gone", async ({
