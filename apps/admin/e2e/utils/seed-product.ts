@@ -1,4 +1,11 @@
-import { products } from "@repo/db/public/schema";
+import { randomUUID } from "node:crypto";
+import {
+  products,
+  productOptions,
+  productOptionValues,
+  productVariants,
+  variantOptionValues,
+} from "@repo/db/public/schema";
 import { testDb } from "./db";
 
 export const DEFAULT_TEST_PRODUCT = {
@@ -22,4 +29,66 @@ export async function seedProduct(
   }
 
   return product;
+}
+
+export async function seedProductOption(
+  productId: string,
+  name: string,
+  values: string[] = [],
+) {
+  const [option] = await testDb
+    .insert(productOptions)
+    .values({ productId, name })
+    .returning();
+
+  if (!option) {
+    throw new Error("Failed to seed product option");
+  }
+
+  const valueRows = values.length
+    ? await testDb
+        .insert(productOptionValues)
+        .values(values.map((value) => ({ optionId: option.id, value })))
+        .returning()
+    : [];
+
+  return { ...option, values: valueRows };
+}
+
+export async function seedProductVariant(
+  productId: string,
+  overrides: Partial<{
+    sku: string;
+    price: number;
+    stock: number;
+    maxPerOrder: number;
+  }> = {},
+  optionValueIds: string[] = [],
+) {
+  const [variant] = await testDb
+    .insert(productVariants)
+    .values({
+      productId,
+      sku: overrides.sku ?? `test-variant-${randomUUID()}`,
+      price: overrides.price ?? 1000,
+      stock: overrides.stock ?? 10,
+      maxPerOrder: overrides.maxPerOrder ?? 5,
+      optionSignature: [...optionValueIds].sort().join(","),
+    })
+    .returning();
+
+  if (!variant) {
+    throw new Error("Failed to seed product variant");
+  }
+
+  if (optionValueIds.length) {
+    await testDb.insert(variantOptionValues).values(
+      optionValueIds.map((optionValueId) => ({
+        variantId: variant.id,
+        optionValueId,
+      })),
+    );
+  }
+
+  return variant;
 }
