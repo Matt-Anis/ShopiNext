@@ -11,14 +11,16 @@ interface ProductCategoriesProps {
 
 export function ProductCategories({ categories }: ProductCategoriesProps) {
   return (
-    <section>
-      <h2 className="text-sm font-medium text-foreground/80">Categories</h2>
+    <section className="flex flex-col gap-3">
+      <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        Categories
+      </h2>
       {categories.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">
-          This product isn&apos;t assigned to any categories.
+        <p className="text-sm text-muted-foreground">
+          Not assigned to any categories.
         </p>
       ) : (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <Badge key={category.id} variant="secondary">
               {category.name}

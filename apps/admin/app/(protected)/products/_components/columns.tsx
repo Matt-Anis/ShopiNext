@@ -66,16 +66,20 @@ export function getColumns({
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1.5">
-          <Badge variant={row.original.status === "active" ? "default" : "secondary"}>
-            {row.original.status === "active" ? "Active" : "Draft"}
-          </Badge>
-          {!row.original.isActive && (
-            <Badge variant="destructive">Deactivated</Badge>
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const { status, isActive } = row.original
+
+        return (
+          <div className="flex items-center gap-1.5">
+            <Badge variant={isActive ? "default" : "destructive"}>
+              {isActive ? "Active" : "Inactive"}
+            </Badge>
+            <Badge variant={status === "active" ? "default" : "secondary"}>
+              {status === "active" ? "Published" : "Draft"}
+            </Badge>
+          </div>
+        )
+      },
     },
     {
       id: "categories",

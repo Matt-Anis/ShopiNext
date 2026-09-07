@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/table"
+import { cn } from "@repo/ui/utils"
 
 interface OptionValue {
   id: string
@@ -40,7 +41,23 @@ function formatPrice(cents: number) {
 export function ProductVariants({ options, variants }: ProductVariantsProps) {
   return (
     <section>
-      <h2 className="text-sm font-medium text-foreground/80">Variants</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          Variants
+        </h2>
+        {options.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            {options.map((option) => (
+              <span key={option.id}>
+                {option.name}:{" "}
+                <span className="font-medium text-foreground">
+                  {option.values.map((value) => value.value).join(", ")}
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
       {variants.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">
           This product has no variants yet.
@@ -52,9 +69,9 @@ export function ProductVariants({ options, variants }: ProductVariantsProps) {
               <TableRow>
                 <TableHead>{options.length > 0 ? "Options" : ""}</TableHead>
                 <TableHead>SKU</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Max per order</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Stock</TableHead>
+                <TableHead className="text-right">Max/order</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,9 +95,24 @@ export function ProductVariants({ options, variants }: ProductVariantsProps) {
                   <TableCell className="font-mono text-xs">
                     {variant.sku}
                   </TableCell>
-                  <TableCell>{formatPrice(variant.price)}</TableCell>
-                  <TableCell>{variant.stock}</TableCell>
-                  <TableCell>{variant.maxPerOrder}</TableCell>
+                  <TableCell className="text-right">
+                    {formatPrice(variant.price)}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right",
+                      variant.stock === 0
+                        ? "text-destructive"
+                        : variant.stock < 5
+                          ? "text-amber-600 dark:text-amber-400"
+                          : undefined
+                    )}
+                  >
+                    {variant.stock}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {variant.maxPerOrder}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

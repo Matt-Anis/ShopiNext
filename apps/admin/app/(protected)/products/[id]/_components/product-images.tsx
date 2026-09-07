@@ -10,9 +10,20 @@ interface ProductImagesProps {
 }
 
 export function ProductImages({ images }: ProductImagesProps) {
+  const primaryCount = images.filter((image) => image.isPrimary).length
+
   return (
     <section>
-      <h2 className="text-sm font-medium text-foreground/80">Images</h2>
+      <div className="flex items-center gap-2">
+        <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          Images
+        </h2>
+        {images.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {images.length} · {primaryCount} primary
+          </span>
+        )}
+      </div>
       {images.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">
           No images uploaded yet.

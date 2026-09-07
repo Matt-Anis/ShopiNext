@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { Pencil } from "lucide-react"
 
-import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
+import { cn } from "@repo/ui/utils"
 import { useBreadcrumb } from "../../../_components/breadcrumb-provider"
 
 interface ProductHeaderProps {
@@ -12,11 +12,8 @@ interface ProductHeaderProps {
     id: string
     name: string
     slug: string
-    description: string | null
     status: "draft" | "active"
     isActive: boolean
-    createdAt: Date
-    updatedAt: Date
   }
 }
 
@@ -28,40 +25,21 @@ export function ProductHeader({ product }: ProductHeaderProps) {
 
   return (
     <div className="flex items-start justify-between gap-4">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">
             {product.name}
           </h1>
-          <Badge variant={product.status === "active" ? "default" : "secondary"}>
-            {product.status === "active" ? "Active" : "Draft"}
-          </Badge>
-          {!product.isActive && (
-            <Badge variant="destructive">Deactivated</Badge>
-          )}
+          <StatusDot
+            label={product.isActive ? "Active" : "Inactive"}
+            color={product.isActive ? "emerald" : "destructive"}
+          />
+          <StatusDot
+            label={product.status === "active" ? "Published" : "Draft"}
+            color={product.status === "active" ? "emerald" : "muted"}
+          />
         </div>
         <span className="text-sm text-muted-foreground">{product.slug}</span>
-        {product.description && (
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {product.description}
-          </p>
-        )}
-        <div className="flex gap-4 text-xs text-muted-foreground">
-          <span>
-            Created{" "}
-            {product.createdAt.toLocaleString(undefined, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
-          </span>
-          <span>
-            Updated{" "}
-            {product.updatedAt.toLocaleString(undefined, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
-          </span>
-        </div>
       </div>
 
       <Button
@@ -72,5 +50,33 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         Edit
       </Button>
     </div>
+  )
+}
+
+interface StatusDotProps {
+  label: string
+  color: "emerald" | "destructive" | "muted"
+}
+
+function StatusDot({ label, color }: StatusDotProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
+        color === "destructive" && "bg-destructive/10 text-destructive",
+        color === "emerald" && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        color === "muted" && "bg-muted text-muted-foreground"
+      )}
+    >
+      <span
+        className={cn(
+          "size-1.5 rounded-full",
+          color === "destructive" && "bg-destructive",
+          color === "emerald" && "bg-emerald-500 dark:bg-emerald-400",
+          color === "muted" && "bg-muted-foreground"
+        )}
+      />
+      {label}
+    </span>
   )
 }
