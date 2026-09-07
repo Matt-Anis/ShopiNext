@@ -3,24 +3,15 @@ import { eq } from "drizzle-orm"
 import { categories } from "@repo/db/public/schema"
 import { testDb } from "../../utils/db"
 import { resetAuthTables, resetCategoryTables } from "../../utils/db-reset"
-import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
+import { seedAdmin } from "../../utils/seed-user"
 import { seedCategory, DEFAULT_TEST_CATEGORY } from "../../utils/seed-category"
+import { signIn } from "../../utils/auth"
 
 test.beforeEach(async () => {
   await resetAuthTables()
   await resetCategoryTables()
   await seedAdmin()
 })
-
-async function signIn(page: Page) {
-  await page.goto("/login")
-  await page.getByTestId("login-email-input").fill(DEFAULT_TEST_ADMIN.email)
-  await page
-    .getByTestId("login-password-input")
-    .fill(DEFAULT_TEST_ADMIN.password)
-  await page.getByTestId("login-submit-button").click()
-  await page.waitForURL("/")
-}
 
 async function openRowMenu(page: Page, rowText: string) {
   const row = page.locator("tr", { hasText: rowText })
