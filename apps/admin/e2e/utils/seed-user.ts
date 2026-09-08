@@ -10,6 +10,10 @@ export const DEFAULT_TEST_ADMIN = {
   password: "password123",
 }
 
+// Hash of "password123", from hashPassword() in better-auth/crypto.
+const DEFAULT_TEST_ADMIN_PASSWORD_HASH =
+  "990a68a7bb59286ea5ff7fef3bba58f5:fcc02e81336324522fa485074d41fcc6198e9381b91be18b80d654967d6ca5dcc0528145519ac6e07799435b35eb76a116b06bfba1ef3d32c14e7fd13361fa49"
+
 // Inserted directly rather than through /api/auth/sign-up/email — that
 // endpoint is disabled in the admin app (emailAndPassword.disableSignUp).
 export async function seedAdmin(
@@ -34,7 +38,10 @@ export async function seedAdmin(
     userId,
     accountId: userId,
     providerId: "credential",
-    password: await hashPassword(credentials.password),
+    password:
+      credentials.password === DEFAULT_TEST_ADMIN.password
+        ? DEFAULT_TEST_ADMIN_PASSWORD_HASH
+        : await hashPassword(credentials.password),
   })
 
   return credentials
