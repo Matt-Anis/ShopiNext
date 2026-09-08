@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { resetAuthTables } from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
+import { seedUser } from "../../utils/seed-user";
+import { signIn } from "../../utils/auth";
 
 test.beforeEach(async () => {
   await resetAuthTables();
@@ -73,14 +74,7 @@ test.describe("Sign up", () => {
     request,
   }) => {
     await seedUser(request);
-
-    await page.goto("/login");
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email);
-    await page
-      .getByTestId("login-password-input")
-      .fill(DEFAULT_TEST_USER.password);
-    await page.getByTestId("login-submit-button").click();
-    await page.waitForURL("/");
+    await signIn(page);
 
     await page.goto("/signup");
 
