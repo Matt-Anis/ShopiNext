@@ -38,9 +38,13 @@ jobs:
       - run: pnpm --filter admin run check
 
   e2e:
-    name: E2E tests
+    name: E2E tests (shard ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     services:
       postgres:
         image: postgres:16
@@ -81,12 +85,12 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
 
       - name: Run e2e tests
-        run: pnpm --filter admin run test:e2e
+        run: pnpm --filter admin run test:e2e -- --shard=${{ matrix.shard }}/3
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: apps/admin/playwright-report/
           retention-days: 7
