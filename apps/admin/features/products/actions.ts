@@ -411,5 +411,43 @@ export async function setProductStatus(
   }
 
   revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
   revalidatePath(`/products/${productId}/edit/step-3`)
+}
+
+export async function deactivateProduct(productId: string) {
+  await requireSession()
+
+  try {
+    await db
+      .update(products)
+      .set({ isActive: false })
+      .where(eq(products.id, productId))
+  } catch (error) {
+    console.error("[products] deactivateProduct failed:", error)
+    throw error
+  }
+
+  revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
+}
+
+export async function activateProduct(productId: string) {
+  await requireSession()
+
+  try {
+    await db
+      .update(products)
+      .set({ isActive: true })
+      .where(eq(products.id, productId))
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new Error("Another active product already uses this slug")
+    }
+    console.error("[products] activateProduct failed:", error)
+    throw error
+  }
+
+  revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
 }

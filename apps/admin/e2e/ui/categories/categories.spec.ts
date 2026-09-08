@@ -15,8 +15,16 @@ test.beforeEach(async () => {
 
 async function openRowMenu(page: Page, rowText: string) {
   const row = page.locator("tr", { hasText: rowText })
-  await row.getByRole("button", { name: "Open menu" }).click()
-  await page.getByRole("menu").waitFor()
+  const trigger = row.getByRole("button", { name: "Open menu" })
+  const menu = page.getByRole("menu")
+
+  // click() fires once and doesn't retry, so a click that lands before
+  // React hydrates the trigger is silently lost. Retry the click itself
+  // until the menu actually opens, rather than just waiting longer.
+  await expect(async () => {
+    await trigger.click()
+    await expect(menu).toBeVisible({ timeout: 1000 })
+  }).toPass({ timeout: 15_000 })
 }
 
 test.describe("Create category", () => {
