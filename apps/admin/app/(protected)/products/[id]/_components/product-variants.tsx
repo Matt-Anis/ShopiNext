@@ -42,7 +42,7 @@ export function ProductVariants({ options, variants }: ProductVariantsProps) {
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
           Variants
         </h2>
         {options.length > 0 && (

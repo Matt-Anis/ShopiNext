@@ -12,7 +12,7 @@ interface ProductCategoriesProps {
 export function ProductCategories({ categories }: ProductCategoriesProps) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
         Categories
       </h2>
       {categories.length === 0 ? (

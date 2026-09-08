@@ -26,7 +26,7 @@ export function ProductAtAGlance({ variants }: ProductAtAGlanceProps) {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
         At a glance
       </h2>
       <dl className="flex flex-col gap-2 text-sm">

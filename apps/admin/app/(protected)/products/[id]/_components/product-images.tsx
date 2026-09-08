@@ -15,7 +15,7 @@ export function ProductImages({ images }: ProductImagesProps) {
   return (
     <section>
       <div className="flex items-center gap-2">
-        <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
           Images
         </h2>
         {images.length > 0 && (

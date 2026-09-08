@@ -13,7 +13,7 @@ function formatDateTime(date: Date) {
 export function ProductHistory({ createdAt, updatedAt }: ProductHistoryProps) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
         History
       </h2>
       <div className="flex flex-col gap-3 text-sm">
