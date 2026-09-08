@@ -32,15 +32,21 @@ export function ProductAtAGlance({ variants }: ProductAtAGlanceProps) {
       <dl className="flex flex-col gap-2 text-sm">
         <div className="flex items-center justify-between gap-4">
           <dt className="text-muted-foreground">Price range</dt>
-          <dd className="font-medium">{priceRange}</dd>
+          <dd className="font-medium" data-testid="at-a-glance-price-range">
+            {priceRange}
+          </dd>
         </div>
         <div className="flex items-center justify-between gap-4">
           <dt className="text-muted-foreground">Variants</dt>
-          <dd className="font-medium">{variants.length}</dd>
+          <dd className="font-medium" data-testid="at-a-glance-variant-count">
+            {variants.length}
+          </dd>
         </div>
         <div className="flex items-center justify-between gap-4">
           <dt className="text-muted-foreground">Total stock</dt>
-          <dd className="font-medium">{totalStock}</dd>
+          <dd className="font-medium" data-testid="at-a-glance-total-stock">
+            {totalStock}
+          </dd>
         </div>
       </dl>
     </section>
