@@ -4,7 +4,11 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Package, Plus } from "lucide-react"
 
-import { activateProduct, deactivateProduct } from "@/features/products/actions"
+import {
+  activateProduct,
+  deactivateProduct,
+  setProductStatus,
+} from "@/features/products/actions"
 import type { Product } from "./columns"
 import { getColumns } from "./columns"
 import { DataTable } from "@repo/ui/data-table"
@@ -25,6 +29,7 @@ export function ProductsClient({ products }: ProductsClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [deactivateTarget, setDeactivateTarget] = useState<Product | null>(null)
+  const [publishTarget, setPublishTarget] = useState<Product | null>(null)
 
   const columns = getColumns({
     onView: (product) => router.push(`/products/${product.id}`),
@@ -44,6 +49,7 @@ export function ProductsClient({ products }: ProductsClientProps) {
           .catch(() => {})
       })
     },
+    onTogglePublish: (product) => setPublishTarget(product),
   })
 
   function handleDeactivate() {
@@ -59,6 +65,41 @@ export function ProductsClient({ products }: ProductsClientProps) {
           },
           error: (error: Error) => ({
             title: "Failed to deactivate product",
+            description: error.message,
+          }),
+        })
+        .catch(() => {})
+    })
+  }
+
+  function handleTogglePublish() {
+    if (!publishTarget) return
+
+    const nextStatus = publishTarget.status === "active" ? "draft" : "active"
+
+    startTransition(async () => {
+      await toast
+        .promise(setProductStatus(publishTarget.id, nextStatus), {
+          loading: {
+            title:
+              nextStatus === "active"
+                ? "Publishing product..."
+                : "Moving product to draft...",
+          },
+          success: () => {
+            setPublishTarget(null)
+            return {
+              title:
+                nextStatus === "active"
+                  ? "Product published"
+                  : "Product moved to draft",
+            }
+          },
+          error: (error: Error) => ({
+            title:
+              nextStatus === "active"
+                ? "Failed to publish product"
+                : "Failed to move product to draft",
             description: error.message,
           }),
         })
@@ -107,6 +148,37 @@ export function ProductsClient({ products }: ProductsClientProps) {
         destructive
         disabled={isPending}
         onConfirm={handleDeactivate}
+      />
+
+      <ConfirmDialog
+        open={publishTarget !== null}
+        onOpenChange={(open) => !open && setPublishTarget(null)}
+        title={
+          publishTarget?.status === "active" ? "Move to draft" : "Publish product"
+        }
+        description={
+          publishTarget?.status === "active" ? (
+            <>
+              This will move{" "}
+              <span className="font-medium text-foreground">
+                {publishTarget?.name}
+              </span>{" "}
+              back to draft. It will no longer be visible on the storefront.
+            </>
+          ) : (
+            <>
+              This will publish{" "}
+              <span className="font-medium text-foreground">
+                {publishTarget?.name}
+              </span>
+              . It will become visible on the storefront.
+            </>
+          )
+        }
+        confirmLabel={publishTarget?.status === "active" ? "Move to draft" : "Publish"}
+        destructive={publishTarget?.status === "active"}
+        disabled={isPending}
+        onConfirm={handleTogglePublish}
       />
     </>
   )

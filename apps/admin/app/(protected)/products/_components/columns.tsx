@@ -1,7 +1,15 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { CircleCheck, CircleOff, Eye, MoreHorizontal, Pencil } from "lucide-react"
+import {
+  Archive,
+  CircleCheck,
+  CircleOff,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Rocket,
+} from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
@@ -30,6 +38,7 @@ interface GetColumnsOptions {
   onEdit: (product: Product) => void
   onDeactivate: (product: Product) => void
   onActivate: (product: Product) => void
+  onTogglePublish: (product: Product) => void
 }
 
 export function getColumns({
@@ -37,6 +46,7 @@ export function getColumns({
   onEdit,
   onDeactivate,
   onActivate,
+  onTogglePublish,
 }: GetColumnsOptions): ColumnDef<Product>[] {
   return [
     {
@@ -151,6 +161,20 @@ export function getColumns({
                 <Pencil />
                 Edit
               </DropdownMenuItem>
+              {product.status === "active" ? (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => onTogglePublish(product)}
+                >
+                  <Archive />
+                  Move to draft
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => onTogglePublish(product)}>
+                  <Rocket />
+                  Publish
+                </DropdownMenuItem>
+              )}
               {product.isActive ? (
                 <DropdownMenuItem
                   variant="destructive"

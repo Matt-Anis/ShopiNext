@@ -411,6 +411,7 @@ export async function setProductStatus(
   }
 
   revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
   revalidatePath(`/products/${productId}/edit/step-3`)
 }
 
@@ -428,6 +429,7 @@ export async function deactivateProduct(productId: string) {
   }
 
   revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
 }
 
 export async function activateProduct(productId: string) {
@@ -447,4 +449,5 @@ export async function activateProduct(productId: string) {
   }
 
   revalidatePath("/products")
+  revalidatePath(`/products/${productId}`)
 }
