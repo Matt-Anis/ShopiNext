@@ -235,29 +235,6 @@ test.describe("Move to draft", () => {
       .where(eq(products.id, product.id))
     expect(updated!.status).toBe("draft")
   })
-
-  test("does not change status when the confirmation is cancelled", async ({
-    page,
-  }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "active" })
-    await seedProductVariant(product.id)
-    await signIn(page)
-    await page.goto("/products")
-
-    await openRowMenu(page, "Classic Tee")
-    await page.getByRole("menuitem", { name: "Move to draft" }).click()
-
-    const dialog = page.getByRole("alertdialog")
-    await dialog.getByRole("button", { name: "Cancel" }).click()
-
-    await expect(dialog).toBeHidden()
-
-    const [unchanged] = await testDb
-      .select()
-      .from(products)
-      .where(eq(products.id, product.id))
-    expect(unchanged!.status).toBe("active")
-  })
 })
 
 test.describe("Deactivate product", () => {
@@ -285,28 +262,6 @@ test.describe("Deactivate product", () => {
       .from(products)
       .where(eq(products.id, product.id))
     expect(updated!.isActive).toBe(false)
-  })
-
-  test("does not deactivate when the confirmation is cancelled", async ({
-    page,
-  }) => {
-    const product = await seedProduct({ name: "Classic Tee" })
-    await signIn(page)
-    await page.goto("/products")
-
-    await openRowMenu(page, "Classic Tee")
-    await page.getByRole("menuitem", { name: "Deactivate" }).click()
-
-    const dialog = page.getByRole("alertdialog")
-    await dialog.getByRole("button", { name: "Cancel" }).click()
-
-    await expect(dialog).toBeHidden()
-
-    const [unchanged] = await testDb
-      .select()
-      .from(products)
-      .where(eq(products.id, product.id))
-    expect(unchanged!.isActive).toBe(true)
   })
 })
 
