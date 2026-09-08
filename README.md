@@ -5,6 +5,7 @@ See [`docs/database.md`](./docs/database.md) for database setup notes.
 ## Features
 
 ### MVP
+
 - [x] Product listing page
 - [x] Product detail page
 - [x] Cart (add/remove/update quantity, guest and signed-in)
@@ -13,15 +14,16 @@ See [`docs/database.md`](./docs/database.md) for database setup notes.
 - [x] Checkout
 - [x] Order confirmation page
 
-
 ### V1
+
 - [x] Email verification
 - [x] Password reset
 - [x] OAuth
 - [ ] Order history page
 - [ ] Order receipt email
 - [ ] Order status tracking
-- [ ] Admin panel (product management)
+- [x] Admin panel (product management)
+- [x] Product Detail page
 - [ ] Staff roles & permissions
 - [x] Staff invite via magic link
 - [ ] Product images
@@ -33,6 +35,7 @@ See [`docs/database.md`](./docs/database.md) for database setup notes.
 - [ ] Promotional
 
 ### Later
+
 - [ ] Search and filters
 - [ ] Abandoned cart emails
 - [ ] Email notifications
