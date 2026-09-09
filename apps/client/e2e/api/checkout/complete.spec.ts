@@ -1,12 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables, resetCartTables } from "../../utils/db-reset";
 import { seedProduct } from "../../utils/seed-product";
 import { createTestCheckoutSession } from "../../utils/checkout";
-
-test.beforeEach(async () => {
-  await resetCartTables();
-  await resetAuthTables();
-});
 
 const CART_COOKIE = { name: "cart", domain: "localhost", path: "/" };
 

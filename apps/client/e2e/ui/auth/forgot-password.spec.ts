@@ -1,23 +1,18 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables } from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
+import { seedUser } from "../../utils/seed-user";
 import { clickUntilHydrated } from "../../utils/interaction";
-
-test.beforeEach(async () => {
-  await resetAuthTables();
-});
 
 test.describe("Forgot password", () => {
   test("shows a generic success message for an existing user", async ({
     page,
     request,
   }) => {
-    await seedUser(request);
+    const credentials = await seedUser(request);
 
     await page.goto("/forgot-password");
     await page
       .getByTestId("forgot-password-email-input")
-      .fill(DEFAULT_TEST_USER.email);
+      .fill(credentials.email);
     await clickUntilHydrated(
       page.getByTestId("forgot-password-submit-button"),
       () =>

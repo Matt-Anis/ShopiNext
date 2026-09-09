@@ -1,20 +1,21 @@
 import { test, expect } from "@playwright/test";
-import { like } from "drizzle-orm";
-import { verification } from "@repo/db/public/auth-schema";
+import { and, desc, eq, like } from "drizzle-orm";
+import { user, verification } from "@repo/db/public/auth-schema";
 import { testDb } from "../../utils/db";
-import { resetAuthTables } from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
+import { seedUser } from "../../utils/seed-user";
 import { clickUntilHydrated } from "../../utils/interaction";
 
-// Password reset tokens live in the `verification` table as
-// `reset-password:<token>` (unlike email verification, which uses a
-// stateless JWT that's never persisted), so tests can pull the real token
-// out of the test DB instead of needing to read the actual email.
-async function getResetPasswordToken() {
+async function getResetPasswordToken(userId: string) {
   const [row] = await testDb
     .select()
     .from(verification)
-    .where(like(verification.identifier, "reset-password:%"));
+    .where(
+      and(
+        like(verification.identifier, "reset-password:%"),
+        eq(verification.value, userId),
+      ),
+    )
+    .orderBy(desc(verification.createdAt));
 
   if (!row) {
     throw new Error("No password reset verification row found");
@@ -23,9 +24,15 @@ async function getResetPasswordToken() {
   return row.identifier.replace("reset-password:", "");
 }
 
-test.beforeEach(async () => {
-  await resetAuthTables();
-});
+async function getUserId(email: string) {
+  const [row] = await testDb.select().from(user).where(eq(user.email, email));
+
+  if (!row) {
+    throw new Error(`No user found for email ${email}`);
+  }
+
+  return row.id;
+}
 
 test.describe("Reset password", () => {
   test("404s when no token is given", async ({ page }) => {
@@ -92,12 +99,13 @@ test.describe("Reset password", () => {
     page,
     request,
   }) => {
-    await seedUser(request);
+    const credentials = await seedUser(request);
+    const userId = await getUserId(credentials.email);
 
     await page.goto("/forgot-password");
     await page
       .getByTestId("forgot-password-email-input")
-      .fill(DEFAULT_TEST_USER.email);
+      .fill(credentials.email);
     await clickUntilHydrated(
       page.getByTestId("forgot-password-submit-button"),
       () =>
@@ -106,7 +114,7 @@ test.describe("Reset password", () => {
         }),
     );
 
-    const token = await getResetPasswordToken();
+    const token = await getResetPasswordToken(userId);
     await page.goto(`/reset-password?token=${token}`);
     await page.getByTestId("reset-password-password-input").fill("newpass123");
     await page
@@ -119,7 +127,7 @@ test.describe("Reset password", () => {
     );
     await page.waitForURL("/login");
 
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email);
+    await page.getByTestId("login-email-input").fill(credentials.email);
     await page.getByTestId("login-password-input").fill("newpass123");
     await page.getByTestId("login-submit-button").click();
 
@@ -131,12 +139,13 @@ test.describe("Reset password", () => {
     page,
     request,
   }) => {
-    await seedUser(request);
+    const credentials = await seedUser(request);
+    const userId = await getUserId(credentials.email);
 
     await page.goto("/forgot-password");
     await page
       .getByTestId("forgot-password-email-input")
-      .fill(DEFAULT_TEST_USER.email);
+      .fill(credentials.email);
     await clickUntilHydrated(
       page.getByTestId("forgot-password-submit-button"),
       () =>
@@ -145,7 +154,7 @@ test.describe("Reset password", () => {
         }),
     );
 
-    const token = await getResetPasswordToken();
+    const token = await getResetPasswordToken(userId);
     await page.goto(`/reset-password?token=${token}`);
     await page.getByTestId("reset-password-password-input").fill("newpass123");
     await page

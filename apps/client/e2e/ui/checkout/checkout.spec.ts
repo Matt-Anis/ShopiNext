@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
 import { clickUntilHydrated, visible } from "../../utils/interaction";
-
-test.beforeEach(async () => {
-  await resetCartTables();
-});
 
 test.describe("Checkout redirects", () => {
   test("buy now redirects to the Stripe hosted checkout page", async ({
@@ -167,7 +162,8 @@ test.describe("Buy now quantity picker", () => {
       ),
     ).toHaveCount(2);
 
-    await visible(page, "variant-pill-Size-S").click();
-    await expect(visible(page, "buy-now-button")).toBeVisible();
+    await clickUntilHydrated(visible(page, "variant-pill-Size-S"), () =>
+      expect(visible(page, "buy-now-button")).toBeVisible({ timeout: 1000 }),
+    );
   });
 });

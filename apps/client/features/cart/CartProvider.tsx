@@ -87,7 +87,6 @@ export function CartProvider({
 
   const updateItemQuantity = (variantId: string, quantity: number) => {
     startTransition(async () => {
-      applyOptimistic({ type: "update", variantId, quantity });
       const updated = await updateCartItemQuantity(variantId, quantity);
       setItems(updated);
     });

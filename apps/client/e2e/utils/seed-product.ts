@@ -1,4 +1,5 @@
 import { testDb } from "./db";
+import { uniqueSuffix } from "./unique";
 import {
   products,
   images,
@@ -29,6 +30,7 @@ export async function seedProduct(
     ...productOverrides
   } = overrides;
   const values = { ...DEFAULT_TEST_PRODUCT, ...productOverrides };
+  values.slug = `${values.slug}-${uniqueSuffix()}`;
 
   const [product] = await testDb.insert(products).values(values).returning();
 
@@ -68,6 +70,7 @@ export async function seedProductWithVariants(
 ) {
   const { options, variants, ...productOverrides } = params;
   const values = { ...DEFAULT_TEST_PRODUCT, ...productOverrides };
+  values.slug = `${values.slug}-${uniqueSuffix()}`;
 
   const [product] = await testDb.insert(products).values(values).returning();
 

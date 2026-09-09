@@ -1,12 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables } from "../../utils/db-reset";
 import { seedUser } from "../../utils/seed-user";
 import { signIn } from "../../utils/auth";
 
 test.beforeEach(async ({ page, request }) => {
-  await resetAuthTables();
-  await seedUser(request);
-  await signIn(page);
+  const credentials = await seedUser(request);
+  await signIn(page, credentials);
 });
 
 test.describe("Log out", () => {

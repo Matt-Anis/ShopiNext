@@ -1,11 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables } from "../../utils/db-reset";
 import { seedUser } from "../../utils/seed-user";
 import { signIn } from "../../utils/auth";
-
-test.beforeEach(async () => {
-  await resetAuthTables();
-});
+import { uniqueSuffix } from "../../utils/unique";
 
 test.describe("Sign up", () => {
   test("creates an account and asks the user to verify their email", async ({
@@ -14,7 +10,9 @@ test.describe("Sign up", () => {
     await page.goto("/signup");
 
     await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
+    await page
+      .getByTestId("signup-email-input")
+      .fill(`jane.doe+${uniqueSuffix()}@example.com`);
     await page.getByTestId("signup-password-input").fill("password123");
     await page
       .getByTestId("signup-confirm-password-input")
@@ -73,8 +71,8 @@ test.describe("Sign up", () => {
     page,
     request,
   }) => {
-    await seedUser(request);
-    await signIn(page);
+    const credentials = await seedUser(request);
+    await signIn(page, credentials);
 
     await page.goto("/signup");
 

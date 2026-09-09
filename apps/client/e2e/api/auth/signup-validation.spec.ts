@@ -1,9 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables } from "../../utils/db-reset";
-
-test.beforeEach(async () => {
-  await resetAuthTables();
-});
+import { uniqueSuffix } from "../../utils/unique";
 
 test.describe("POST /api/auth/sign-up/email — server-side validation", () => {
   test("accepts a valid payload without confirmPassword", async ({
@@ -12,7 +8,7 @@ test.describe("POST /api/auth/sign-up/email — server-side validation", () => {
     const response = await request.post("/api/auth/sign-up/email", {
       data: {
         name: "Jane Doe",
-        email: "jane.doe@example.com",
+        email: `jane.doe+${uniqueSuffix()}@example.com`,
         password: "password123",
       },
     });

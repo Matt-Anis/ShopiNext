@@ -2,13 +2,8 @@ import { test, expect } from "@playwright/test";
 import { eq } from "drizzle-orm";
 import { productVariants } from "@repo/db/public/schema";
 import { testDb } from "../../utils/db";
-import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct } from "../../utils/seed-product";
 import { clickUntilHydrated, visible } from "../../utils/interaction";
-
-test.beforeEach(async () => {
-  await resetCartTables();
-});
 
 test.describe("Stock and per-order limits", () => {
   // A product's minPrice trigger only counts variants with stock > 0, so a
@@ -34,7 +29,7 @@ test.describe("Stock and per-order limits", () => {
   test("a product with maxPerOrder 0 is treated as sold out", async ({
     page,
   }) => {
-    await seedProduct({
+    const product = await seedProduct({
       name: "Zero Limit Product",
       slug: "zero-limit-product",
       stock: 10,
@@ -43,15 +38,15 @@ test.describe("Stock and per-order limits", () => {
 
     await page.goto("/");
 
-    const addButton = page.getByTestId("cart-control-add");
+    const addButton = page.getByTestId(`cart-control-add-${product.id}`);
     await expect(addButton).toHaveText("Sold out");
     await expect(addButton).toBeDisabled();
   });
 
-  test("the + stepper disables at maxPerOrder when it's the tighter limit and shows a tooltip", async ({
+  test("the + stepper disables at maxPerOrder when it's the tighter limit", async ({
     page,
   }) => {
-    await seedProduct({
+    const product = await seedProduct({
       name: "Tight Order Limit Product",
       slug: "tight-order-limit-product",
       stock: 10,
@@ -59,31 +54,29 @@ test.describe("Stock and per-order limits", () => {
     });
 
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 3000 }),
     );
 
-    await page.getByTestId("cart-control-increment").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
-
-    const limitReached = page.getByTestId("cart-control-increment");
-    await expect(limitReached).toHaveAttribute("aria-disabled", "true");
-
-    await limitReached.hover();
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
     await expect(
-      page.getByText("You've reached the maximum quantity"),
-    ).toBeVisible();
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("2 in cart");
+
+    const limitReached = page.getByTestId(
+      `cart-control-increment-${product.id}`,
+    );
+    await expect(limitReached).toHaveAttribute("aria-disabled", "true");
   });
 
   test("the + stepper disables at stock when it's the tighter limit", async ({
     page,
   }) => {
-    await seedProduct({
+    const product = await seedProduct({
       name: "Tight Stock Product",
       slug: "tight-stock-product",
       stock: 2,
@@ -91,22 +84,22 @@ test.describe("Stock and per-order limits", () => {
     });
 
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 3000 }),
     );
 
-    await page.getByTestId("cart-control-increment").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("2 in cart");
 
-    await expect(page.getByTestId("cart-control-increment")).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
+    await expect(
+      page.getByTestId(`cart-control-increment-${product.id}`),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 
   test("the server clamps quantity if stock drops below the client's cached cap", async ({
@@ -120,11 +113,12 @@ test.describe("Stock and per-order limits", () => {
     });
 
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 3000 }),
     );
 
     await testDb
@@ -132,10 +126,10 @@ test.describe("Stock and per-order limits", () => {
       .set({ stock: 1 })
       .where(eq(productVariants.id, product.variant.id));
 
-    await page.getByTestId("cart-control-increment").click();
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
 
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
   });
 });

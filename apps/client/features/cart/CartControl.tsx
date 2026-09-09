@@ -24,14 +24,18 @@ export function CartControl({
   variant,
   size = "default",
   className,
+  testIdSuffix,
 }: {
   variant: CartItemVariant;
   size?: "default" | "lg";
   className?: string;
+  testIdSuffix?: string;
 }) {
   const { items, addItem, updateItemQuantity, removeItem, isPending } =
     useCart();
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const testId = (base: string) =>
+    testIdSuffix ? `${base}-${testIdSuffix}` : base;
 
   const quantity =
     items.find((item) => item.variant.id === variant.id)?.quantity ?? 0;
@@ -73,7 +77,7 @@ export function CartControl({
           className={cn("w-full", className)}
           onClick={handleAdd}
           disabled={isPending || isOutOfStock}
-          data-testid="cart-control-add"
+          data-testid={testId("cart-control-add")}
         >
           {isOutOfStock ? "Sold out" : "Add to Cart"}
         </Button>
@@ -85,7 +89,7 @@ export function CartControl({
             variant={quantity === 1 ? "destructive" : "ghost"}
             onClick={handleDecrement}
             disabled={isPending}
-            data-testid="cart-control-decrement"
+            data-testid={testId("cart-control-decrement")}
           >
             {quantity === 1 ? (
               <Trash2 className="size-4" />
@@ -93,7 +97,10 @@ export function CartControl({
               <Minus className="size-4" />
             )}
           </Button>
-          <span className="text-sm font-medium" data-testid="cart-control-quantity">
+          <span
+            className="text-sm font-medium"
+            data-testid={testId("cart-control-quantity")}
+          >
             {quantity} in cart
           </span>
           {atQuantityLimit ? (
@@ -104,7 +111,7 @@ export function CartControl({
                     role="button"
                     aria-disabled="true"
                     tabIndex={0}
-                    data-testid="cart-control-increment"
+                    data-testid={testId("cart-control-increment")}
                     className={cn(
                       "inline-flex shrink-0 cursor-not-allowed items-center justify-center rounded-full text-muted-foreground",
                       size === "lg" ? "size-10" : "size-9"
@@ -123,7 +130,7 @@ export function CartControl({
               variant="ghost"
               onClick={handleIncrement}
               disabled={isPending}
-              data-testid="cart-control-increment"
+              data-testid={testId("cart-control-increment")}
             >
               <Plus className="size-4" />
             </Button>

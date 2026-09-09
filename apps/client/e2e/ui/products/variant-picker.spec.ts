@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
 import { visible } from "../../utils/interaction";
-
-test.beforeEach(async () => {
-  await resetCartTables();
-});
 
 test.describe("Product detail variant picker", () => {
   test("a product with no options shows its price with no pills", async ({

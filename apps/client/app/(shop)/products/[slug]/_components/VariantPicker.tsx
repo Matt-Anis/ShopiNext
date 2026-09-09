@@ -24,6 +24,7 @@ type VariantPickerContextValue = {
   matchedVariant: Variant | null
   selectedLabel: string
   minPrice: number | null
+  testIdSuffix?: string
 }
 
 const VariantPickerContext = createContext<VariantPickerContextValue | null>(
@@ -51,11 +52,13 @@ export function VariantPickerProvider({
   options,
   variants,
   minPrice,
+  testIdSuffix,
   children,
 }: {
   options: Option[]
   variants: Variant[]
   minPrice: number | null
+  testIdSuffix?: string
   children: ReactNode
 }) {
   const [selection, setSelection] = useState<Record<string, string>>({})
@@ -112,6 +115,7 @@ export function VariantPickerProvider({
         matchedVariant,
         selectedLabel,
         minPrice,
+        testIdSuffix,
       }}
     >
       {children}
@@ -120,7 +124,12 @@ export function VariantPickerProvider({
 }
 
 export function VariantOptionPills() {
-  const { options, selection, select, statusFor } = useVariantPicker()
+  const { options, selection, select, statusFor, testIdSuffix } =
+    useVariantPicker()
+  const pillTestId = (option: Option, value: Option["values"][number]) => {
+    const base = `variant-pill-${option.name}-${value.value}`
+    return testIdSuffix ? `${base}-${testIdSuffix}` : base
+  }
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -151,7 +160,7 @@ export function VariantOptionPills() {
                     type="button"
                     onClick={() => select(option.id, value.id)}
                     aria-pressed={isSelected}
-                    data-testid={`variant-pill-${option.name}-${value.value}`}
+                    data-testid={pillTestId(option, value)}
                     className={pillClassName}
                   >
                     {value.value}
@@ -167,14 +176,14 @@ export function VariantOptionPills() {
                         role="button"
                         aria-disabled="true"
                         tabIndex={0}
-                        data-testid={`variant-pill-${option.name}-${value.value}`}
+                        data-testid={pillTestId(option, value)}
                         className={pillClassName}
                       >
                         {value.value}
                       </span>
                     }
                   />
-                  <TooltipContent>
+                  <TooltipContent data-testid={`${pillTestId(option, value)}-tooltip`}>
                     {status === "out-of-stock" ? "Sold out" : "Not available"}
                   </TooltipContent>
                 </Tooltip>
@@ -222,7 +231,8 @@ export function VariantAddToCart({
   size?: "default" | "lg"
   className?: string
 }) {
-  const { matchedVariant, selectedLabel, options } = useVariantPicker()
+  const { matchedVariant, selectedLabel, options, testIdSuffix } =
+    useVariantPicker()
   const buttonSize = size === "lg" ? "lg" : "default"
 
   if (!matchedVariant) {
@@ -244,6 +254,7 @@ export function VariantAddToCart({
       }}
       size={size}
       className={className}
+      testIdSuffix={testIdSuffix}
     />
   )
 }

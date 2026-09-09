@@ -5,10 +5,10 @@ config({ path: ".env.local" });
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  workers: process.env.CI ? 3 : 4,
   reporter: "html",
   expect: {
     timeout: 10_000,
@@ -19,7 +19,16 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "chromium-serial",
+      testMatch: /homepage-listing-ordering\.spec\.ts/,
+      fullyParallel: false,
+      workers: 1,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
       name: "chromium",
+      testIgnore: /homepage-listing-ordering\.spec\.ts/,
+      dependencies: ["chromium-serial"],
       use: { ...devices["Desktop Chrome"] },
     },
   ],
