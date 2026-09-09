@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 3 : 4,
+  workers: process.env.CI ? 3 : 2,
   reporter: "html",
   expect: {
     timeout: 10_000,

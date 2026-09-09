@@ -2,15 +2,15 @@ import { test, expect, type Page } from "@playwright/test"
 import { eq } from "drizzle-orm"
 import { categories } from "@repo/db/public/schema"
 import { testDb } from "../../utils/db"
-import { resetAuthTables, resetCategoryTables } from "../../utils/db-reset"
 import { seedAdmin } from "../../utils/seed-user"
-import { seedCategory, DEFAULT_TEST_CATEGORY } from "../../utils/seed-category"
+import { seedCategory } from "../../utils/seed-category"
 import { signIn } from "../../utils/auth"
+import { uniqueSuffix } from "../../utils/unique"
+
+let admin: Awaited<ReturnType<typeof seedAdmin>>
 
 test.beforeEach(async () => {
-  await resetAuthTables()
-  await resetCategoryTables()
-  await seedAdmin()
+  admin = await seedAdmin()
 })
 
 async function openRowMenu(page: Page, rowText: string) {
@@ -18,9 +18,6 @@ async function openRowMenu(page: Page, rowText: string) {
   const trigger = row.getByRole("button", { name: "Open menu" })
   const menu = page.getByRole("menu")
 
-  // click() fires once and doesn't retry, so a click that lands before
-  // React hydrates the trigger is silently lost. Retry the click itself
-  // until the menu actually opens, rather than just waiting longer.
   await expect(async () => {
     await trigger.click()
     await expect(menu).toBeVisible({ timeout: 1000 })
@@ -29,11 +26,12 @@ async function openRowMenu(page: Page, rowText: string) {
 
 test.describe("Create category", () => {
   test("creates a category and shows it in the list", async ({ page }) => {
-    await signIn(page)
+    const name = `Outdoor ${uniqueSuffix()}`
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await page.getByTestId("new-category-button").click()
-    await page.getByTestId("category-name-input").fill("Outdoor")
+    await page.getByTestId("category-name-input").fill(name)
     await page
       .getByTestId("category-description-input")
       .fill("Tents, packs, and camp gear")
@@ -42,27 +40,25 @@ test.describe("Create category", () => {
     await expect(page.getByText("Category created")).toBeVisible()
     await expect(page.getByTestId("category-form")).toBeHidden()
 
-    const row = page.locator("tr", { hasText: "Outdoor" })
+    const row = page.locator("tr", { hasText: name })
     await expect(row).toContainText("Tents, packs, and camp gear")
 
     const [category] = await testDb
       .select()
       .from(categories)
-      .where(eq(categories.name, "Outdoor"))
+      .where(eq(categories.name, name))
     expect(category).toBeDefined()
   })
 
   test("shows a friendly error when the name already exists", async ({
     page,
   }) => {
-    await seedCategory()
-    await signIn(page)
+    const category = await seedCategory()
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await page.getByTestId("new-category-button").click()
-    await page
-      .getByTestId("category-name-input")
-      .fill(DEFAULT_TEST_CATEGORY.name)
+    await page.getByTestId("category-name-input").fill(category.name)
     await page.getByTestId("category-submit-button").click()
 
     await expect(page.getByText("Failed to create category")).toBeVisible()
@@ -71,7 +67,7 @@ test.describe("Create category", () => {
   test("shows a validation error for a whitespace-only name", async ({
     page,
   }) => {
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await page.getByTestId("new-category-button").click()
@@ -79,17 +75,15 @@ test.describe("Create category", () => {
     await page.getByTestId("category-submit-button").click()
 
     await expect(page.getByText("Failed to create category")).toBeVisible()
-
-    const rows = await testDb.select().from(categories)
-    expect(rows).toHaveLength(0)
   })
 
   test("does not create anything when cancelled", async ({ page }) => {
-    await signIn(page)
+    const name = `Never Saved ${uniqueSuffix()}`
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await page.getByTestId("new-category-button").click()
-    await page.getByTestId("category-name-input").fill("Never Saved")
+    await page.getByTestId("category-name-input").fill(name)
     await page.getByRole("button", { name: "Cancel" }).click()
 
     await expect(page.getByTestId("category-form")).toBeHidden()
@@ -98,7 +92,7 @@ test.describe("Create category", () => {
     const rows = await testDb
       .select()
       .from(categories)
-      .where(eq(categories.name, "Never Saved"))
+      .where(eq(categories.name, name))
     expect(rows).toHaveLength(0)
   })
 })
@@ -106,7 +100,8 @@ test.describe("Create category", () => {
 test.describe("Edit category", () => {
   test("updates a category's name and description", async ({ page }) => {
     const category = await seedCategory()
-    await signIn(page)
+    const updatedName = `Updated Name ${uniqueSuffix()}`
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await openRowMenu(page, category.name)
@@ -115,7 +110,7 @@ test.describe("Edit category", () => {
     await expect(page.getByTestId("category-name-input")).toHaveValue(
       category.name
     )
-    await page.getByTestId("category-name-input").fill("Updated Name")
+    await page.getByTestId("category-name-input").fill(updatedName)
     await page
       .getByTestId("category-description-input")
       .fill("Updated description")
@@ -123,15 +118,17 @@ test.describe("Edit category", () => {
 
     await expect(page.getByText("Category updated")).toBeVisible()
 
-    const row = page.locator("tr", { hasText: "Updated Name" })
+    const row = page.locator("tr", { hasText: updatedName })
     await expect(row).toContainText("Updated description")
-    await expect(page.locator("tr", { hasText: category.name })).toHaveCount(0)
+    await expect(page.locator("tr", { hasText: category.name })).toHaveCount(
+      0
+    )
 
     const [updated] = await testDb
       .select()
       .from(categories)
       .where(eq(categories.id, category.id))
-    expect(updated!.name).toBe("Updated Name")
+    expect(updated!.name).toBe(updatedName)
     expect(updated!.updatedBy).toBeTruthy()
   })
 
@@ -140,7 +137,7 @@ test.describe("Edit category", () => {
   }) => {
     const categoryA = await seedCategory({ name: "Outdoor" })
     const categoryB = await seedCategory({ name: "Kitchen" })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await openRowMenu(page, categoryB.name)
@@ -155,14 +152,14 @@ test.describe("Edit category", () => {
       .select()
       .from(categories)
       .where(eq(categories.id, categoryB.id))
-    expect(unchanged!.name).toBe("Kitchen")
+    expect(unchanged!.name).toBe(categoryB.name)
   })
 })
 
 test.describe("Deactivate category", () => {
   test("deactivates a category after confirming", async ({ page }) => {
     const category = await seedCategory()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await openRowMenu(page, category.name)
@@ -173,7 +170,9 @@ test.describe("Deactivate category", () => {
     await dialog.getByRole("button", { name: "Deactivate" }).click()
 
     await expect(page.getByText("Category deactivated")).toBeVisible()
-    await expect(page.getByTestId("categories-empty-state")).toBeVisible()
+    await expect(page.locator("tr", { hasText: category.name })).toHaveCount(
+      0
+    )
 
     const [remaining] = await testDb
       .select()
@@ -186,7 +185,7 @@ test.describe("Deactivate category", () => {
     page,
   }) => {
     const category = await seedCategory()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/categories")
 
     await openRowMenu(page, category.name)
@@ -209,14 +208,14 @@ test.describe("Deactivate category", () => {
 
 test.describe("Search categories", () => {
   test("filters the list by name", async ({ page }) => {
-    await seedCategory({ name: "Outdoor" })
-    await seedCategory({ name: "Kitchen" })
-    await signIn(page)
+    const outdoor = await seedCategory({ name: "Outdoor" })
+    const kitchen = await seedCategory({ name: "Kitchen" })
+    await signIn(page, admin)
     await page.goto("/categories")
 
-    await page.getByTestId("data-table-search-input").fill("Out")
+    await page.getByTestId("data-table-search-input").fill(outdoor.name)
 
-    await expect(page.locator("tr", { hasText: "Outdoor" })).toBeVisible()
-    await expect(page.locator("tr", { hasText: "Kitchen" })).toHaveCount(0)
+    await expect(page.locator("tr", { hasText: outdoor.name })).toBeVisible()
+    await expect(page.locator("tr", { hasText: kitchen.name })).toHaveCount(0)
   })
 })

@@ -3,16 +3,16 @@ import { defineConfig, devices } from "@playwright/test";
 
 config({ path: ".env.local" });
 
-// Short enough for tests to wait out the staleness window, long enough to
-// not be flaky about the reload/assert round-trip finishing in time.
+// The session cookie cache's configured max age (see apps/admin/lib/auth.ts)
+// while testing - cookie-cache.spec.ts checks the cookie's expiry against it.
 export const TEST_COOKIE_CACHE_MAX_AGE_SECONDS = 4;
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  workers: process.env.CI ? 3 : 2,
   reporter: "html",
   expect: {
     timeout: 10_000,
@@ -23,7 +23,16 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "chromium-serial",
+      testMatch: /empty-state\.spec\.ts/,
+      fullyParallel: false,
+      workers: 1,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
       name: "chromium",
+      testIgnore: /empty-state\.spec\.ts/,
+      dependencies: ["chromium-serial"],
       use: { ...devices["Desktop Chrome"] },
     },
   ],

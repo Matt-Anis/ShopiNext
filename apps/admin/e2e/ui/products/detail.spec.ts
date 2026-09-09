@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test"
 import { productCategories, images } from "@repo/db/public/schema"
 import { testDb } from "../../utils/db"
-import {
-  resetAuthTables,
-  resetCategoryTables,
-  resetProductTables,
-} from "../../utils/db-reset"
 import { seedAdmin } from "../../utils/seed-user"
 import {
   seedProduct,
@@ -15,11 +10,10 @@ import {
 import { seedCategory } from "../../utils/seed-category"
 import { signIn } from "../../utils/auth"
 
+let admin: Awaited<ReturnType<typeof seedAdmin>>
+
 test.beforeEach(async () => {
-  await resetAuthTables()
-  await resetCategoryTables()
-  await resetProductTables()
-  await seedAdmin()
+  admin = await seedAdmin()
 })
 
 test.describe("Product detail page", () => {
@@ -29,7 +23,7 @@ test.describe("Product detail page", () => {
       slug: "classic-tee",
       description: "A soft cotton tee",
     })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(
@@ -43,7 +37,7 @@ test.describe("Product detail page", () => {
     page,
   }) => {
     const product = await seedProduct({ description: "" })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByText("No description provided.")).toBeVisible()
@@ -65,7 +59,7 @@ test.describe("Product detail page", () => {
         isPrimary: false,
       },
     ])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByText("2 · 1 primary")).toBeVisible()
@@ -76,7 +70,7 @@ test.describe("Product detail page", () => {
     page,
   }) => {
     const product = await seedProduct()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByText("No images uploaded yet.")).toBeVisible()
@@ -88,7 +82,7 @@ test.describe("Product detail page", () => {
     await testDb
       .insert(productCategories)
       .values({ productId: product.id, categoryId: category.id })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByText("Apparel")).toBeVisible()
@@ -98,7 +92,7 @@ test.describe("Product detail page", () => {
     page,
   }) => {
     const product = await seedProduct()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(
@@ -115,7 +109,7 @@ test.describe("Product detail page", () => {
       "Denim",
     ])
     await seedProductVariant(product.id, {}, [option.values[0]!.id])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByText("Material:")).toBeVisible()
@@ -127,15 +121,15 @@ test.describe("Product detail page", () => {
   }) => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Size", ["M"])
-    await seedProductVariant(
+    const variant = await seedProductVariant(
       product.id,
       { sku: "TEE-M", price: 2500, stock: 12, maxPerOrder: 3 },
       [option.values[0]!.id]
     )
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
-    const row = page.locator("tr", { hasText: "TEE-M" })
+    const row = page.locator("tr", { hasText: variant.sku })
     await expect(row).toContainText("M")
     await expect(row).toContainText("$25.00")
     await expect(row).toContainText("12")
@@ -144,7 +138,7 @@ test.describe("Product detail page", () => {
 
   test("shows a message when there are no variants", async ({ page }) => {
     const product = await seedProduct()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(
@@ -157,34 +151,34 @@ test.describe("Product detail page", () => {
   }) => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Size", ["S", "M", "L"])
-    await seedProductVariant(
+    const outOfStock = await seedProductVariant(
       product.id,
       { sku: "OUT-OF-STOCK", stock: 0 },
       [option.values[0]!.id]
     )
-    await seedProductVariant(
+    const lowStock = await seedProductVariant(
       product.id,
       { sku: "LOW-STOCK", stock: 3 },
       [option.values[1]!.id]
     )
-    await seedProductVariant(
+    const inStock = await seedProductVariant(
       product.id,
       { sku: "IN-STOCK", stock: 20 },
       [option.values[2]!.id]
     )
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     const outOfStockCell = page
-      .locator("tr", { hasText: "OUT-OF-STOCK" })
+      .locator("tr", { hasText: outOfStock.sku })
       .locator("td")
       .nth(3)
     const lowStockCell = page
-      .locator("tr", { hasText: "LOW-STOCK" })
+      .locator("tr", { hasText: lowStock.sku })
       .locator("td")
       .nth(3)
     const inStockCell = page
-      .locator("tr", { hasText: "IN-STOCK" })
+      .locator("tr", { hasText: inStock.sku })
       .locator("td")
       .nth(3)
 
@@ -208,7 +202,7 @@ test.describe("Product detail page", () => {
       { sku: "B", price: 2500, stock: 10 },
       [option.values[1]!.id]
     )
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByTestId("at-a-glance-price-range")).toHaveText(
@@ -229,7 +223,7 @@ test.describe("Product detail page", () => {
     await seedProductVariant(product.id, { sku: "B", price: 1500 }, [
       option.values[1]!.id,
     ])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByTestId("at-a-glance-price-range")).toHaveText(
@@ -241,7 +235,7 @@ test.describe("Product detail page", () => {
     page,
   }) => {
     const product = await seedProduct()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}`)
 
     await expect(page.getByTestId("at-a-glance-price-range")).toHaveText("—")
@@ -250,7 +244,7 @@ test.describe("Product detail page", () => {
   })
 
   test("returns 404 for a nonexistent product id", async ({ page }) => {
-    await signIn(page)
+    await signIn(page, admin)
     const response = await page.goto(
       "/products/00000000-0000-0000-0000-000000000000"
     )

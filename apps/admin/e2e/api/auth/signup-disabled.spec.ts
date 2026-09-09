@@ -1,9 +1,4 @@
 import { test, expect } from "@playwright/test"
-import { resetAuthTables } from "../../utils/db-reset"
-
-test.beforeEach(async () => {
-  await resetAuthTables()
-})
 
 test.describe("POST /api/auth/sign-up/email — disabled", () => {
   test("rejects sign-up requests against the disabled endpoint", async ({

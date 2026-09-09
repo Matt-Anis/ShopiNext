@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto"
 import type { APIRequestContext } from "@playwright/test"
+import { eq } from "drizzle-orm"
 import { hashPassword } from "better-auth/crypto"
 import { adminUser, adminAccount } from "@repo/db/admin/auth-schema"
 import { testDb } from "./db"
+import { uniqueSuffix } from "./unique"
 
 export const DEFAULT_TEST_ADMIN = {
   name: "Test Admin",
@@ -10,22 +12,17 @@ export const DEFAULT_TEST_ADMIN = {
   password: "password123",
 }
 
-// Hash of "password123", from hashPassword() in better-auth/crypto.
 const DEFAULT_TEST_ADMIN_PASSWORD_HASH =
   "990a68a7bb59286ea5ff7fef3bba58f5:fcc02e81336324522fa485074d41fcc6198e9381b91be18b80d654967d6ca5dcc0528145519ac6e07799435b35eb76a116b06bfba1ef3d32c14e7fd13361fa49"
 
-// Inserted directly rather than through /api/auth/sign-up/email — that
-// endpoint is disabled in the admin app (emailAndPassword.disableSignUp).
 export async function seedAdmin(
   overrides: Partial<typeof DEFAULT_TEST_ADMIN> = {}
 ) {
   const credentials = { ...DEFAULT_TEST_ADMIN, ...overrides }
+  const [localPart, domain] = credentials.email.split("@")
+  credentials.email = `${localPart}+${uniqueSuffix()}@${domain}`
   const userId = randomUUID()
 
-  // role must be "admin" — the admin plugin's permission check falls back
-  // unset roles to "user", which has no permissions (e.g. can't call
-  // /admin/create-user), so an unset role here would silently break any
-  // test that exercises a real admin-only endpoint.
   await testDb.insert(adminUser).values({
     id: userId,
     name: credentials.name,
@@ -44,7 +41,7 @@ export async function seedAdmin(
         : await hashPassword(credentials.password),
   })
 
-  return credentials
+  return { ...credentials, id: userId }
 }
 
 export const DEFAULT_NEW_STAFF = {
@@ -52,30 +49,22 @@ export const DEFAULT_NEW_STAFF = {
   email: "new.staff@example.com",
 }
 
-// Matches playwright.config.ts's `use.baseURL`. Better Auth's CSRF check
-// (the `originCheck` middleware on state-changing routes like
-// /admin/create-user and /request-password-reset) rejects requests with no
-// Origin header, and Playwright's `request` fixture doesn't send one by
-// default the way a browser does — so it has to be set explicitly here.
 const ORIGIN = "http://localhost:3001"
 
-// Goes through the real HTTP endpoints (sign in as admin, then the admin
-// plugin's create-user + the public request-password-reset endpoint)
-// rather than importing the "use server" action directly — that action
-// pulls in next/headers, which only resolves inside the Next.js runtime,
-// not the plain Node process Playwright test files run in. This also
-// exercises the same auth/permission path a real admin hits.
 export async function createStaffAccountViaApi(
   request: APIRequestContext,
+  adminCredentials: Pick<typeof DEFAULT_TEST_ADMIN, "email" | "password">,
   overrides: Partial<typeof DEFAULT_NEW_STAFF> = {}
 ) {
   const staff = { ...DEFAULT_NEW_STAFF, ...overrides }
+  const [localPart, domain] = staff.email.split("@")
+  staff.email = `${localPart}+${uniqueSuffix()}@${domain}`
 
   const signInResponse = await request.post("/api/auth/sign-in/email", {
     headers: { origin: ORIGIN },
     data: {
-      email: DEFAULT_TEST_ADMIN.email,
-      password: DEFAULT_TEST_ADMIN.password,
+      email: adminCredentials.email,
+      password: adminCredentials.password,
     },
   })
   if (!signInResponse.ok()) {
@@ -107,5 +96,13 @@ export async function createStaffAccountViaApi(
     )
   }
 
-  return staff
+  const [createdUser] = await testDb
+    .select()
+    .from(adminUser)
+    .where(eq(adminUser.email, staff.email))
+  if (!createdUser) {
+    throw new Error(`Staff user ${staff.email} was not found after creation`)
+  }
+
+  return { ...staff, id: createdUser.id }
 }

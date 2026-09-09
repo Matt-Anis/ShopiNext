@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test"
 import { getResetPasswordToken } from "../../utils/db"
-import { resetAuthTables } from "../../utils/db-reset"
 import { seedAdmin, createStaffAccountViaApi } from "../../utils/seed-user"
-
-test.beforeEach(async () => {
-  await resetAuthTables()
-})
 
 test.describe("Staff reset password", () => {
   test("404s when no token is given", async ({ page }) => {
@@ -114,10 +109,10 @@ test.describe("Staff reset password", () => {
     page,
     request,
   }) => {
-    await seedAdmin()
-    const staff = await createStaffAccountViaApi(request)
+    const admin = await seedAdmin()
+    const staff = await createStaffAccountViaApi(request, admin)
 
-    const token = await getResetPasswordToken()
+    const token = await getResetPasswordToken(staff.id)
     await page.goto(`/reset-password?token=${token}`)
     await page.getByTestId("reset-password-password-input").fill("Passw0rd")
     await page
@@ -140,10 +135,10 @@ test.describe("Staff reset password", () => {
     page,
     request,
   }) => {
-    await seedAdmin()
-    await createStaffAccountViaApi(request)
+    const admin = await seedAdmin()
+    const staff = await createStaffAccountViaApi(request, admin)
 
-    const token = await getResetPasswordToken()
+    const token = await getResetPasswordToken(staff.id)
     await page.goto(`/reset-password?token=${token}`)
     await page.getByTestId("reset-password-password-input").fill("Passw0rd")
     await page

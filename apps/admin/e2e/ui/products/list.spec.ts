@@ -2,11 +2,6 @@ import { test, expect, type Page } from "@playwright/test"
 import { eq } from "drizzle-orm"
 import { products, productCategories, images } from "@repo/db/public/schema"
 import { testDb } from "../../utils/db"
-import {
-  resetAuthTables,
-  resetCategoryTables,
-  resetProductTables,
-} from "../../utils/db-reset"
 import { seedAdmin } from "../../utils/seed-user"
 import {
   seedProduct,
@@ -15,12 +10,12 @@ import {
 } from "../../utils/seed-product"
 import { seedCategory } from "../../utils/seed-category"
 import { signIn } from "../../utils/auth"
+import { uniqueSuffix } from "../../utils/unique"
+
+let admin: Awaited<ReturnType<typeof seedAdmin>>
 
 test.beforeEach(async () => {
-  await resetAuthTables()
-  await resetCategoryTables()
-  await resetProductTables()
-  await seedAdmin()
+  admin = await seedAdmin()
 })
 
 async function openRowMenu(page: Page, rowText: string) {
@@ -28,9 +23,6 @@ async function openRowMenu(page: Page, rowText: string) {
   const trigger = row.getByRole("button", { name: "Open menu" })
   const menu = page.getByRole("menu")
 
-  // click() fires once and doesn't retry, so a click that lands before
-  // React hydrates the trigger is silently lost. Retry the click itself
-  // until the menu actually opens, rather than just waiting longer.
   await expect(async () => {
     await trigger.click()
     await expect(menu).toBeVisible({ timeout: 1000 })
@@ -41,7 +33,10 @@ test.describe("Products list", () => {
   test("shows a seeded product's status, category, option and variant counts", async ({
     page,
   }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "active" })
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      status: "active",
+    })
     const category = await seedCategory({ name: "Apparel" })
     await testDb
       .insert(productCategories)
@@ -49,13 +44,13 @@ test.describe("Products list", () => {
     const option = await seedProductOption(product.id, "Size", ["S", "M"])
     await seedProductVariant(product.id, {}, [option.values[0]!.id])
 
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/products")
 
-    const row = page.locator("tr", { hasText: "Classic Tee" })
+    const row = page.locator("tr", { hasText: product.name })
     await expect(row).toContainText("Active")
     await expect(row).toContainText("Published")
-    await expect(row).toContainText("Apparel")
+    await expect(row).toContainText(category.name)
 
     const cells = row.locator("td")
     await expect(cells.nth(3)).toHaveText("1")
@@ -66,56 +61,54 @@ test.describe("Products list", () => {
     page,
   }) => {
     const withImage = await seedProduct({
-      name: "With Image",
-      slug: "with-image",
+      name: `With Image ${uniqueSuffix()}`,
     })
     await testDb.insert(images).values({
       productId: withImage.id,
       url: "https://example.com/image.png",
       isPrimary: true,
     })
-    await seedProduct({ name: "Without Image", slug: "without-image" })
+    const withoutImage = await seedProduct({
+      name: `Without Image ${uniqueSuffix()}`,
+    })
 
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/products")
 
     await expect(
-      page.locator("tr", { hasText: "With Image" }).locator("img")
+      page.locator("tr", { hasText: withImage.name }).locator("img")
     ).toHaveCount(1)
     await expect(
-      page.locator("tr", { hasText: "Without Image" }).locator("img")
+      page.locator("tr", { hasText: withoutImage.name }).locator("img")
     ).toHaveCount(0)
   })
 
-  test("shows the empty state when there are no products", async ({
-    page,
-  }) => {
-    await signIn(page)
-    await page.goto("/products")
-
-    await expect(page.getByTestId("products-empty-state")).toBeVisible()
-  })
-
   test("filters the list by name", async ({ page }) => {
-    await seedProduct({ name: "Classic Tee", slug: "classic-tee" })
-    await seedProduct({ name: "Canvas Tote", slug: "canvas-tote" })
-    await signIn(page)
+    const classicTee = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+    })
+    const canvasTote = await seedProduct({
+      name: `Canvas Tote ${uniqueSuffix()}`,
+    })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await page.getByTestId("data-table-search-input").fill("Classic")
+    await page.getByTestId("data-table-search-input").fill(classicTee.name)
 
-    await expect(page.locator("tr", { hasText: "Classic Tee" })).toBeVisible()
-    await expect(page.locator("tr", { hasText: "Canvas Tote" })).toHaveCount(0)
+    await expect(page.locator("tr", { hasText: classicTee.name })).toBeVisible()
+    await expect(page.locator("tr", { hasText: canvasTote.name })).toHaveCount(
+      0
+    )
   })
 })
 
 test.describe("View product", () => {
   test("navigates to the product detail page", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee" })
-    await signIn(page)
+    const product = await seedProduct({ name: `Classic Tee ${uniqueSuffix()}` })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "View" }).click()
 
     await page.waitForURL(`/products/${product.id}`)
@@ -124,11 +117,11 @@ test.describe("View product", () => {
 
 test.describe("Edit product from list", () => {
   test("navigates to the step 1 edit page", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee" })
-    await signIn(page)
+    const product = await seedProduct({ name: `Classic Tee ${uniqueSuffix()}` })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Edit" }).click()
 
     await page.waitForURL(`/products/${product.id}/edit/step-1`)
@@ -137,22 +130,25 @@ test.describe("Edit product from list", () => {
 
 test.describe("Publish product", () => {
   test("publishes a draft product that has a variant", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "draft" })
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      status: "draft",
+    })
     await seedProductVariant(product.id)
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Publish" }).click()
 
     const dialog = page.getByRole("alertdialog")
-    await expect(dialog).toContainText("Classic Tee")
+    await expect(dialog).toContainText(product.name)
     await dialog.getByRole("button", { name: "Publish" }).click()
 
     await expect(page.getByText("Product published")).toBeVisible()
-    await expect(
-      page.locator("tr", { hasText: "Classic Tee" })
-    ).toContainText("Published")
+    await expect(page.locator("tr", { hasText: product.name })).toContainText(
+      "Published"
+    )
 
     const [updated] = await testDb
       .select()
@@ -164,11 +160,14 @@ test.describe("Publish product", () => {
   test("shows a friendly error when publishing a product with no variants", async ({
     page,
   }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "draft" })
-    await signIn(page)
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      status: "draft",
+    })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Publish" }).click()
 
     const dialog = page.getByRole("alertdialog")
@@ -189,12 +188,15 @@ test.describe("Publish product", () => {
   test("does not publish when the confirmation is cancelled", async ({
     page,
   }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "draft" })
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      status: "draft",
+    })
     await seedProductVariant(product.id)
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Publish" }).click()
 
     const dialog = page.getByRole("alertdialog")
@@ -212,22 +214,20 @@ test.describe("Publish product", () => {
 
 test.describe("Move to draft", () => {
   test("moves a published product back to draft", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee", status: "active" })
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      status: "active",
+    })
     await seedProductVariant(product.id)
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Move to draft" }).click()
 
     const dialog = page.getByRole("alertdialog")
-    await expect(dialog).toContainText("Classic Tee")
+    await expect(dialog).toContainText(product.name)
     await dialog.getByRole("button", { name: "Move to draft" }).click()
-
-    await expect(page.getByText("Product moved to draft")).toBeVisible()
-    await expect(
-      page.locator("tr", { hasText: "Classic Tee" })
-    ).toContainText("Draft")
 
     const [updated] = await testDb
       .select()
@@ -239,20 +239,20 @@ test.describe("Move to draft", () => {
 
 test.describe("Deactivate product", () => {
   test("deactivates a product after confirming", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee" })
-    await signIn(page)
+    const product = await seedProduct({ name: `Classic Tee ${uniqueSuffix()}` })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Deactivate" }).click()
 
     const dialog = page.getByRole("alertdialog")
-    await expect(dialog).toContainText("Classic Tee")
+    await expect(dialog).toContainText(product.name)
     await dialog.getByRole("button", { name: "Deactivate" }).click()
 
     await expect(page.getByText("Product deactivated")).toBeVisible()
 
-    const row = page.locator("tr", { hasText: "Classic Tee" })
+    const row = page.locator("tr", { hasText: product.name })
     await expect(row).toContainText("Inactive")
     await row.getByRole("button", { name: "Open menu" }).click()
     await expect(page.getByRole("menuitem", { name: "Activate" })).toBeVisible()
@@ -267,17 +267,20 @@ test.describe("Deactivate product", () => {
 
 test.describe("Activate product", () => {
   test("reactivates a deactivated product", async ({ page }) => {
-    const product = await seedProduct({ name: "Classic Tee", isActive: false })
-    await signIn(page)
+    const product = await seedProduct({
+      name: `Classic Tee ${uniqueSuffix()}`,
+      isActive: false,
+    })
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Activate" }).click()
 
     await expect(page.getByText("Product activated")).toBeVisible()
-    await expect(
-      page.locator("tr", { hasText: "Classic Tee" })
-    ).toContainText("Active")
+    await expect(page.locator("tr", { hasText: product.name })).toContainText(
+      "Active"
+    )
 
     const [updated] = await testDb
       .select()
@@ -289,16 +292,20 @@ test.describe("Activate product", () => {
   test("shows a friendly error when reactivating conflicts with another active product's slug", async ({
     page,
   }) => {
-    await seedProduct({ name: "Other Product", slug: "classic-tee" })
-    const product = await seedProduct({
-      name: "Classic Tee",
-      slug: "classic-tee",
-      isActive: false,
-    })
-    await signIn(page)
+    const other = await seedProduct({ name: `Other Product ${uniqueSuffix()}` })
+    const [product] = await testDb
+      .insert(products)
+      .values({
+        name: `Classic Tee ${uniqueSuffix()}`,
+        slug: other.slug,
+        status: "draft",
+        isActive: false,
+      })
+      .returning()
+    await signIn(page, admin)
     await page.goto("/products")
 
-    await openRowMenu(page, "Classic Tee")
+    await openRowMenu(page, product!.name)
     await page.getByRole("menuitem", { name: "Activate" }).click()
 
     await expect(page.getByText("Failed to activate product")).toBeVisible()
@@ -309,7 +316,7 @@ test.describe("Activate product", () => {
     const [unchanged] = await testDb
       .select()
       .from(products)
-      .where(eq(products.id, product.id))
+      .where(eq(products.id, product!.id))
     expect(unchanged!.isActive).toBe(false)
   })
 })

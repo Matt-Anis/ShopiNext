@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import {
   products,
   productOptions,
@@ -7,6 +6,7 @@ import {
   variantOptionValues,
 } from "@repo/db/public/schema";
 import { testDb } from "./db";
+import { uniqueSuffix } from "./unique";
 
 export const DEFAULT_TEST_PRODUCT = {
   name: "Test Product",
@@ -21,10 +21,10 @@ export async function seedProduct(
     status?: "draft" | "active";
   } = {},
 ) {
-  const [product] = await testDb
-    .insert(products)
-    .values({ ...DEFAULT_TEST_PRODUCT, ...overrides })
-    .returning();
+  const values = { ...DEFAULT_TEST_PRODUCT, ...overrides };
+  values.slug = `${values.slug}-${uniqueSuffix()}`;
+
+  const [product] = await testDb.insert(products).values(values).returning();
 
   if (!product) {
     throw new Error("Failed to seed product");
@@ -67,11 +67,13 @@ export async function seedProductVariant(
   }> = {},
   optionValueIds: string[] = [],
 ) {
+  const sku = `${overrides.sku ?? "test-variant"}-${uniqueSuffix()}`;
+
   const [variant] = await testDb
     .insert(productVariants)
     .values({
       productId,
-      sku: overrides.sku ?? `test-variant-${randomUUID()}`,
+      sku,
       price: overrides.price ?? 1000,
       stock: overrides.stock ?? 10,
       maxPerOrder: overrides.maxPerOrder ?? 5,

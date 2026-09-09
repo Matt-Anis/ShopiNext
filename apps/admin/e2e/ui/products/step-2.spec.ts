@@ -6,11 +6,6 @@ import {
   productOptionValues,
 } from "@repo/db/public/schema"
 import { testDb } from "../../utils/db"
-import {
-  resetAuthTables,
-  resetProductTables,
-  resetCategoryTables,
-} from "../../utils/db-reset"
 import { seedAdmin } from "../../utils/seed-user"
 import {
   seedProduct,
@@ -19,12 +14,12 @@ import {
 } from "../../utils/seed-product"
 import { seedCategory } from "../../utils/seed-category"
 import { signIn } from "../../utils/auth"
+import { uniqueSuffix } from "../../utils/unique"
+
+let admin: Awaited<ReturnType<typeof seedAdmin>>
 
 test.beforeEach(async () => {
-  await resetAuthTables()
-  await resetProductTables()
-  await resetCategoryTables()
-  await seedAdmin()
+  admin = await seedAdmin()
 })
 
 test.describe("Categories (step 2)", () => {
@@ -33,15 +28,17 @@ test.describe("Categories (step 2)", () => {
   }) => {
     const product = await seedProduct()
     const category = await seedCategory({ name: "Outdoor" })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("Add categories...").click()
-    await page.locator('[data-slot="combobox-item"]', { hasText: "Outdoor" }).click()
+    await page
+      .locator('[data-slot="combobox-item"]', { hasText: category.name })
+      .click()
 
     await expect(page.getByRole("alertdialog")).toHaveCount(0)
     await expect(
-      page.locator('[data-slot="combobox-chip"]', { hasText: "Outdoor" })
+      page.locator('[data-slot="combobox-chip"]', { hasText: category.name })
     ).toBeVisible()
     await expect(page.getByText("Categories updated")).toBeVisible()
 
@@ -61,19 +58,20 @@ test.describe("Categories (step 2)", () => {
     page,
   }) => {
     const product = await seedProduct()
-    await signIn(page)
+    const name = `Kitchen ${uniqueSuffix()}`
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
-    await page.getByPlaceholder("Add categories...").fill("Kitchen")
-    await page.getByRole("button", { name: 'Create "Kitchen"' }).click()
+    await page.getByPlaceholder("Add categories...").fill(name)
+    await page.getByRole("button", { name: `Create "${name}"` }).click()
 
     const dialog = page.getByRole("alertdialog")
-    await expect(dialog).toContainText('Create the category "Kitchen"?')
+    await expect(dialog).toContainText(`Create the category "${name}"?`)
     await dialog.getByRole("button", { name: "Create" }).click()
 
     await expect(page.getByText("Category created")).toBeVisible()
     await expect(
-      page.locator('[data-slot="combobox-chip"]', { hasText: "Kitchen" })
+      page.locator('[data-slot="combobox-chip"]', { hasText: name })
     ).toBeVisible()
   })
 
@@ -85,19 +83,20 @@ test.describe("Categories (step 2)", () => {
     await testDb
       .insert(productCategories)
       .values({ productId: product.id, categoryId: category.id })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     const chip = page.locator('[data-slot="combobox-chip"]', {
-      hasText: "Outdoor",
+      hasText: category.name,
     })
     await expect(chip).toBeVisible()
 
     await chip.locator('[data-slot="combobox-chip-remove"]').click()
 
     const dialog = page.getByRole("alertdialog")
-    await expect(dialog).toContainText('Remove "Outdoor" from this product?')
-    // Still selected while the dialog is open, not optimistically removed.
+    await expect(dialog).toContainText(
+      `Remove "${category.name}" from this product?`
+    )
     await expect(chip).toBeVisible()
 
     await dialog.getByRole("button", { name: "Cancel" }).click()
@@ -139,11 +138,11 @@ test.describe("Categories (step 2)", () => {
     await testDb
       .insert(productCategories)
       .values({ productId: product.id, categoryId: category.id })
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await expect(
-      page.locator('[data-slot="combobox-chip"]', { hasText: "Outdoor" })
+      page.locator('[data-slot="combobox-chip"]', { hasText: category.name })
     ).toBeVisible()
   })
 })
@@ -153,7 +152,7 @@ test.describe("Options (step 2)", () => {
     page,
   }) => {
     const product = await seedProduct()
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("e.g. Size, Color").fill("Size")
@@ -178,7 +177,7 @@ test.describe("Options (step 2)", () => {
   }) => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Size")
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("e.g. Size, Color").fill("Size")
@@ -191,7 +190,7 @@ test.describe("Options (step 2)", () => {
   test("adds a value to an option", async ({ page }) => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color")
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
@@ -216,7 +215,7 @@ test.describe("Options (step 2)", () => {
   }) => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color", ["red"])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
@@ -237,7 +236,7 @@ test.describe("Options (step 2)", () => {
   }) => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red"])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
@@ -250,7 +249,7 @@ test.describe("Options (step 2)", () => {
   test("deletes a value from an option", async ({ page }) => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color", ["Red"])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByText("Red", { exact: true }).getByRole("button").click()
@@ -274,7 +273,7 @@ test.describe("Options (step 2)", () => {
   }) => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red", "Blue"])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByText("Color", { exact: true }).locator("..").getByRole("button").click()
@@ -302,7 +301,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color", ["Red"])
     await seedProductVariant(product.id, {}, [option.values[0]!.id])
-    await signIn(page)
+    await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/step-2`)
 
     await page.getByText("Color", { exact: true }).locator("..").getByRole("button").click()
@@ -325,7 +324,7 @@ test("continues to step 3 without requiring any categories or options", async ({
   page,
 }) => {
   const product = await seedProduct()
-  await signIn(page)
+  await signIn(page, admin)
   await page.goto(`/products/${product.id}/edit/step-2`)
 
   await page.getByRole("button", { name: "Continue" }).click()
