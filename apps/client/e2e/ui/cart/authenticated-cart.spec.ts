@@ -1,57 +1,71 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables, resetCartTables } from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
+import { and, eq } from "drizzle-orm";
+import { cart, cartItems } from "@repo/db/public/schema";
+import { user } from "@repo/db/public/auth-schema";
+import { testDb } from "../../utils/db";
+import { seedUser } from "../../utils/seed-user";
 import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
-import { visible } from "../../utils/interaction";
+import { clickUntilHydrated, visible } from "../../utils/interaction";
+import { signIn } from "../../utils/auth";
+
+let product: Awaited<ReturnType<typeof seedProduct>>;
+let userId: string;
 
 test.beforeEach(async ({ page, request }) => {
-  await resetAuthTables();
-  await resetCartTables();
-  await seedUser(request);
-  await seedProduct();
-
-  await page.goto("/login");
-  await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email);
-  await page
-    .getByTestId("login-password-input")
-    .fill(DEFAULT_TEST_USER.password);
-  await page.getByTestId("login-submit-button").click();
-  await page.waitForURL("/");
+  const credentials = await seedUser(request);
+  const [seededUser] = await testDb
+    .select()
+    .from(user)
+    .where(eq(user.email, credentials.email));
+  userId = seededUser.id;
+  product = await seedProduct();
+  await signIn(page, credentials);
 });
 
 test.describe("Authenticated cart", () => {
   test("adding a product updates the badge", async ({ page }) => {
-    await page.getByTestId("cart-control-add").click();
+    await page.getByTestId(`cart-control-add-${product.id}`).click();
 
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
 
-  test("cart is persisted server-side across a reload", async ({ page }) => {
-    await page.getByTestId("cart-control-add").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+  test("cart is persisted server-side, not just client state", async ({
+    page,
+  }) => {
+    await page.getByTestId(`cart-control-add-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
 
-    await page.getByTestId("cart-control-increment").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("2 in cart");
 
-    await page.reload();
+    const [cartRow] = await testDb
+      .select()
+      .from(cart)
+      .where(eq(cart.userId, userId));
+    const [item] = await testDb
+      .select()
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.cartId, cartRow.id),
+          eq(cartItems.variantId, product.variant.id),
+        ),
+      );
 
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
-    await expect(page.getByTestId("cart-badge")).toHaveText("2");
+    expect(item.quantity).toBe(2);
   });
 
   test("adding two different variants of the same product creates two distinct lines", async ({
     page,
   }) => {
-    const product = await seedProductWithVariants({
+    const multiVariantProduct = await seedProductWithVariants({
       slug: "multi-variant-product",
       options: [{ name: "Size", values: ["S", "M"] }],
       variants: [
@@ -60,8 +74,10 @@ test.describe("Authenticated cart", () => {
       ],
     });
 
-    await page.goto(`/products/${product.slug}`);
-    await visible(page, "variant-pill-Size-S").click();
+    await page.goto(`/products/${multiVariantProduct.slug}`);
+    await clickUntilHydrated(visible(page, "variant-pill-Size-S"), () =>
+      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 }),
+    );
     await visible(page, "cart-control-add").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
       "1 in cart",
@@ -91,7 +107,7 @@ test.describe("Authenticated cart", () => {
   test("removing one variant's line doesn't affect the other", async ({
     page,
   }) => {
-    const product = await seedProductWithVariants({
+    const multiVariantProduct = await seedProductWithVariants({
       slug: "multi-variant-removal-product",
       options: [{ name: "Size", values: ["S", "M"] }],
       variants: [
@@ -100,8 +116,10 @@ test.describe("Authenticated cart", () => {
       ],
     });
 
-    await page.goto(`/products/${product.slug}`);
-    await visible(page, "variant-pill-Size-S").click();
+    await page.goto(`/products/${multiVariantProduct.slug}`);
+    await clickUntilHydrated(visible(page, "variant-pill-Size-S"), () =>
+      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 }),
+    );
     await visible(page, "cart-control-add").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
       "1 in cart",

@@ -2,13 +2,13 @@ import { test, expect } from "@playwright/test";
 import { eq } from "drizzle-orm";
 import { productVariants } from "@repo/db/public/schema";
 import { testDb } from "../../utils/db";
-import { resetCartTables } from "../../utils/db-reset";
 import { seedProduct, DEFAULT_TEST_PRODUCT } from "../../utils/seed-product";
 import { clickUntilHydrated, visible } from "../../utils/interaction";
 
+let product: Awaited<ReturnType<typeof seedProduct>>;
+
 test.beforeEach(async () => {
-  await resetCartTables();
-  await seedProduct();
+  product = await seedProduct();
 });
 
 test.describe("Guest cart", () => {
@@ -18,11 +18,12 @@ test.describe("Guest cart", () => {
     await page.goto("/");
 
     await expect(page.getByTestId("cart-badge")).not.toBeVisible();
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
     );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
@@ -31,23 +32,24 @@ test.describe("Guest cart", () => {
     page,
   }) => {
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
     );
 
-    await page.getByTestId("cart-control-increment").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("2 in cart");
     await expect(page.getByTestId("cart-badge")).toHaveText("2");
 
-    await page.getByTestId("cart-control-decrement").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+    await page.getByTestId(`cart-control-decrement-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
 
@@ -55,28 +57,33 @@ test.describe("Guest cart", () => {
     page,
   }) => {
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
     );
 
-    await page.getByTestId("cart-control-decrement").click();
+    await page.getByTestId(`cart-control-decrement-${product.id}`).click();
     await expect(page.getByText("Remove item?")).toBeVisible();
 
     await page.getByTestId("cart-remove-cancel-button").click();
     await expect(page.getByText("Remove item?")).not.toBeVisible();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
 
-    await expect(page.getByTestId("cart-control-decrement")).toBeVisible();
-    await page.getByTestId("cart-control-decrement").click();
+    await expect(
+      page.getByTestId(`cart-control-decrement-${product.id}`),
+    ).toBeVisible();
+    await page.getByTestId(`cart-control-decrement-${product.id}`).click();
     await expect(page.getByText("Remove item?")).toBeVisible();
     await page.getByTestId("cart-remove-confirm-button").click();
 
-    await expect(page.getByTestId("cart-control-add")).toBeVisible();
+    await expect(
+      page.getByTestId(`cart-control-add-${product.id}`),
+    ).toBeVisible();
     await expect(page.getByTestId("cart-badge")).not.toBeVisible();
   });
 
@@ -92,16 +99,17 @@ test.describe("Guest cart", () => {
 
   test("drawer lists the item, price, and subtotal", async ({ page }) => {
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
     );
-    await page.getByTestId("cart-control-increment").click();
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
-    );
+    await page.getByTestId(`cart-control-increment-${product.id}`).click();
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("2 in cart");
 
     // The navbar auto-hides on scroll-down, and adding/incrementing from
     // the product grid (below the fold) can leave the page scrolled — bring
@@ -119,35 +127,38 @@ test.describe("Guest cart", () => {
 
   test("cart persists across a page reload", async ({ page }) => {
     await page.goto("/");
-    await clickUntilHydrated(page.getByTestId("cart-control-add"), () =>
-      expect(page.getByTestId("cart-control-quantity")).toHaveText(
-        "1 in cart",
-        { timeout: 1000 },
-      ),
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
     );
     // The quantity text updates optimistically before the server action
     // that actually persists the cart cookie resolves. Reloading right on
     // that optimistic update can race the write, so wait for the button
     // to re-enable (isPending clearing) as proof the request landed.
-    await expect(page.getByTestId("cart-control-decrement")).toBeEnabled();
+    await expect(
+      page.getByTestId(`cart-control-decrement-${product.id}`),
+    ).toBeEnabled();
 
     await page.reload();
 
-    await expect(page.getByTestId("cart-control-quantity")).toHaveText(
-      "1 in cart",
-    );
+    await expect(
+      page.getByTestId(`cart-control-quantity-${product.id}`),
+    ).toHaveText("1 in cart");
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
 
   test("a cookie entry referencing a deleted variant is pruned automatically", async ({
     page,
   }) => {
-    const product = await seedProduct({
+    const deletedVariantProduct = await seedProduct({
       name: "Deleted Variant Product",
       slug: "deleted-variant-product",
     });
 
-    await page.goto(`/products/${product.slug}`);
+    await page.goto(`/products/${deletedVariantProduct.slug}`);
     await clickUntilHydrated(visible(page, "cart-control-add"), () =>
       expect(visible(page, "cart-control-quantity")).toHaveText(
         "1 in cart",
@@ -159,7 +170,7 @@ test.describe("Guest cart", () => {
 
     await testDb
       .delete(productVariants)
-      .where(eq(productVariants.id, product.variant.id));
+      .where(eq(productVariants.id, deletedVariantProduct.variant.id));
 
     await page.reload();
 

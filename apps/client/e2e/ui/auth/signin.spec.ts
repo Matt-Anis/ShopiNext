@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test"
-import { resetAuthTables } from "../../utils/db-reset"
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user"
+import { seedUser, type DEFAULT_TEST_USER } from "../../utils/seed-user"
+
+let credentials: typeof DEFAULT_TEST_USER
 
 test.beforeEach(async ({ request }) => {
-  await resetAuthTables()
-  await seedUser(request)
+  credentials = await seedUser(request)
 })
 
 test.describe("Sign in", () => {
@@ -13,10 +13,10 @@ test.describe("Sign in", () => {
   }) => {
     await page.goto("/login")
 
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email)
+    await page.getByTestId("login-email-input").fill(credentials.email)
     await page
       .getByTestId("login-password-input")
-      .fill(DEFAULT_TEST_USER.password)
+      .fill(credentials.password)
     await page.getByTestId("login-submit-button").click()
 
     await expect(page.getByText("Signed in successfully")).toBeVisible()
@@ -26,7 +26,7 @@ test.describe("Sign in", () => {
   test("rejects an incorrect password", async ({ page }) => {
     await page.goto("/login")
 
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email)
+    await page.getByTestId("login-email-input").fill(credentials.email)
     await page.getByTestId("login-password-input").fill("wrong-password")
     await page.getByTestId("login-submit-button").click()
 
@@ -49,10 +49,10 @@ test.describe("Sign in", () => {
     page,
   }) => {
     await page.goto("/login")
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email)
+    await page.getByTestId("login-email-input").fill(credentials.email)
     await page
       .getByTestId("login-password-input")
-      .fill(DEFAULT_TEST_USER.password)
+      .fill(credentials.password)
     await page.getByTestId("login-submit-button").click()
     await page.waitForURL("/")
 

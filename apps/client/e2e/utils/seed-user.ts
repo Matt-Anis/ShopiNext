@@ -2,6 +2,7 @@ import type { APIRequestContext } from "@playwright/test"
 import { eq } from "drizzle-orm"
 import { user } from "@repo/db/public/auth-schema"
 import { testDb } from "./db"
+import { uniqueSuffix } from "./unique"
 
 export const DEFAULT_TEST_USER = {
   name: "Test User",
@@ -16,6 +17,8 @@ export async function seedUser(
 ) {
   const { verified = true } = options
   const credentials = { ...DEFAULT_TEST_USER, ...overrides }
+  const [localPart, domain] = credentials.email.split("@")
+  credentials.email = `${localPart}+${uniqueSuffix()}@${domain}`
   const response = await request.post("/api/auth/sign-up/email", {
     data: credentials,
   })

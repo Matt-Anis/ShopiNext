@@ -28,7 +28,10 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="block h-full">
-      <Card className="gap-0 h-full p-0 rounded-3xl border border-border  shadow-none ring-0">
+      <Card
+        data-testid={`product-card-${product.id}`}
+        className="gap-0 h-full p-0 rounded-3xl border border-border  shadow-none ring-0"
+      >
         <Link href={`/products/${product.slug}`}>
           <AspectRatio ratio={1 / 1} className="overflow-hidden bg-muted ">
             {image ? (
@@ -64,6 +67,7 @@ export function ProductCard({ product }: { product: Product }) {
                 optionLabel: "",
                 product: cartProduct,
               }}
+              testIdSuffix={product.id}
             />
           ) : (
             <Popover>
@@ -72,7 +76,7 @@ export function ProductCard({ product }: { product: Product }) {
                   <Button
                     type="button"
                     className="w-full"
-                    data-testid="product-card-add-to-cart"
+                    data-testid={`product-card-add-to-cart-${product.id}`}
                   >
                     Add to Cart
                   </Button>
@@ -83,6 +87,7 @@ export function ProductCard({ product }: { product: Product }) {
                   options={product.options}
                   variants={product.variants}
                   minPrice={product.minPrice}
+                  testIdSuffix={product.id}
                 >
                   <VariantOptionPills />
                   <VariantAddToCart product={cartProduct} />

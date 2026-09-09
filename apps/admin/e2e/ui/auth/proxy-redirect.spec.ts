@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test"
 import { resetAuthTables } from "../../utils/db-reset"
-import { seedAdmin, DEFAULT_TEST_ADMIN } from "../../utils/seed-user"
+import { seedAdmin } from "../../utils/seed-user"
+import { signIn } from "../../utils/auth"
 
 const SESSION_COOKIE_NAME = "better-auth.session_token"
 
@@ -41,15 +42,8 @@ test.describe("Protected route redirects", () => {
     page,
   }) => {
     await seedAdmin()
+    await signIn(page)
 
-    await page.goto("/login")
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_ADMIN.email)
-    await page
-      .getByTestId("login-password-input")
-      .fill(DEFAULT_TEST_ADMIN.password)
-    await page.getByTestId("login-submit-button").click()
-
-    await page.waitForURL("/")
     await expect(page).toHaveURL("/")
   })
 })

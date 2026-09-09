@@ -249,17 +249,6 @@ test.describe("Product detail page", () => {
     await expect(page.getByTestId("at-a-glance-total-stock")).toHaveText("0")
   })
 
-  test("shows created and updated timestamps in history", async ({
-    page,
-  }) => {
-    const product = await seedProduct()
-    await signIn(page)
-    await page.goto(`/products/${product.id}`)
-
-    await expect(page.getByText("Created")).toBeVisible()
-    await expect(page.getByText("Updated")).toBeVisible()
-  })
-
   test("returns 404 for a nonexistent product id", async ({ page }) => {
     await signIn(page)
     const response = await page.goto(

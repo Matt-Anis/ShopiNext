@@ -8,12 +8,7 @@ import {
   cartItems,
   productVariants,
 } from "@repo/db/public/schema";
-import {
-  resetAuthTables,
-  resetCartTables,
-  resetOrderTables,
-} from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
+import { seedUser } from "../../utils/seed-user";
 import { seedProduct } from "../../utils/seed-product";
 import {
   createTestCheckoutSession,
@@ -21,12 +16,6 @@ import {
   createConfirmedTestPaymentIntent,
 } from "../../utils/checkout";
 import { testStripe } from "../../utils/stripe";
-
-test.beforeEach(async () => {
-  await resetOrderTables();
-  await resetCartTables();
-  await resetAuthTables();
-});
 
 test.describe("POST /api/webhooks/stripe", () => {
   test("rejects a request with no signature header", async ({ request }) => {
@@ -291,7 +280,7 @@ test.describe("POST /api/webhooks/stripe", () => {
     });
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: DEFAULT_TEST_USER.email,
+      customerEmail: credentials.email,
       amountTotal: session.amount_total!,
       metadata: { userId: seededUser.id, source: "buy-now" },
     });
@@ -318,7 +307,7 @@ test.describe("POST /api/webhooks/stripe", () => {
     });
     const cartEvent = buildSignedCheckoutEvent({
       sessionId: cartSession.id,
-      customerEmail: DEFAULT_TEST_USER.email,
+      customerEmail: credentials.email,
       amountTotal: cartSession.amount_total!,
       metadata: { userId: seededUser.id, source: "cart" },
     });

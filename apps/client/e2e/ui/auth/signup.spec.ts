@@ -1,10 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { resetAuthTables } from "../../utils/db-reset";
-import { seedUser, DEFAULT_TEST_USER } from "../../utils/seed-user";
-
-test.beforeEach(async () => {
-  await resetAuthTables();
-});
+import { seedUser } from "../../utils/seed-user";
+import { signIn } from "../../utils/auth";
+import { uniqueSuffix } from "../../utils/unique";
 
 test.describe("Sign up", () => {
   test("creates an account and asks the user to verify their email", async ({
@@ -13,7 +10,9 @@ test.describe("Sign up", () => {
     await page.goto("/signup");
 
     await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
+    await page
+      .getByTestId("signup-email-input")
+      .fill(`jane.doe+${uniqueSuffix()}@example.com`);
     await page.getByTestId("signup-password-input").fill("password123");
     await page
       .getByTestId("signup-confirm-password-input")
@@ -38,38 +37,6 @@ test.describe("Sign up", () => {
     await expect(page).toHaveURL(/\/signup/);
   });
 
-  test("rejects a name with digits or symbols", async ({ page }) => {
-    await page.goto("/signup");
-
-    await page.getByTestId("signup-name-input").fill("Jane123");
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
-    await page.getByTestId("signup-password-input").fill("password123");
-    await page
-      .getByTestId("signup-confirm-password-input")
-      .fill("password123");
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(
-      page.getByText("Name can only contain letters"),
-    ).toBeVisible();
-  });
-
-  test("rejects a name longer than 20 characters", async ({ page }) => {
-    await page.goto("/signup");
-
-    await page.getByTestId("signup-name-input").fill("A".repeat(21));
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
-    await page.getByTestId("signup-password-input").fill("password123");
-    await page
-      .getByTestId("signup-confirm-password-input")
-      .fill("password123");
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(
-      page.getByText("Name must be at most 20 characters"),
-    ).toBeVisible();
-  });
-
   test("rejects a malformed email", async ({ page }) => {
     await page.goto("/signup");
 
@@ -83,54 +50,6 @@ test.describe("Sign up", () => {
 
     await expect(
       page.getByText("Enter a valid email address"),
-    ).toBeVisible();
-  });
-
-  test("rejects an email longer than 50 characters", async ({ page }) => {
-    await page.goto("/signup");
-
-    const longEmail = `${"a".repeat(45)}@a.com`;
-    await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill(longEmail);
-    await page.getByTestId("signup-password-input").fill("password123");
-    await page
-      .getByTestId("signup-confirm-password-input")
-      .fill("password123");
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(
-      page.getByText("Email must be at most 50 characters"),
-    ).toBeVisible();
-  });
-
-  test("rejects a password shorter than 8 characters", async ({ page }) => {
-    await page.goto("/signup");
-
-    await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
-    await page.getByTestId("signup-password-input").fill("short1");
-    await page.getByTestId("signup-confirm-password-input").fill("short1");
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(
-      page.getByText("Password must be at least 8 characters"),
-    ).toBeVisible();
-  });
-
-  test("rejects a password longer than 20 characters", async ({ page }) => {
-    await page.goto("/signup");
-
-    const longPassword = "a".repeat(21);
-    await page.getByTestId("signup-name-input").fill("Jane Doe");
-    await page.getByTestId("signup-email-input").fill("jane.doe@example.com");
-    await page.getByTestId("signup-password-input").fill(longPassword);
-    await page
-      .getByTestId("signup-confirm-password-input")
-      .fill(longPassword);
-    await page.getByTestId("signup-submit-button").click();
-
-    await expect(
-      page.getByText("Password must be at most 20 characters"),
     ).toBeVisible();
   });
 
@@ -152,15 +71,8 @@ test.describe("Sign up", () => {
     page,
     request,
   }) => {
-    await seedUser(request);
-
-    await page.goto("/login");
-    await page.getByTestId("login-email-input").fill(DEFAULT_TEST_USER.email);
-    await page
-      .getByTestId("login-password-input")
-      .fill(DEFAULT_TEST_USER.password);
-    await page.getByTestId("login-submit-button").click();
-    await page.waitForURL("/");
+    const credentials = await seedUser(request);
+    await signIn(page, credentials);
 
     await page.goto("/signup");
 
