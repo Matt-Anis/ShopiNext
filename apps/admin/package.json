@@ -11,7 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "next typegen && tsc --noEmit",
     "check": "npm run typecheck && npm run lint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:reset-db": "tsx e2e/scripts/reset-db.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

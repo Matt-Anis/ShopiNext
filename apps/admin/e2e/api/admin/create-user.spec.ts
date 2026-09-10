@@ -2,11 +2,7 @@ import { test, expect } from "@playwright/test"
 import { eq } from "drizzle-orm"
 import { adminUser } from "@repo/db/admin/auth-schema"
 import { testDb } from "../../utils/db"
-import { resetAuthTables } from "../../utils/db-reset"
-
-test.beforeEach(async () => {
-  await resetAuthTables()
-})
+import { uniqueSuffix } from "../../utils/unique"
 
 test.describe("POST /api/auth/admin/create-user — requires a session", () => {
   test("rejects the request when no session is present", async ({
@@ -15,7 +11,7 @@ test.describe("POST /api/auth/admin/create-user — requires a session", () => {
     const response = await request.post("/api/auth/admin/create-user", {
       data: {
         name: "New Staff",
-        email: "new.staff@example.com",
+        email: `new.staff+${uniqueSuffix()}@example.com`,
         role: "user",
       },
     })
@@ -26,10 +22,12 @@ test.describe("POST /api/auth/admin/create-user — requires a session", () => {
   test("does not create a user when the request is rejected", async ({
     request,
   }) => {
+    const email = `new.staff+${uniqueSuffix()}@example.com`
+
     await request.post("/api/auth/admin/create-user", {
       data: {
         name: "New Staff",
-        email: "new.staff@example.com",
+        email,
         role: "user",
       },
     })
@@ -37,7 +35,7 @@ test.describe("POST /api/auth/admin/create-user — requires a session", () => {
     const users = await testDb
       .select()
       .from(adminUser)
-      .where(eq(adminUser.email, "new.staff@example.com"))
+      .where(eq(adminUser.email, email))
     expect(users).toHaveLength(0)
   })
 })
