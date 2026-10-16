@@ -198,3 +198,86 @@ export const clearCart = async (userId: string) => {
     .delete(cartItems)
     .where(inArray(cartItems.cartId, cartIdForUser(userId)))
 }
+
+export const mergeGuestCartIntoDb = async (
+  userId: string,
+  items: { variantId: string; quantity: number }[]
+) => {
+  if (items.length === 0) return
+
+  const consolidated = new Map<string, number>()
+  for (const item of items) {
+    if (item.quantity > 0) {
+      consolidated.set(
+        item.variantId,
+        (consolidated.get(item.variantId) ?? 0) + item.quantity
+      )
+    }
+  }
+  if (consolidated.size === 0) return
+
+  await db.transaction(async (tx) => {
+    const [cartRow] = await tx
+      .insert(cart)
+      .values({ userId })
+      .onConflictDoUpdate({ target: cart.userId, set: { userId } })
+      .returning({ id: cart.id })
+    const cartId = cartRow.id
+
+    const variantIds = Array.from(consolidated.keys())
+    const variants = await tx
+      .select({
+        id: productVariants.id,
+        stock: productVariants.stock,
+        maxPerOrder: productVariants.maxPerOrder,
+      })
+      .from(productVariants)
+      .where(
+        and(
+          inArray(productVariants.id, variantIds),
+          eq(productVariants.isActive, true)
+        )
+      )
+
+    const variantMap = new Map(variants.map((v) => [v.id, v]))
+
+    const existingItems = await tx
+      .select({
+        variantId: cartItems.variantId,
+        quantity: cartItems.quantity,
+      })
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.cartId, cartId),
+          inArray(cartItems.variantId, variantIds)
+        )
+      )
+
+    const existingMap = new Map(
+      existingItems.map((e) => [e.variantId, e.quantity])
+    )
+
+    for (const [variantId, quantity] of consolidated.entries()) {
+      const variant = variantMap.get(variantId)
+      if (!variant) continue
+
+      const currentQty = existingMap.get(variantId) ?? 0
+      const nextQuantity = Math.min(
+        currentQty + quantity,
+        variant.stock,
+        variant.maxPerOrder
+      )
+
+      if (nextQuantity <= 0) continue
+
+      await tx
+        .insert(cartItems)
+        .values({ cartId, variantId, quantity: nextQuantity })
+        .onConflictDoUpdate({
+          target: [cartItems.cartId, cartItems.variantId],
+          set: { quantity: nextQuantity },
+        })
+    }
+  })
+}
