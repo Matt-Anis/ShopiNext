@@ -8,11 +8,12 @@ import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
 import { clickUntilHydrated, visible } from "../../utils/interaction";
 import { signIn } from "../../utils/auth";
 
+let credentials: Awaited<ReturnType<typeof seedUser>>;
 let product: Awaited<ReturnType<typeof seedProduct>>;
 let userId: string;
 
 test.beforeEach(async ({ page, request }) => {
-  const credentials = await seedUser(request);
+  credentials = await seedUser(request);
   const [seededUser] = await testDb
     .select()
     .from(user)
@@ -151,4 +152,52 @@ test.describe("Authenticated cart", () => {
       "2 in cart",
     );
   });
+
+  test("logging out resets cart UI immediately and keeps server cart on next sign-in", async ({
+    page,
+  }) => {
+    await page.goto(`/products/${product.slug}`);
+    await clickUntilHydrated(visible(page, "cart-control-add"), () =>
+      expect(visible(page, "cart-control-quantity")).toHaveText("1 in cart", {
+        timeout: 1000,
+      }),
+    );
+    await expect(page.getByTestId("cart-badge")).toHaveText("1");
+
+    await page.getByTestId("user-menu-trigger").click();
+    await page.getByTestId("logout-menu-item").click();
+    await expect(page.getByText("Log out?")).toBeVisible();
+    await page.getByTestId("logout-confirm-button").click();
+
+    await expect(page.getByTestId("signin-nav-button")).toBeVisible();
+    await expect(page.getByTestId("cart-badge")).toHaveCount(0);
+    await expect(visible(page, "cart-control-add")).toBeVisible();
+    await expect(visible(page, "cart-control-quantity")).toHaveCount(0);
+
+    await page.getByTestId("cart-trigger").click();
+    await expect(page.getByTestId("cart-empty-state")).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    const [cartRow] = await testDb
+      .select()
+      .from(cart)
+      .where(eq(cart.userId, userId));
+    const [dbItem] = await testDb
+      .select()
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.cartId, cartRow.id),
+          eq(cartItems.variantId, product.variant.id),
+        ),
+      );
+    expect(dbItem).toBeDefined();
+    expect(dbItem.quantity).toBe(1);
+
+    await signIn(page, credentials);
+    await expect(page.getByTestId("cart-badge")).toHaveText("1");
+    await page.getByTestId("cart-trigger").click();
+    await expect(page.getByTestId("cart-empty-state")).toHaveCount(0);
+  });
 });
+
