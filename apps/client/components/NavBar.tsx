@@ -36,11 +36,13 @@ import {
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
 import { useCart } from "@/features/cart/CartProvider";
 
 export default function Navbar() {
+  const router = useRouter();
   const [hidden, setHidden] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -152,7 +154,15 @@ export default function Navbar() {
                     </AlertDialogCancel>
                     <AlertDialogAction
                       variant="destructive"
-                      onClick={() => authClient.signOut()}
+                      onClick={async () => {
+                        await authClient.signOut({
+                          fetchOptions: {
+                            onSuccess: () => {
+                              router.refresh();
+                            },
+                          },
+                        });
+                      }}
                       data-testid="logout-confirm-button"
                     >
                       Log out
