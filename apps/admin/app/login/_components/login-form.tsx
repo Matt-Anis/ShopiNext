@@ -16,6 +16,7 @@ import {
 } from "@repo/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
+import { PasswordInput } from "@repo/ui/password-input"
 
 export function LoginForm({
   className,
@@ -83,10 +84,9 @@ export function LoginForm({
               </Field>
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   required
                   data-testid="login-password-input"
                   className="border-border bg-transparent"

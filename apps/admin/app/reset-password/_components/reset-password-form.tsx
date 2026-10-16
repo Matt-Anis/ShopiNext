@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@repo/ui/card"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@repo/ui/field"
-import { Input } from "@repo/ui/input"
+import { PasswordInput } from "@repo/ui/password-input"
 
 const passwordRules = [
   { label: "8-20 characters", test: (v: string) => v.length >= 8 && v.length <= 20 },
@@ -94,10 +94,9 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <FieldGroup>
             <Field data-invalid={!!errors.password}>
               <FieldLabel htmlFor="password">New password</FieldLabel>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 required
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -131,10 +130,9 @@ export function ResetPasswordForm({ token }: { token: string }) {
             </Field>
             <Field data-invalid={!!errors.confirmPassword}>
               <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
                 required
                 aria-invalid={!!errors.confirmPassword}
                 className="border-border bg-transparent"
