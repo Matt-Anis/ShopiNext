@@ -1,4 +1,4 @@
-CREATE SCHEMA "admin";
+CREATE SCHEMA IF NOT EXISTS "admin";
 --> statement-breakpoint
 CREATE TABLE "admin"."admin_account" (
 	"id" text PRIMARY KEY NOT NULL,
