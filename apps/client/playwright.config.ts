@@ -1,7 +1,7 @@
-import { config } from "dotenv";
-import { defineConfig, devices } from "@playwright/test";
+import { config } from "dotenv"
+import { defineConfig, devices } from "@playwright/test"
 
-config({ path: ".env.local" });
+config({ path: ".env.local" })
 
 export default defineConfig({
   testDir: "./e2e",
@@ -35,10 +35,10 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     env: {
       ...process.env,
       DATABASE_URL: process.env.DATABASE_URL_TEST!,
     },
   },
-});
+})

@@ -1,11 +1,11 @@
-import { config } from "dotenv";
-import { defineConfig, devices } from "@playwright/test";
+import { config } from "dotenv"
+import { defineConfig, devices } from "@playwright/test"
 
-config({ path: ".env.local" });
+config({ path: ".env.local" })
 
 // The session cookie cache's configured max age (see apps/admin/lib/auth.ts)
 // while testing - cookie-cache.spec.ts checks the cookie's expiry against it.
-export const TEST_COOKIE_CACHE_MAX_AGE_SECONDS = 4;
+export const TEST_COOKIE_CACHE_MAX_AGE_SECONDS = 4
 
 export default defineConfig({
   testDir: "./e2e",
@@ -39,11 +39,11 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3001",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     env: {
       ...process.env,
       DATABASE_URL: process.env.DATABASE_URL_TEST!,
       SESSION_COOKIE_CACHE_MAX_AGE: String(TEST_COOKIE_CACHE_MAX_AGE_SECONDS),
     },
   },
-});
+})
