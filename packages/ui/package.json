@@ -27,6 +27,7 @@
     "./input": "./components/input.tsx",
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
+    "./password-input": "./components/password-input.tsx",
     "./popover": "./components/popover.tsx",
     "./scroll-area": "./components/scroll-area.tsx",
     "./separator": "./components/separator.tsx",
