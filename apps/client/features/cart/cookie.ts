@@ -10,7 +10,7 @@ export type CookieCartItem = {
   quantity: number;
 };
 
-const parseCookie = (raw: string | undefined): CookieCartItem[] => {
+export const parseCookie = (raw: string | undefined | null): CookieCartItem[] => {
   if (!raw) return [];
 
   try {
@@ -122,3 +122,4 @@ export const getCartFromCookies = async (): Promise<CartItem[]> => {
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 };
+
