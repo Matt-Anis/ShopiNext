@@ -10,8 +10,16 @@
 --   ALTER ROLE client_app WITH PASSWORD '...';
 --   ALTER ROLE admin_app WITH PASSWORD '...';
 
-CREATE ROLE client_app WITH LOGIN;
-CREATE ROLE admin_app WITH LOGIN;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'client_app') THEN
+    CREATE ROLE client_app WITH LOGIN;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'admin_app') THEN
+    CREATE ROLE admin_app WITH LOGIN;
+  END IF;
+END
+$$;
 
 -- No explicit GRANT CONNECT here: Postgres grants CONNECT on a database
 -- to PUBLIC by default when the database is created, and nothing here

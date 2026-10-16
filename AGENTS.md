@@ -1,5 +1,14 @@
 # ShopiNext — Agent Instructions
 
+## For Gemini Agents:
+
+Never gather context open-endedly: read only the files I name or that you've already identified as directly needed, read each at most once, and if you can't find the ressources directly, stop and tell me what you found or ask me instead of continuing to search or re-reading.
+do not spam unnecessary shell commands or websearches unless trully needed, when in doubt stop and ask
+
+### Formatting
+
+do not use the # for the headlines
+
 ## Project context
 
 Turborepo monorepo · Next.js (App Router) · TypeScript · Drizzle ORM + PostgreSQL · Better Auth · Stripe · shadcn/ui + Tailwind · pnpm 11
@@ -42,20 +51,23 @@ drizzle.config.ts           # Single Drizzle config at root, targets both schema
 ## Database
 
 ### Schemas
+
 - `public` schema — client-facing tables + Better Auth tables for client accounts
 - `admin` schema — admin-only tables + Better Auth tables for admin accounts
 
 ### Roles
+
 Two least-privilege PostgreSQL roles are defined in `drizzle/0010_create_app_roles.sql`:
 
 | Role         | Schema access      | Permissions                    |
-|--------------|--------------------|--------------------------------|
+| ------------ | ------------------ | ------------------------------ |
 | `client_app` | `public` only      | SELECT, INSERT, UPDATE, DELETE |
 | `admin_app`  | `public` + `admin` | SELECT, INSERT, UPDATE, DELETE |
 
 Neither role can ALTER or DROP tables — schema changes are migration-only.
 
 ### Migrations
+
 - One Drizzle config at the root (`drizzle.config.ts`), migration output in `./drizzle/`
 - **Never generate, apply, or roll back a migration, and never touch the database directly.**
 - If a migration is needed, say so and provide the command for me to run.

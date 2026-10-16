@@ -5,6 +5,8 @@ import { db } from "@/db";
 import * as authSchema from "@repo/db/public/auth-schema";
 import { emailSignUpSchema } from "@/lib/validations/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
+import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
+import { mergeGuestCartIntoDb } from "@/features/cart/queries";
 
 export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL as string],
@@ -43,6 +45,26 @@ export const auth = betterAuth({
             message: result.error.issues[0]?.message ?? "Invalid input",
           });
         }
+      }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      const newSession = ctx.context.newSession;
+      if (!newSession?.user?.id) return;
+
+      const rawCookie = ctx.getCookie(CART_COOKIE_NAME);
+      if (!rawCookie) return;
+
+      const guestItems = parseCookie(rawCookie);
+      if (guestItems.length === 0) return;
+
+      try {
+        await mergeGuestCartIntoDb(newSession.user.id, guestItems);
+        ctx.setCookie(CART_COOKIE_NAME, "", {
+          maxAge: 0,
+          path: "/",
+        });
+      } catch (error) {
+        console.error("Failed to merge guest cart on login:", error);
       }
     }),
   },
