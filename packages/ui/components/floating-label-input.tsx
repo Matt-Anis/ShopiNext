@@ -4,7 +4,6 @@ import * as React from "react"
 import { Eye, EyeOff } from "lucide-react"
 
 import { cn } from "../lib/utils"
-import { Button } from "./button"
 import { Input } from "./input"
 import { Label } from "./label"
 
@@ -41,11 +40,9 @@ function FloatingLabelInput({
         {label}
       </Label>
       {isPassword && (
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none focus-visible:text-foreground disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
           onClick={() => setShowPassword((prev) => !prev)}
           disabled={disabled}
           aria-label={showPassword ? "Hide password" : "Show password"}
@@ -55,7 +52,7 @@ function FloatingLabelInput({
           ) : (
             <Eye className="size-4" aria-hidden="true" />
           )}
-        </Button>
+        </button>
       )}
     </div>
   )
