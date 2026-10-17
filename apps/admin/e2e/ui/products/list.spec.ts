@@ -229,6 +229,11 @@ test.describe("Move to draft", () => {
     await expect(dialog).toContainText(product.name)
     await dialog.getByRole("button", { name: "Move to draft" }).click()
 
+    await expect(page.getByText("Product moved to draft")).toBeVisible()
+    await expect(page.locator("tr", { hasText: product.name })).toContainText(
+      "Draft"
+    )
+
     const [updated] = await testDb
       .select()
       .from(products)
