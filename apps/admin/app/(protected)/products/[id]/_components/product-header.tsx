@@ -30,11 +30,11 @@ export function ProductHeader({ product }: ProductHeaderProps) {
           <h1 className="text-2xl font-semibold tracking-tight">
             {product.name}
           </h1>
-          <StatusDot
+          <StatusBadge
             label={product.isActive ? "Active" : "Inactive"}
             color={product.isActive ? "emerald" : "destructive"}
           />
-          <StatusDot
+          <StatusBadge
             label={product.status === "active" ? "Published" : "Draft"}
             color={product.status === "active" ? "emerald" : "muted"}
           />
@@ -53,29 +53,21 @@ export function ProductHeader({ product }: ProductHeaderProps) {
   )
 }
 
-interface StatusDotProps {
+interface StatusBadgeProps {
   label: string
   color: "emerald" | "destructive" | "muted"
 }
 
-function StatusDot({ label, color }: StatusDotProps) {
+function StatusBadge({ label, color }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
         color === "destructive" && "bg-destructive/10 text-destructive",
         color === "emerald" && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
         color === "muted" && "bg-muted text-muted-foreground"
       )}
     >
-      <span
-        className={cn(
-          "size-1.5 rounded-full",
-          color === "destructive" && "bg-destructive",
-          color === "emerald" && "bg-emerald-500 dark:bg-emerald-400",
-          color === "muted" && "bg-muted-foreground"
-        )}
-      />
       {label}
     </span>
   )
