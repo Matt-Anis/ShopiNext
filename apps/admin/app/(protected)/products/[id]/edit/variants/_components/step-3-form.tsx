@@ -228,8 +228,8 @@ export function Step3Form({
 
   return (
     <div className="mt-8 flex flex-col gap-6">
-      <div className="rounded-2xl border border-border">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-semibold">Variants</span>
             <span className="text-xs text-muted-foreground">
