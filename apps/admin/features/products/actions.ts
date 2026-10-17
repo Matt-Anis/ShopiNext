@@ -82,7 +82,7 @@ export async function updateProductDetails(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-1`)
+  revalidatePath(`/products/${productId}/edit/details`)
   revalidatePath("/products")
 }
 
@@ -102,7 +102,7 @@ export async function addProductCategory(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-2`)
+  revalidatePath(`/products/${productId}/edit/categories-and-options`)
 }
 
 export async function removeProductCategory(
@@ -125,7 +125,7 @@ export async function removeProductCategory(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-2`)
+  revalidatePath(`/products/${productId}/edit/categories-and-options`)
 }
 
 export async function createProductOption(productId: string, name: string) {
@@ -140,7 +140,7 @@ export async function createProductOption(productId: string, name: string) {
       .values({ productId, name: trimmedName })
       .returning({ id: productOptions.id, name: productOptions.name })
 
-    revalidatePath(`/products/${productId}/edit/step-2`)
+    revalidatePath(`/products/${productId}/edit/categories-and-options`)
     return option
   } catch (error) {
     if (isUniqueViolation(error)) {
@@ -188,8 +188,8 @@ export async function deleteProductOption(productId: string, optionId: string) {
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-2`)
-  revalidatePath(`/products/${productId}/edit/step-3`)
+  revalidatePath(`/products/${productId}/edit/categories-and-options`)
+  revalidatePath(`/products/${productId}/edit/variants`)
 }
 
 export async function addProductOptionValue(
@@ -211,7 +211,7 @@ export async function addProductOptionValue(
         value: productOptionValues.value,
       })
 
-    revalidatePath(`/products/${productId}/edit/step-2`)
+    revalidatePath(`/products/${productId}/edit/categories-and-options`)
     return optionValue
   } catch (error) {
     if (isUniqueViolation(error)) {
@@ -238,8 +238,8 @@ export async function deleteProductOptionValue(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-2`)
-  revalidatePath(`/products/${productId}/edit/step-3`)
+  revalidatePath(`/products/${productId}/edit/categories-and-options`)
+  revalidatePath(`/products/${productId}/edit/variants`)
 }
 
 interface VariantFields {
@@ -315,7 +315,7 @@ export async function createProductVariant(
       return insertedVariant
     })
 
-    revalidatePath(`/products/${productId}/edit/step-3`)
+    revalidatePath(`/products/${productId}/edit/variants`)
     return variant
   } catch (error) {
     if (isUniqueViolation(error)) {
@@ -356,7 +356,7 @@ export async function updateProductVariant(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-3`)
+  revalidatePath(`/products/${productId}/edit/variants`)
 }
 
 export async function deleteProductVariant(
@@ -382,7 +382,7 @@ export async function deleteProductVariant(
     throw error
   }
 
-  revalidatePath(`/products/${productId}/edit/step-3`)
+  revalidatePath(`/products/${productId}/edit/variants`)
 }
 
 export async function setProductStatus(
@@ -412,7 +412,7 @@ export async function setProductStatus(
 
   revalidatePath("/products")
   revalidatePath(`/products/${productId}`)
-  revalidatePath(`/products/${productId}/edit/step-3`)
+  revalidatePath(`/products/${productId}/edit/variants`)
 }
 
 export async function deactivateProduct(productId: string) {
