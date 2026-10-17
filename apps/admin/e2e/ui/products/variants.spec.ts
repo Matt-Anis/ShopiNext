@@ -36,14 +36,14 @@ function uniqueSku(base: string) {
   return `${base}-${uniqueSuffix()}`
 }
 
-test.describe("Creating variants (step 3)", () => {
+test.describe("Creating variants", () => {
   test("creates the first variant on a product with no options", async ({
     page,
   }) => {
     const product = await seedProduct()
     const sku = uniqueSku("v1")
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(sku)
     await page.getByRole("button", { name: "Add variant" }).click()
@@ -62,7 +62,7 @@ test.describe("Creating variants (step 3)", () => {
     const product = await seedProduct()
     await seedProductVariant(product.id, { sku: "v1" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v2"))
     await page.getByRole("button", { name: "Add variant" }).click()
@@ -87,7 +87,7 @@ test.describe("Creating variants (step 3)", () => {
     await seedProductOption(product.id, "Size", ["Small", "Large"])
     const sku = uniqueSku("v1")
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByPlaceholder("Color").click()
     await page
@@ -110,7 +110,7 @@ test.describe("Creating variants (step 3)", () => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     await page.getByRole("button", { name: "Add variant" }).click()
@@ -127,7 +127,7 @@ test.describe("Creating variants (step 3)", () => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red", "Blue"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const sku = draftRow(page).getByRole("textbox")
 
@@ -153,7 +153,7 @@ test.describe("Creating variants (step 3)", () => {
     const option = await seedProductOption(product.id, "Color", ["Red"])
     await seedProductVariant(product.id, { sku: "v1" }, [option.values[0]!.id])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByPlaceholder("Color").click()
     await page
@@ -182,7 +182,7 @@ test.describe("Creating variants (step 3)", () => {
       option.values[0]!.id,
     ])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByPlaceholder("Color").click()
     await page
@@ -201,7 +201,7 @@ test.describe("Creating variants (step 3)", () => {
   test("shows a validation error for a negative price", async ({ page }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     await draftRow(page).getByRole("spinbutton").nth(0).fill("-5")
@@ -217,7 +217,7 @@ test.describe("Creating variants (step 3)", () => {
   test("shows a validation error for negative stock", async ({ page }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     await draftRow(page).getByRole("spinbutton").nth(1).fill("-1")
@@ -235,7 +235,7 @@ test.describe("Creating variants (step 3)", () => {
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     await draftRow(page).getByRole("spinbutton").nth(2).fill("0")
@@ -255,7 +255,7 @@ test.describe("Creating variants (step 3)", () => {
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     await page.getByRole("button", { name: "Add variant" }).click()
@@ -275,7 +275,7 @@ test.describe("Creating variants (step 3)", () => {
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await draftRow(page).getByRole("textbox").fill(uniqueSku("v1"))
     const trigger = page.getByRole("button", { name: "Add variant" })
@@ -306,7 +306,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
       price: 1000,
     })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const row = variantRow(page, variant.sku)
     const save = row.getByRole("button", { name: "Save changes" })
@@ -332,7 +332,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
       option.values[1]!.id,
     ])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const row = page.locator("tr").filter({ hasText: "Blue" })
     await row.getByRole("textbox").fill(v1.sku)
@@ -350,7 +350,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
       stock: 5,
     })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const row = variantRow(page, variant.sku)
     await row.getByRole("spinbutton").nth(1).fill("9")
@@ -365,7 +365,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
     const product = await seedProduct()
     const variant = await seedProductVariant(product.id, { sku: "v1" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const row = variantRow(page, variant.sku)
     await row.getByRole("button", { name: "Delete variant" }).click()
@@ -398,7 +398,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
       quantity: 1,
     })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     const row = variantRow(page, variant.sku)
     await row.getByRole("button", { name: "Delete variant" }).click()
@@ -414,14 +414,14 @@ test.describe("Editing and deleting variants (step 3)", () => {
   })
 })
 
-test.describe("Publishing (step 3)", () => {
+test.describe("Publishing", () => {
   test("publishes the product once at least one variant exists", async ({
     page,
   }) => {
     const product = await seedProduct()
     await seedProductVariant(product.id, { sku: "v1" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await page.getByRole("button", { name: "Publish" }).click()
 
@@ -438,7 +438,7 @@ test.describe("Publishing (step 3)", () => {
   test("saves as draft regardless of variant count", async ({ page }) => {
     const product = await seedProduct({ status: "active" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-3`)
+    await page.goto(`/products/${product.id}/edit/variants`)
 
     await page.getByRole("button", { name: "Save as draft" }).click()
 

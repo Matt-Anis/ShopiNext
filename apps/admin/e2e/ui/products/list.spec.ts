@@ -116,7 +116,7 @@ test.describe("View product", () => {
 })
 
 test.describe("Edit product from list", () => {
-  test("navigates to the step 1 edit page", async ({ page }) => {
+  test("navigates to the details edit page", async ({ page }) => {
     const product = await seedProduct({ name: `Classic Tee ${uniqueSuffix()}` })
     await signIn(page, admin)
     await page.goto("/products")
@@ -124,7 +124,7 @@ test.describe("Edit product from list", () => {
     await openRowMenu(page, product.name)
     await page.getByRole("menuitem", { name: "Edit" }).click()
 
-    await page.waitForURL(`/products/${product.id}/edit/step-1`)
+    await page.waitForURL(`/products/${product.id}/edit/details`)
   })
 })
 

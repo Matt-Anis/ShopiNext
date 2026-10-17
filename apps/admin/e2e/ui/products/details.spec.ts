@@ -13,8 +13,8 @@ test.beforeEach(async () => {
   admin = await seedAdmin()
 })
 
-test.describe("Create product (step 1)", () => {
-  test("creates a draft product and redirects to step 2", async ({
+test.describe("Create product", () => {
+  test("creates a draft product and redirects to categories and options", async ({
     page,
   }) => {
     const name = `Classic Tee ${uniqueSuffix()}`
@@ -28,8 +28,8 @@ test.describe("Create product (step 1)", () => {
     await page.getByTestId("create-product-submit-button").click()
 
     await expect(page.getByText("Product created")).toBeVisible()
-    await page.waitForURL(/\/products\/(.+)\/edit\/step-2$/)
-    const id = page.url().match(/\/products\/(.+)\/edit\/step-2$/)![1]
+    await page.waitForURL(/\/products\/(.+)\/edit\/categories-and-options$/)
+    const id = page.url().match(/\/products\/(.+)\/edit\/categories-and-options$/)![1]
 
     const [product] = await testDb
       .select()
@@ -179,7 +179,7 @@ test.describe("Create product (step 1)", () => {
   })
 })
 
-test.describe("Edit product details (step 1)", () => {
+test.describe("Edit product details", () => {
   test("loads the product's existing details", async ({ page }) => {
     const product = await seedProduct({
       name: "Classic Tee",
@@ -187,7 +187,7 @@ test.describe("Edit product details (step 1)", () => {
       description: "A soft cotton tee",
     })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await expect(page.getByTestId("edit-product-name-input")).toHaveValue(
       "Classic Tee"
@@ -205,7 +205,7 @@ test.describe("Edit product details (step 1)", () => {
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await page.getByTestId("edit-product-name-input").fill("Renamed Product")
     await page.getByTestId("edit-product-submit-button").click()
@@ -226,7 +226,7 @@ test.describe("Edit product details (step 1)", () => {
     const other = await seedProduct({ name: "Other Product" })
     const product = await seedProduct({ name: "Classic Tee" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await page.getByTestId("edit-product-slug-input").fill(other.slug)
     await page.getByTestId("edit-product-submit-button").click()
@@ -248,7 +248,7 @@ test.describe("Edit product details (step 1)", () => {
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await page.getByTestId("edit-product-name-input").fill("   ")
     await page.getByTestId("edit-product-submit-button").click()
@@ -263,20 +263,20 @@ test.describe("Edit product details (step 1)", () => {
     expect(unchanged!.name).toBe(DEFAULT_TEST_PRODUCT.name)
   })
 
-  test("redirects to step 2 after saving", async ({ page }) => {
+  test("redirects to categories and options after saving", async ({ page }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await page.getByTestId("edit-product-submit-button").click()
 
-    await page.waitForURL(`/products/${product.id}/edit/step-2`)
+    await page.waitForURL(`/products/${product.id}/edit/categories-and-options`)
   })
 
   test("does not save changes when cancelled", async ({ page }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-1`)
+    await page.goto(`/products/${product.id}/edit/details`)
 
     await page.getByTestId("edit-product-name-input").fill("Never Saved")
     await page.getByRole("button", { name: "Cancel" }).click()
@@ -293,7 +293,7 @@ test.describe("Edit product details (step 1)", () => {
   test("returns 404 for a nonexistent product id", async ({ page }) => {
     await signIn(page, admin)
     const response = await page.goto(
-      "/products/00000000-0000-0000-0000-000000000000/edit/step-1"
+      "/products/00000000-0000-0000-0000-000000000000/edit/details"
     )
 
     expect(response?.status()).toBe(404)
