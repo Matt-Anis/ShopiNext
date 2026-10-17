@@ -33,7 +33,7 @@ export function ProductsClient({ products }: ProductsClientProps) {
 
   const columns = getColumns({
     onView: (product) => router.push(`/products/${product.id}`),
-    onEdit: (product) => router.push(`/products/${product.id}/edit/step-1`),
+    onEdit: (product) => router.push(`/products/${product.id}/edit/details`),
     onDeactivate: (product) => setDeactivateTarget(product),
     onActivate: (product) => {
       startTransition(async () => {

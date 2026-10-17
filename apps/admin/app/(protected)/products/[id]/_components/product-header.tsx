@@ -44,7 +44,7 @@ export function ProductHeader({ product }: ProductHeaderProps) {
 
       <Button
         nativeButton={false}
-        render={<Link href={`/products/${product.id}/edit/step-1`} />}
+        render={<Link href={`/products/${product.id}/edit/details`} />}
       >
         <Pencil />
         Edit

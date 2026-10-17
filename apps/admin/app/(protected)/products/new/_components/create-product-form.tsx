@@ -43,7 +43,7 @@ export function CreateProductForm() {
         .promise(createPromise, {
           loading: { title: "Creating product..." },
           success: ({ id }) => {
-            router.push(`/products/${id}/edit/step-2`)
+            router.push(`/products/${id}/edit/categories-and-options`)
             return { title: "Product created" }
           },
           error: (error: Error) => ({

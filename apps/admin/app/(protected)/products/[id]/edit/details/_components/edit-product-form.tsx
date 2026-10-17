@@ -44,7 +44,7 @@ export function EditProductForm({
         .promise(promise, {
           loading: { title: "Saving changes..." },
           success: () => {
-            router.push(`/products/${productId}/edit/step-2`)
+            router.push(`/products/${productId}/edit/categories-and-options`)
             return { title: "Product updated" }
           },
           error: (error: Error) => ({
