@@ -4,9 +4,9 @@ import { getProductStep2Data, getCategoriesList } from "@/features/products/quer
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { Step2Form } from "./_components/step-2-form"
 
-export default async function ProductStep2Page({
+export default async function ProductCategoriesAndOptionsPage({
   params,
-}: PageProps<"/products/[id]/edit/step-2">) {
+}: PageProps<"/products/[id]/edit/categories-and-options">) {
   const { id } = await params
   const [product, categories] = await Promise.all([
     getProductStep2Data(id),

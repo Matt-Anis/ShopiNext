@@ -4,9 +4,9 @@ import { getProductStep3Data } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { Step3Form } from "./_components/step-3-form"
 
-export default async function ProductStep3Page({
+export default async function ProductVariantsPage({
   params,
-}: PageProps<"/products/[id]/edit/step-3">) {
+}: PageProps<"/products/[id]/edit/variants">) {
   const { id } = await params
   const product = await getProductStep3Data(id)
 
