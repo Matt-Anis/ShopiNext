@@ -32,6 +32,7 @@ interface Step3FormProps {
   productSlug: string
   options: Option[]
   variants: Variant[]
+  initialStatus: "draft" | "active"
 }
 
 type PendingAction =
@@ -43,6 +44,7 @@ export function Step3Form({
   productSlug,
   options,
   variants: initialVariants,
+  initialStatus,
 }: Step3FormProps) {
   const router = useRouter()
   const [, startTransition] = useTransition()
@@ -173,6 +175,11 @@ export function Step3Form({
   }
 
   function handleFinish(status: "draft" | "active") {
+    if (status === initialStatus) {
+      router.push("/products")
+      return
+    }
+
     setIsFinishing(true)
     startTransition(async () => {
       const promise = setProductStatus(productId, status)

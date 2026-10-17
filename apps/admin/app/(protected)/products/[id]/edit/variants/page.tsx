@@ -39,6 +39,7 @@ export default async function ProductVariantsPage({
               (v) => v.optionValueId
             ),
           }))}
+          initialStatus={product.status}
         />
       </div>
     </div>
