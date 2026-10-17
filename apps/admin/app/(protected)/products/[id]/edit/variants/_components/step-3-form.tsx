@@ -32,6 +32,7 @@ interface Step3FormProps {
   productSlug: string
   options: Option[]
   variants: Variant[]
+  initialStatus: "draft" | "active"
 }
 
 type PendingAction =
@@ -43,6 +44,7 @@ export function Step3Form({
   productSlug,
   options,
   variants: initialVariants,
+  initialStatus,
 }: Step3FormProps) {
   const router = useRouter()
   const [, startTransition] = useTransition()
@@ -173,6 +175,11 @@ export function Step3Form({
   }
 
   function handleFinish(status: "draft" | "active") {
+    if (status === initialStatus) {
+      router.push("/products")
+      return
+    }
+
     setIsFinishing(true)
     startTransition(async () => {
       const promise = setProductStatus(productId, status)
@@ -221,8 +228,8 @@ export function Step3Form({
 
   return (
     <div className="mt-8 flex flex-col gap-6">
-      <div className="rounded-2xl border border-border">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-semibold">Variants</span>
             <span className="text-xs text-muted-foreground">

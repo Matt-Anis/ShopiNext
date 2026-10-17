@@ -36,18 +36,23 @@ export function ProductWizardSteps({
   productId,
   productName,
 }: ProductWizardStepsProps) {
+  const stepsToDisplay = productId ? STEPS : STEPS.slice(0, step)
+
   useBreadcrumb([
     { label: "Products", href: "/products" },
     ...(productId && productName
       ? [{ label: productName, href: `/products/${productId}` }]
       : []),
-    ...STEPS.slice(0, step).map(({ label, slug }, index) => ({
-      label,
-      href:
-        index === step - 1 || !productId
-          ? undefined
-          : `/products/${productId}/edit/${slug}`,
-    })),
+    ...stepsToDisplay.map(({ label, slug }, index) => {
+      const isCurrent = index === step - 1
+      return {
+        label,
+        href:
+          isCurrent || !productId
+            ? undefined
+            : `/products/${productId}/edit/${slug}`,
+      }
+    }),
   ])
 
   return (
@@ -58,19 +63,23 @@ export function ProductWizardSteps({
         const isCurrent = stepNumber === step
         const isLast = stepNumber === STEPS.length
         const href =
-          isComplete && productId
+          productId && !isCurrent
             ? `/products/${productId}/edit/${s.slug}`
             : undefined
 
         const circle = (
           <span
             className={cn(
-              "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium",
+              "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors",
               isComplete && "bg-primary text-primary-foreground",
               isCurrent && "border-2 border-primary text-primary",
               !isComplete &&
                 !isCurrent &&
-                "border border-dashed border-border text-muted-foreground"
+                "border border-dashed border-border text-muted-foreground",
+              href &&
+                !isComplete &&
+                "hover:border-solid hover:border-primary hover:text-primary cursor-pointer",
+              href && isComplete && "hover:opacity-90 cursor-pointer"
             )}
           >
             {isComplete ? <Check className="size-4" /> : stepNumber}

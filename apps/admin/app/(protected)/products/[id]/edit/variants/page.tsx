@@ -17,7 +17,7 @@ export default async function ProductVariantsPage({
   return (
     <div className="flex gap-10 px-8 pt-9 pb-16">
       <ProductWizardSteps step={3} productId={id} productName={product.name} />
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-5xl">
         <h1 className="text-2xl font-semibold tracking-tight">
           {product.name}
         </h1>
@@ -39,6 +39,7 @@ export default async function ProductVariantsPage({
               (v) => v.optionValueId
             ),
           }))}
+          initialStatus={product.status}
         />
       </div>
     </div>

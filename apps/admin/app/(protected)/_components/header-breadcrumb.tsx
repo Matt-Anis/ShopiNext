@@ -23,14 +23,11 @@ export function HeaderBreadcrumb() {
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1
-
-          return (
-            <Fragment key={item.label}>
+        {items.map((item, index) => (
+          <Fragment key={item.label}>
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
-                {isLast || !item.href ? (
+                {!item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink render={<Link href={item.href} />}>
@@ -39,8 +36,7 @@ export function HeaderBreadcrumb() {
                 )}
               </BreadcrumbItem>
             </Fragment>
-          )
-        })}
+          ))}
       </BreadcrumbList>
     </Breadcrumb>
   )
