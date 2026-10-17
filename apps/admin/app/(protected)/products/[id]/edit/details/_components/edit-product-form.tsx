@@ -28,9 +28,19 @@ export function EditProductForm({
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
-    const nextName = formData.get("name") as string
-    const nextSlug = formData.get("slug") as string
-    const nextDescription = formData.get("description") as string
+    const nextName = (formData.get("name") as string).trim()
+    const nextSlug = (formData.get("slug") as string).trim()
+    const nextDescription = ((formData.get("description") as string) || "").trim()
+
+    const isUnchanged =
+      nextName === name.trim() &&
+      nextSlug === slug.trim() &&
+      nextDescription === (description ?? "").trim()
+
+    if (isUnchanged) {
+      router.push(`/products/${productId}/edit/categories-and-options`)
+      return
+    }
 
     startTransition(async () => {
       const promise = updateProductDetails(
