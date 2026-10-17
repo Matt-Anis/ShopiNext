@@ -8,13 +8,22 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { useBreadcrumb } from "../../_components/breadcrumb-provider"
 
 const STEPS = [
-  { label: "Details", description: "Name, slug, and description" },
+  {
+    label: "Details",
+    description: "Name, slug, and description",
+    slug: "details",
+  },
   {
     label: "Categories & options",
     description: "Categories and options for this product",
+    slug: "categories-and-options",
   },
-  { label: "Variants", description: "Create variants from your options" },
-]
+  {
+    label: "Variants",
+    description: "Create variants from your options",
+    slug: "variants",
+  },
+] as const
 
 interface ProductWizardStepsProps {
   step: 1 | 2 | 3
@@ -32,12 +41,12 @@ export function ProductWizardSteps({
     ...(productId && productName
       ? [{ label: productName, href: `/products/${productId}` }]
       : []),
-    ...STEPS.slice(0, step).map(({ label }, index) => ({
+    ...STEPS.slice(0, step).map(({ label, slug }, index) => ({
       label,
       href:
         index === step - 1 || !productId
           ? undefined
-          : `/products/${productId}/edit/step-${index + 1}`,
+          : `/products/${productId}/edit/${slug}`,
     })),
   ])
 
@@ -50,7 +59,7 @@ export function ProductWizardSteps({
         const isLast = stepNumber === STEPS.length
         const href =
           isComplete && productId
-            ? `/products/${productId}/edit/step-${stepNumber}`
+            ? `/products/${productId}/edit/${s.slug}`
             : undefined
 
         const circle = (

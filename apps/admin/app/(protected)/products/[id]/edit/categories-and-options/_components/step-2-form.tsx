@@ -50,7 +50,7 @@ export function Step2Form({
       <div className="flex items-center gap-3">
         <Button
           type="button"
-          onClick={() => router.push(`/products/${productId}/edit/step-3`)}
+          onClick={() => router.push(`/products/${productId}/edit/variants`)}
         >
           Continue
         </Button>

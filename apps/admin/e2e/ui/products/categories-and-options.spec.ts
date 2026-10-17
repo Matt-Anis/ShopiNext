@@ -22,14 +22,14 @@ test.beforeEach(async () => {
   admin = await seedAdmin()
 })
 
-test.describe("Categories (step 2)", () => {
+test.describe("Categories", () => {
   test("selects an existing category without a confirmation dialog", async ({
     page,
   }) => {
     const product = await seedProduct()
     const category = await seedCategory({ name: "Outdoor" })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("Add categories...").click()
     await page
@@ -60,7 +60,7 @@ test.describe("Categories (step 2)", () => {
     const product = await seedProduct()
     const name = `Kitchen ${uniqueSuffix()}`
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("Add categories...").fill(name)
     await page.getByRole("button", { name: `Create "${name}"` }).click()
@@ -84,7 +84,7 @@ test.describe("Categories (step 2)", () => {
       .insert(productCategories)
       .values({ productId: product.id, categoryId: category.id })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     const chip = page.locator('[data-slot="combobox-chip"]', {
       hasText: category.name,
@@ -139,7 +139,7 @@ test.describe("Categories (step 2)", () => {
       .insert(productCategories)
       .values({ productId: product.id, categoryId: category.id })
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await expect(
       page.locator('[data-slot="combobox-chip"]', { hasText: category.name })
@@ -147,13 +147,13 @@ test.describe("Categories (step 2)", () => {
   })
 })
 
-test.describe("Options (step 2)", () => {
+test.describe("Options", () => {
   test("creates an option and shows it with no values yet", async ({
     page,
   }) => {
     const product = await seedProduct()
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("e.g. Size, Color").fill("Size")
     await page.getByRole("button", { name: "Add option" }).click()
@@ -178,7 +178,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Size")
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("e.g. Size, Color").fill("Size")
     await page.getByRole("button", { name: "Add option" }).click()
@@ -191,7 +191,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color")
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
     await page.getByRole("button", { name: "Add", exact: true }).click()
@@ -216,7 +216,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color", ["red"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
     await page.getByRole("button", { name: "Add", exact: true }).click()
@@ -237,7 +237,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByPlaceholder("Add a value").fill("Red")
     await page.getByRole("button", { name: "Add", exact: true }).click()
@@ -250,7 +250,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     const option = await seedProductOption(product.id, "Color", ["Red"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByText("Red", { exact: true }).getByRole("button").click()
 
@@ -274,7 +274,7 @@ test.describe("Options (step 2)", () => {
     const product = await seedProduct()
     await seedProductOption(product.id, "Color", ["Red", "Blue"])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByText("Color", { exact: true }).locator("..").getByRole("button").click()
 
@@ -302,7 +302,7 @@ test.describe("Options (step 2)", () => {
     const option = await seedProductOption(product.id, "Color", ["Red"])
     await seedProductVariant(product.id, {}, [option.values[0]!.id])
     await signIn(page, admin)
-    await page.goto(`/products/${product.id}/edit/step-2`)
+    await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
     await page.getByText("Color", { exact: true }).locator("..").getByRole("button").click()
     await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click()
@@ -320,14 +320,14 @@ test.describe("Options (step 2)", () => {
   })
 })
 
-test("continues to step 3 without requiring any categories or options", async ({
+test("continues to variants without requiring any categories or options", async ({
   page,
 }) => {
   const product = await seedProduct()
   await signIn(page, admin)
-  await page.goto(`/products/${product.id}/edit/step-2`)
+  await page.goto(`/products/${product.id}/edit/categories-and-options`)
 
   await page.getByRole("button", { name: "Continue" }).click()
 
-  await page.waitForURL(`/products/${product.id}/edit/step-3`)
+  await page.waitForURL(`/products/${product.id}/edit/variants`)
 })
