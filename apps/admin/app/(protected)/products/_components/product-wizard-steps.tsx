@@ -36,18 +36,23 @@ export function ProductWizardSteps({
   productId,
   productName,
 }: ProductWizardStepsProps) {
+  const stepsToDisplay = productId ? STEPS : STEPS.slice(0, step)
+
   useBreadcrumb([
     { label: "Products", href: "/products" },
     ...(productId && productName
       ? [{ label: productName, href: `/products/${productId}` }]
       : []),
-    ...STEPS.slice(0, step).map(({ label, slug }, index) => ({
-      label,
-      href:
-        index === step - 1 || !productId
-          ? undefined
-          : `/products/${productId}/edit/${slug}`,
-    })),
+    ...stepsToDisplay.map(({ label, slug }, index) => {
+      const isCurrent = index === step - 1
+      return {
+        label,
+        href:
+          isCurrent || !productId
+            ? undefined
+            : `/products/${productId}/edit/${slug}`,
+      }
+    }),
   ])
 
   return (
