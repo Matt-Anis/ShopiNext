@@ -95,7 +95,6 @@ async function main() {
       columns: {
         url: f.valuesFromArray({ values: picsumUrls }),
         altText: f.loremIpsum({ sentencesCount: 1 }),
-        isPrimary: f.default({ defaultValue: false }),
       },
     },
     user: {
@@ -199,18 +198,7 @@ async function main() {
   if (variantOptionValueRows.length > 0)
     await db.insert(variantOptionValues).values(variantOptionValueRows);
 
-  await db
-    .update(images)
-    .set({ isPrimary: true })
-    .where(
-      inArray(
-        images.id,
-        db
-          .selectDistinctOn([images.productId], { id: images.id })
-          .from(images)
-          .orderBy(images.productId, images.id),
-      ),
-    );
+
 
   const passwordHash = await hashPassword(SEEDED_USER_PASSWORD);
   const seededUsers = await db.select({ id: user.id }).from(user);

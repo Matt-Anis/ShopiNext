@@ -38,7 +38,7 @@ export async function seedProduct(
     productId: product.id,
     url: "https://picsum.photos/id/1/800/600",
     altText: product.name,
-    isPrimary: true,
+    order: 0,
   });
 
   const [variant] = await testDb
@@ -78,7 +78,7 @@ export async function seedProductWithVariants(
     productId: product.id,
     url: "https://picsum.photos/id/1/800/600",
     altText: product.name,
-    isPrimary: true,
+    order: 0,
   });
 
   const valueIdByOptionAndValue = new Map<string, string>();

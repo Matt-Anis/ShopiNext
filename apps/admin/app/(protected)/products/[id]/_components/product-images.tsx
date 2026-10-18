@@ -2,7 +2,7 @@ interface Image {
   id: string
   url: string
   altText: string | null
-  isPrimary: boolean
+  order: number
 }
 
 interface ProductImagesProps {
@@ -10,7 +10,7 @@ interface ProductImagesProps {
 }
 
 export function ProductImages({ images }: ProductImagesProps) {
-  const primaryCount = images.filter((image) => image.isPrimary).length
+  const primaryCount = images.some((image) => image.order === 0) ? 1 : 0
 
   return (
     <section>
@@ -41,7 +41,7 @@ export function ProductImages({ images }: ProductImagesProps) {
                 alt={image.altText ?? ""}
                 className="size-full object-cover"
               />
-              {image.isPrimary && (
+              {image.order === 0 && (
                 <span className="absolute bottom-1 left-1 rounded-full bg-background/90 px-1.5 py-0.5 text-[10px] font-medium">
                   Primary
                 </span>

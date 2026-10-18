@@ -51,12 +51,12 @@ test.describe("Product detail page", () => {
       {
         productId: product.id,
         url: "https://example.com/a.png",
-        isPrimary: true,
+        order: 0,
       },
       {
         productId: product.id,
         url: "https://example.com/b.png",
-        isPrimary: false,
+        order: 1,
       },
     ])
     await signIn(page, admin)

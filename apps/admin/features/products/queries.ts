@@ -54,7 +54,7 @@ export async function getProductsList() {
       },
       images: {
         columns: { url: true },
-        where: (image, { eq }) => eq(image.isPrimary, true),
+        orderBy: (image, { asc }) => [asc(image.order)],
         limit: 1,
       },
     },

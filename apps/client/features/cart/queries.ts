@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm"
+import { and, asc, eq, inArray } from "drizzle-orm"
 import { db } from "@/db"
 import { cart, cartItems, images, productVariants } from "@repo/db/public/schema"
 import { optionLabelFor } from "@/features/products/queries"
@@ -50,7 +50,7 @@ export const getCartFromDb = async (userId: string) => {
               product: {
                 with: {
                   images: {
-                    where: eq(images.isPrimary, true),
+                    orderBy: [asc(images.order)],
                     limit: 1,
                   },
                 },
