@@ -11,3 +11,10 @@ services:
       POSTGRES_DB: test
     ports:
       - "5433:5432"
+
+  s3-test:
+    image: chrislusf/seaweedfs
+    container_name: store_s3_test
+    command: "server -s3 -dir=/data -s3.port=8333"
+    ports:
+      - "8334:8333"

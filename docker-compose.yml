@@ -15,5 +15,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  s3:
+    image: chrislusf/seaweedfs
+    container_name: store_s3
+    restart: unless-stopped
+    command: "server -s3 -dir=/data -s3.port=8333"
+    ports:
+      - "8333:8333"
+    volumes:
+      - s3_data:/data
+
 volumes:
   postgres_data:
+  s3_data:
