@@ -7,11 +7,9 @@ import {
   createProductVariant,
   updateProductVariant,
   deleteProductVariant,
-  setProductStatus,
 } from "@/features/products/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { ConfirmDialog } from "@repo/ui/confirm-dialog"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/table"
 
@@ -32,7 +30,6 @@ interface Step3FormProps {
   productSlug: string
   options: Option[]
   variants: Variant[]
-  initialStatus: "draft" | "active"
 }
 
 type PendingAction =
@@ -44,13 +41,11 @@ export function Step3Form({
   productSlug,
   options,
   variants: initialVariants,
-  initialStatus,
 }: Step3FormProps) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const [rows, setRows] = useState<Row[]>(() => initialVariants.map(toRow))
   const [savingId, setSavingId] = useState<string | null>(null)
-  const [isFinishing, setIsFinishing] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [draftResetCount, setDraftResetCount] = useState(0)
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(
@@ -174,39 +169,6 @@ export function Step3Form({
     })
   }
 
-  function handleFinish(status: "draft" | "active") {
-    if (status === initialStatus) {
-      router.push("/products")
-      return
-    }
-
-    setIsFinishing(true)
-    startTransition(async () => {
-      const promise = setProductStatus(productId, status)
-
-      await toast
-        .promise(promise, {
-          loading: {
-            title: status === "active" ? "Publishing..." : "Saving draft...",
-          },
-          success: () => {
-            router.push("/products")
-            return {
-              title: status === "active" ? "Product published" : "Draft saved",
-            }
-          },
-          error: (error: Error) => ({
-            title:
-              status === "active"
-                ? "Failed to publish"
-                : "Failed to save draft",
-            description: error.message,
-          }),
-        })
-        .catch(() => {})
-      setIsFinishing(false)
-    })
-  }
 
   const dialogTitle =
     pendingAction?.kind === "delete-variant" ? "Delete variant" : "Create variant"
@@ -277,46 +239,17 @@ export function Step3Form({
       <div className="flex items-center gap-3">
         <Button
           type="button"
-          variant="outline"
-          disabled={isFinishing}
-          onClick={() => handleFinish("draft")}
+          onClick={() => router.push(`/products/${productId}/edit/media`)}
         >
-          Save as draft
+          Continue
         </Button>
-
-        {rows.length === 0 ? (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <span>
-                  <Button type="button" disabled>
-                    Publish
-                  </Button>
-                </span>
-              }
-            />
-            <TooltipContent>
-              Add at least one variant before publishing
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  type="button"
-                  disabled={isFinishing}
-                  onClick={() => handleFinish("active")}
-                >
-                  Publish
-                </Button>
-              }
-            />
-            <TooltipContent>
-              Makes this product visible in the storefront
-            </TooltipContent>
-          </Tooltip>
-        )}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => router.push("/products")}
+        >
+          Save & exit
+        </Button>
       </div>
 
       <ConfirmDialog

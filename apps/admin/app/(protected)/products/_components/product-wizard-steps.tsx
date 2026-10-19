@@ -23,10 +23,15 @@ const STEPS = [
     description: "Create variants from your options",
     slug: "variants",
   },
+  {
+    label: "Media",
+    description: "Upload and organize product images",
+    slug: "media",
+  },
 ] as const
 
 interface ProductWizardStepsProps {
-  step: 1 | 2 | 3
+  step: 1 | 2 | 3 | 4
   productId?: string
   productName?: string
 }

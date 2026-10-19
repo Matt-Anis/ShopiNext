@@ -39,6 +39,17 @@ export async function getProductStep3Data(productId: string) {
   })
 }
 
+export async function getProductMediaData(productId: string) {
+  return db.query.products.findFirst({
+    where: eq(products.id, productId),
+    with: {
+      images: {
+        orderBy: (image, { asc }) => [asc(image.order)],
+      },
+    },
+  })
+}
+
 export async function getProductsList() {
   const rows = await db.query.products.findMany({
     orderBy: (product, { desc }) => [desc(product.createdAt)],
