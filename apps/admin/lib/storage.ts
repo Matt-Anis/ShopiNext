@@ -74,6 +74,8 @@ export function getS3Client(): S3Client {
     },
     // Force path-style (e.g. endpoint/bucket/key) when using custom endpoints like SeaweedFS, MinIO, or LocalStack
     forcePathStyle: Boolean(config.endpoint),
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   })
 
   return s3ClientInstance
