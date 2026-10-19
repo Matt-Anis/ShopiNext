@@ -16,6 +16,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/tab
 
 import {
   displayToCents,
+  isRowDirty,
   labelsForValueIds,
   toRow,
   type Option,
@@ -240,13 +241,16 @@ export function Step3Form({
       <div className="flex items-center gap-3">
         {(() => {
           const isBusy = isCreating || savingId !== null
-          const continueDisabled = isBusy || rows.length === 0
+          const hasDirtyRows = rows.some(isRowDirty)
+          const continueDisabled = isBusy || hasDirtyRows || rows.length === 0
           const tooltipMessage =
             rows.length === 0
               ? "Add at least one variant to continue"
-              : isBusy
-                ? "Wait for the current operation to finish"
-                : null
+              : hasDirtyRows
+                ? "Save your unsaved variant changes first"
+                : isBusy
+                  ? "Wait for the current operation to finish"
+                  : null
 
           return (
             <Tooltip>
@@ -274,7 +278,7 @@ export function Step3Form({
         <Button
           type="button"
           variant="ghost"
-          disabled={isCreating || savingId !== null}
+          disabled={isCreating || savingId !== null || rows.some(isRowDirty)}
           onClick={() => router.push("/products")}
         >
           Save & exit
