@@ -220,14 +220,14 @@ export function MediaForm({
         <Button
           type="button"
           variant="outline"
-          disabled={isFinishing}
+          disabled={isFinishing || isReordering}
           onClick={() => handleFinish("draft")}
         >
           Save as draft
         </Button>
         <Button
           type="button"
-          disabled={isFinishing}
+          disabled={isFinishing || isReordering}
           onClick={() => handleFinish("active")}
         >
           {initialStatus === "active" ? "Save & update" : "Publish product"}

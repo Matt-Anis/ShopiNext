@@ -10,6 +10,7 @@ import {
 } from "@/features/products/actions"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { ConfirmDialog } from "@repo/ui/confirm-dialog"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/table"
 
@@ -237,15 +238,43 @@ export function Step3Form({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          onClick={() => router.push(`/products/${productId}/edit/media`)}
-        >
-          Continue
-        </Button>
+        {(() => {
+          const isBusy = isCreating || savingId !== null
+          const continueDisabled = isBusy || rows.length === 0
+          const tooltipMessage =
+            rows.length === 0
+              ? "Add at least one variant to continue"
+              : isBusy
+                ? "Wait for the current operation to finish"
+                : null
+
+          return (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span>
+                    <Button
+                      type="button"
+                      disabled={continueDisabled}
+                      onClick={() =>
+                        router.push(`/products/${productId}/edit/media`)
+                      }
+                    >
+                      Continue
+                    </Button>
+                  </span>
+                }
+              />
+              {tooltipMessage && (
+                <TooltipContent>{tooltipMessage}</TooltipContent>
+              )}
+            </Tooltip>
+          )
+        })()}
         <Button
           type="button"
           variant="ghost"
+          disabled={isCreating || savingId !== null}
           onClick={() => router.push("/products")}
         >
           Save & exit

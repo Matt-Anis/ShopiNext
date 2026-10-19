@@ -42,6 +42,7 @@ export async function getProductStep3Data(productId: string) {
 export async function getProductMediaData(productId: string) {
   return db.query.products.findFirst({
     where: eq(products.id, productId),
+    columns: { id: true, name: true, status: true },
     with: {
       images: {
         orderBy: (image, { asc }) => [asc(image.order)],
