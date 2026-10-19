@@ -14,6 +14,8 @@ export const ALLOWED_IMAGE_TYPES = [
 
 export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number]
 
+export const STORAGE_PRODUCTS_DIR = "products"
+
 export interface StorageConfig {
   endpoint?: string
   bucket: string
@@ -121,7 +123,7 @@ export async function createPresignedUploadUrl({
   const config = getStorageConfig()
   const s3 = getS3Client()
   const ext = getExtension(filename, contentType)
-  const key = `products/${productId}/${crypto.randomUUID()}.${ext}`
+  const key = `${STORAGE_PRODUCTS_DIR}/${productId}/${crypto.randomUUID()}.${ext}`
 
   const command = new PutObjectCommand({
     Bucket: config.bucket,
@@ -154,4 +156,16 @@ export async function deleteStorageObject(key: string): Promise<void> {
   })
 
   await s3.send(command)
+}
+
+export function extractStorageKeyFromUrl(url: string): string | null {
+  const prefix = `${STORAGE_PRODUCTS_DIR}/`
+  try {
+    const parsed = new URL(url)
+    const index = parsed.pathname.indexOf(prefix)
+    return index !== -1 ? parsed.pathname.slice(index) : null
+  } catch {
+    const index = url.indexOf(prefix)
+    return index !== -1 ? url.slice(index) : null
+  }
 }
