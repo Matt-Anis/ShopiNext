@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, FolderTree, Package, Users } from "lucide-react"
+import { ChevronRight, FolderTree, Image as ImageIcon, Package, Users } from "lucide-react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
@@ -100,6 +100,15 @@ export function AppSidebar({
               >
                 <FolderTree />
                 Categories
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link href="/media" />}
+                isActive={pathname === "/media"}
+              >
+                <ImageIcon />
+                Media
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
