@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Copy, ExternalLink, Eye, Image as ImageIcon, MoreHorizontal } from "lucide-react"
 
@@ -30,10 +31,11 @@ export function getColumns({
       cell: ({ row }) => (
         <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
           {row.original.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={row.original.url}
               alt={row.original.altText ?? "Product image"}
+              width={48}
+              height={48}
               className="size-full object-cover"
             />
           ) : (
