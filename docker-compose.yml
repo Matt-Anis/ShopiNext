@@ -15,5 +15,37 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  s3:
+    image: chrislusf/seaweedfs
+    container_name: store_s3
+    restart: unless-stopped
+    command: "server -s3 -dir=/data -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json"
+    ports:
+      - "8333:8333"
+    volumes:
+      - s3_data:/data
+      - ./docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
+
+  s3-init:
+    image: amazon/aws-cli
+    container_name: store_s3_init
+    restart: "no"
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: localdev
+      AWS_SECRET_ACCESS_KEY: localdevsecret
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until aws --endpoint-url=http://s3:8333 s3 mb s3://${STORAGE_BUCKET:-store} 2>/dev/null || aws --endpoint-url=http://s3:8333 s3 ls s3://${STORAGE_BUCKET:-store} 2>/dev/null; do
+          echo 'Waiting for SeaweedFS S3...'
+          sleep 1
+        done
+        echo "SeaweedFS ${STORAGE_BUCKET:-store} bucket is ready."
+
 volumes:
   postgres_data:
+  s3_data:

@@ -1,4 +1,5 @@
 import {
+  images,
   products,
   productOptions,
   productOptionValues,
@@ -95,4 +96,29 @@ export async function seedProductVariant(
   }
 
   return variant;
+}
+
+export async function seedProductImage(
+  productId: string,
+  overrides: Partial<{
+    url: string;
+    altText: string | null;
+    order: number;
+  }> = {},
+) {
+  const [image] = await testDb
+    .insert(images)
+    .values({
+      productId,
+      url: overrides.url ?? `https://picsum.photos/seed/${uniqueSuffix()}/800/600`,
+      altText: overrides.altText ?? "Test image",
+      order: overrides.order ?? 0,
+    })
+    .returning();
+
+  if (!image) {
+    throw new Error("Failed to seed product image");
+  }
+
+  return image;
 }

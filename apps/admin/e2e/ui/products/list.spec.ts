@@ -66,7 +66,7 @@ test.describe("Products list", () => {
     await testDb.insert(images).values({
       productId: withImage.id,
       url: "https://example.com/image.png",
-      isPrimary: true,
+      order: 0,
     })
     const withoutImage = await seedProduct({
       name: `Without Image ${uniqueSuffix()}`,

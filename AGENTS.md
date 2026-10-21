@@ -83,6 +83,16 @@ Neither role can ALTER or DROP tables — schema changes are migration-only.
 
 ---
 
+## Storage
+
+- S3-compatible object storage for file uploads (product media).
+- Browser uploads use direct presigned PUT URLs via `@aws-sdk/s3-request-presigner`.
+- Local dev uses SeaweedFS (`docker-compose.yml`) with `s3-init` auto-creating the bucket and `docker/seaweedfs-s3.json` granting `anonymous` Read access for public image viewing.
+- S3 client configuration and helpers live in `apps/admin/lib/storage.ts`.
+- See [`docs/storage.md`](docs/storage.md) for architecture, checksum caveats, env vars, and production guidelines.
+
+---
+
 ## Shared packages
 
 - `packages/db` — schema only. Each app imports what it needs in its own `db/index.ts`.

@@ -1,5 +1,5 @@
-import { boolean, index, pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { index, integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { products } from "./products";
 
 export const images = pgTable(
@@ -8,16 +8,14 @@ export const images = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     url: text().notNull(),
     altText: text(),
-    isPrimary: boolean().notNull().default(false),
+    order: integer().notNull().default(0),
     productId: uuid()
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
   },
   (table) => [
     index("images_productId_idx").on(table.productId),
-    index("images_primary_idx")
-      .on(table.productId)
-      .where(sql`${table.isPrimary} = true`),
+    index("images_productId_order_idx").on(table.productId, table.order),
   ],
 );
 

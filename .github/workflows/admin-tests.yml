@@ -68,6 +68,13 @@ jobs:
       # just logs a failure, it doesn't fail the request), so a dummy key is
       # enough to satisfy Resend's constructor — no real account needed.
       RESEND_API_KEY: re_ci_dummy_key
+      # S3 presigned URL generation during e2e tests only calculates SigV4 in-memory;
+      # direct PUT uploads are intercepted by Playwright (page.route).
+      STORAGE_BUCKET: store
+      STORAGE_ACCESS_KEY_ID: ci_dummy_key
+      STORAGE_SECRET_ACCESS_KEY: ci_dummy_secret
+      STORAGE_ENDPOINT: http://localhost:8333
+      STORAGE_PUBLIC_URL: http://localhost:8333/store
     steps:
       - uses: actions/checkout@v4
 

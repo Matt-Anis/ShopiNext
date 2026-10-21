@@ -119,7 +119,7 @@ export const getAllProducts = async ({
     limit,
     with: {
       images: {
-        where: eq(images.isPrimary, true),
+        orderBy: [asc(images.order)],
         limit: 1,
       },
       options: {
@@ -163,7 +163,7 @@ export const getProductBySlug = async (slug: string) => {
     ),
     with: {
       images: {
-        orderBy: desc(images.isPrimary),
+        orderBy: [asc(images.order)],
       },
       options: {
         with: {
@@ -202,7 +202,7 @@ export const getProductsByIds = async (ids: string[]) => {
     ),
     with: {
       images: {
-        where: eq(images.isPrimary, true),
+        orderBy: [asc(images.order)],
         limit: 1,
       },
     },
@@ -221,7 +221,7 @@ export const getVariantsByIds = async (ids: string[]) => {
       product: {
         with: {
           images: {
-            where: eq(images.isPrimary, true),
+            orderBy: [asc(images.order)],
             limit: 1,
           },
         },
