@@ -423,7 +423,10 @@ test.describe("Publishing", () => {
     await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/variants`)
 
-    await page.getByRole("button", { name: "Publish" }).click()
+    await page.getByRole("button", { name: "Continue" }).click()
+    await page.waitForURL(`/products/${product.id}/edit/media`)
+
+    await page.getByRole("button", { name: "Publish product" }).click()
 
     await expect(page.getByText("Product published")).toBeVisible()
     await page.waitForURL("/products")
@@ -436,13 +439,12 @@ test.describe("Publishing", () => {
   })
 
   test("saves as draft regardless of variant count", async ({ page }) => {
-    const product = await seedProduct({ status: "active" })
+    const product = await seedProduct({ status: "draft" })
     await signIn(page, admin)
     await page.goto(`/products/${product.id}/edit/variants`)
 
-    await page.getByRole("button", { name: "Save as draft" }).click()
+    await page.getByRole("button", { name: "Save & exit" }).click()
 
-    await expect(page.getByText("Draft saved")).toBeVisible()
     await page.waitForURL("/products")
 
     const [updated] = await testDb

@@ -120,6 +120,7 @@ export function SortableImageCard({
                     className="size-7"
                     disabled={disabled || index === 0}
                     onClick={() => onMove(index, index - 1)}
+                    aria-label="Move earlier"
                   >
                     <ArrowLeft className="size-3.5" />
                   </Button>
@@ -138,6 +139,7 @@ export function SortableImageCard({
                     className="size-7"
                     disabled={disabled || index === totalCount - 1}
                     onClick={() => onMove(index, index + 1)}
+                    aria-label="Move later"
                   >
                     <ArrowRight className="size-3.5" />
                   </Button>
@@ -160,6 +162,7 @@ export function SortableImageCard({
                       className="size-7 text-muted-foreground hover:text-primary"
                       disabled={disabled}
                       onClick={() => onMakeCover(image)}
+                      aria-label="Make cover image"
                     >
                       <Star className="size-3.5" />
                     </Button>
@@ -179,6 +182,7 @@ export function SortableImageCard({
                     className="size-7 text-muted-foreground hover:text-foreground"
                     disabled={disabled}
                     onClick={() => onEditAlt(image)}
+                    aria-label="Edit alt text"
                   >
                     <Pencil className="size-3.5" />
                   </Button>
@@ -197,6 +201,7 @@ export function SortableImageCard({
                     className="size-7 text-muted-foreground hover:text-destructive"
                     disabled={disabled}
                     onClick={() => onDelete(image)}
+                    aria-label="Delete image"
                   >
                     <Trash2 className="size-3.5" />
                   </Button>

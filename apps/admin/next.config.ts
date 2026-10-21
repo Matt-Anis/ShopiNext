@@ -16,6 +16,10 @@ function getStorageRemotePatterns() {
       protocol: "https",
       hostname: "picsum.photos",
     },
+    {
+      protocol: "https",
+      hostname: "example.com",
+    },
   ]
 
   const storageUrl = process.env.STORAGE_PUBLIC_URL || process.env.STORAGE_ENDPOINT
