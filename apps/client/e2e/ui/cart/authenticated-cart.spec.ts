@@ -25,21 +25,26 @@ test.beforeEach(async ({ page, request }) => {
 
 test.describe("Authenticated cart", () => {
   test("adding a product updates the badge", async ({ page }) => {
-    await page.getByTestId(`cart-control-add-${product.id}`).click();
-
-    await expect(
-      page.getByTestId(`cart-control-quantity-${product.id}`),
-    ).toHaveText("1 in cart");
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
+    );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
 
   test("cart is persisted server-side, not just client state", async ({
     page,
   }) => {
-    await page.getByTestId(`cart-control-add-${product.id}`).click();
-    await expect(
-      page.getByTestId(`cart-control-quantity-${product.id}`),
-    ).toHaveText("1 in cart");
+    await clickUntilHydrated(
+      page.getByTestId(`cart-control-add-${product.id}`),
+      () =>
+        expect(
+          page.getByTestId(`cart-control-quantity-${product.id}`),
+        ).toHaveText("1 in cart", { timeout: 1000 }),
+    );
 
     await page.getByTestId(`cart-control-increment-${product.id}`).click();
     await expect(
