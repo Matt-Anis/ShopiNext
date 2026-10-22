@@ -26,7 +26,7 @@ See [`docs/database.md`](./docs/database.md) for database setup notes.
 - [x] Product Detail page
 - [ ] Staff roles & permissions
 - [x] Staff invite via magic link
-- [ ] Product images
+- [x] Product images
 - [x] Product categories
 - [x] Product variants (size, color, stock per variant)
 - [x] Stock & per-order purchase limits enforced at checkout
