@@ -76,6 +76,7 @@ export async function POST(request: Request) {
       userId,
       checkoutEmail,
       totalAmount: session.amount_total,
+      status: "paid",
       items,
     });
 

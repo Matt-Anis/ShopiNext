@@ -389,6 +389,7 @@ test.describe("Editing and deleting variants (step 3)", () => {
         checkoutEmail: "buyer@example.com",
         stripeSessionId: `test-session-${variant.id}`,
         totalAmount: variant.price,
+        status: "paid",
       })
       .returning()
     await testDb.insert(orderItems).values({

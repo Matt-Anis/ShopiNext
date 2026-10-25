@@ -1,7 +1,18 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "../auth-schema";
 import { productVariants } from "./variants";
+
+export const orderStatusEnum = pgEnum("order_status", [
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+  "refunded",
+]);
+
+export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
 
 export const orders = pgTable("orders", {
   id: uuid().primaryKey().defaultRandom(),
@@ -9,6 +20,7 @@ export const orders = pgTable("orders", {
   checkoutEmail: text().notNull(),
   stripeSessionId: text().unique().notNull(),
   totalAmount: integer().notNull().default(0),
+  status: orderStatusEnum("status").notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp()
     .$onUpdate(() => new Date())
@@ -37,3 +49,28 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [productVariants.id],
   }),
 }));
+
+export const orderTimelineEvents = pgTable("order_timeline_events", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid()
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  status: orderStatusEnum("status"),
+  note: text(),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
+export const ordersRelations = relations(orders, ({ many }) => ({
+  items: many(orderItems),
+  timelineEvents: many(orderTimelineEvents),
+}));
+
+export const orderTimelineEventsRelations = relations(
+  orderTimelineEvents,
+  ({ one }) => ({
+    order: one(orders, {
+      fields: [orderTimelineEvents.orderId],
+      references: [orders.id],
+    }),
+  }),
+);
