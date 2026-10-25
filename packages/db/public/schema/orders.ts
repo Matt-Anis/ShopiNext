@@ -1,7 +1,18 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "../auth-schema";
 import { productVariants } from "./variants";
+
+export const orderStatusEnum = pgEnum("order_status", [
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+  "refunded",
+]);
+
+export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
 
 export const orders = pgTable("orders", {
   id: uuid().primaryKey().defaultRandom(),
@@ -9,6 +20,7 @@ export const orders = pgTable("orders", {
   checkoutEmail: text().notNull(),
   stripeSessionId: text().unique().notNull(),
   totalAmount: integer().notNull().default(0),
+  status: orderStatusEnum("status").notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp()
     .$onUpdate(() => new Date())

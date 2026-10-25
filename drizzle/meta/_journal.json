@@ -169,6 +169,13 @@
       "when": 1792355984480,
       "tag": "0023_tired_betty_brant",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792962025987,
+      "tag": "0024_zippy_madripoor",
+      "breakpoints": true
     }
   ]
 }

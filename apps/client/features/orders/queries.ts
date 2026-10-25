@@ -1,6 +1,11 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderItems, productVariants } from "@repo/db/public/schema";
+import {
+  orders,
+  orderItems,
+  productVariants,
+  type OrderStatus,
+} from "@repo/db/public/schema";
 
 export class OutOfStockError extends Error {
   constructor(public variantId: string) {
@@ -13,6 +18,7 @@ type CreateOrderInput = {
   userId: string | null;
   checkoutEmail: string;
   totalAmount: number;
+  status: OrderStatus;
   items: {
     variantId: string;
     quantity: number;
@@ -25,12 +31,13 @@ export const createOrder = async ({
   userId,
   checkoutEmail,
   totalAmount,
+  status,
   items,
 }: CreateOrderInput) => {
   return db.transaction(async (tx) => {
     const [order] = await tx
       .insert(orders)
-      .values({ stripeSessionId, userId, checkoutEmail, totalAmount })
+      .values({ stripeSessionId, userId, checkoutEmail, totalAmount, status })
       .onConflictDoNothing({ target: orders.stripeSessionId })
       .returning({ id: orders.id });
 
