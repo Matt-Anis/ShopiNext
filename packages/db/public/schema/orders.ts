@@ -49,3 +49,28 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [productVariants.id],
   }),
 }));
+
+export const orderTimelineEvents = pgTable("order_timeline_events", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid()
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  status: orderStatusEnum("status"),
+  note: text(),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
+export const ordersRelations = relations(orders, ({ many }) => ({
+  items: many(orderItems),
+  timelineEvents: many(orderTimelineEvents),
+}));
+
+export const orderTimelineEventsRelations = relations(
+  orderTimelineEvents,
+  ({ one }) => ({
+    order: one(orders, {
+      fields: [orderTimelineEvents.orderId],
+      references: [orders.id],
+    }),
+  }),
+);

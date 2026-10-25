@@ -176,6 +176,13 @@
       "when": 1792962025987,
       "tag": "0024_zippy_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792965122000,
+      "tag": "0025_wide_nehzno",
+      "breakpoints": true
     }
   ]
 }

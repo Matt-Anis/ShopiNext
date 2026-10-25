@@ -3,6 +3,7 @@ import { db } from "@/db";
 import {
   orders,
   orderItems,
+  orderTimelineEvents,
   productVariants,
   type OrderStatus,
 } from "@repo/db/public/schema";
@@ -70,6 +71,12 @@ export const createOrder = async ({
         priceAtPurchase: item.priceAtPurchase,
       })),
     );
+
+    await tx.insert(orderTimelineEvents).values({
+      orderId: order.id,
+      status,
+      note: "Order placed",
+    });
 
     return order;
   });
