@@ -2,6 +2,7 @@ import { and, desc, eq, isNotNull, isNull } from "drizzle-orm"
 
 import { db } from "@/db"
 import { orders, type OrderStatus } from "@repo/db/public/schema"
+import { adminOrderNotes } from "@repo/db/admin/schema"
 
 export type GetOrdersListParams = {
   isArchived?: boolean
@@ -76,3 +77,17 @@ export async function getOrderById(id: string) {
 }
 
 export type OrderDetails = NonNullable<Awaited<ReturnType<typeof getOrderById>>>
+
+export async function getOrderNotes(orderId: string) {
+  return db.query.adminOrderNotes.findMany({
+    where: eq(adminOrderNotes.orderId, orderId),
+    orderBy: [desc(adminOrderNotes.createdAt)],
+    with: {
+      author: {
+        columns: { id: true, name: true, email: true },
+      },
+    },
+  })
+}
+
+export type OrderNoteItem = Awaited<ReturnType<typeof getOrderNotes>>[number]
