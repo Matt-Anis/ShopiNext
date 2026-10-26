@@ -56,7 +56,7 @@ export const orderTimelineEvents = pgTable("order_timeline_events", {
   orderId: uuid()
     .notNull()
     .references(() => orders.id, { onDelete: "cascade" }),
-  status: orderStatusEnum("status"),
+  status: orderStatusEnum("status").notNull(),
   note: text(),
   createdAt: timestamp().defaultNow().notNull(),
 });
