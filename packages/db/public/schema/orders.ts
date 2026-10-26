@@ -21,6 +21,7 @@ export const orders = pgTable("orders", {
   stripeSessionId: text().unique().notNull(),
   totalAmount: integer().notNull().default(0),
   status: orderStatusEnum("status").notNull(),
+  archivedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp()
     .$onUpdate(() => new Date())
