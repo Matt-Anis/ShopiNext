@@ -1,3 +1,5 @@
+import { formatPrice } from "@/lib/utils"
+
 interface Variant {
   price: number
   stock: number
@@ -5,10 +7,6 @@ interface Variant {
 
 interface ProductAtAGlanceProps {
   variants: Variant[]
-}
-
-function formatPrice(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`
 }
 
 export function ProductAtAGlance({ variants }: ProductAtAGlanceProps) {
