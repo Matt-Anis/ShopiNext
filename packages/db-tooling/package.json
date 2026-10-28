@@ -1,0 +1,25 @@
+{
+  "name": "@repo/db-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx seed/index.ts"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "better-auth": "^1.6.29",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-seed": "^0.3.1",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.21.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  }
+}
