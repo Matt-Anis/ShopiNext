@@ -53,6 +53,7 @@ export function getColumns({
         <Button
           variant="ghost"
           size="icon-sm"
+          nativeButton={false}
           render={<Link href={`/orders/${row.original.id}`} />}
         >
           <ExternalLink className="size-4" />
