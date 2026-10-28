@@ -4,6 +4,8 @@ import { getOrderById, getOrderNotes } from "@/features/orders/queries"
 import { OrderHeader } from "./_components/order-header"
 import { OrderItemsCard } from "./_components/order-items-card"
 import { OrderTimeline } from "./_components/order-timeline"
+import { OrderStaffNotes } from "./_components/order-staff-notes"
+import { OrderCustomerCard } from "./_components/order-customer-card"
 
 export default async function OrderDetailPage({
   params,
@@ -36,10 +38,17 @@ export default async function OrderDetailPage({
           <div className="p-6">
             <OrderTimeline events={order.timelineEvents} />
           </div>
+          <div className="p-6">
+            <OrderStaffNotes orderId={order.id} notes={notes} />
+          </div>
         </div>
         <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-9">
           <div className="p-6">
-            <h2 className="text-base font-semibold">Customer Details</h2>
+            <OrderCustomerCard
+              customerEmail={order.checkoutEmail}
+              userId={order.userId}
+              stripeSessionId={order.stripeSessionId}
+            />
           </div>
         </div>
       </div>
