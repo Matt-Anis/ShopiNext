@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, isNull } from "drizzle-orm"
+import { and, asc, desc, eq, isNotNull, isNull } from "drizzle-orm"
 
 import { db } from "@/db"
 import { orders, type OrderStatus } from "@repo/db/public/schema"
@@ -93,7 +93,7 @@ export type OrderDetails = NonNullable<Awaited<ReturnType<typeof getOrderById>>>
 export async function getOrderNotes(orderId: string) {
   return db.query.adminOrderNotes.findMany({
     where: eq(adminOrderNotes.orderId, orderId),
-    orderBy: [desc(adminOrderNotes.createdAt)],
+    orderBy: [asc(adminOrderNotes.createdAt)],
     with: {
       author: {
         columns: { id: true, name: true, email: true },

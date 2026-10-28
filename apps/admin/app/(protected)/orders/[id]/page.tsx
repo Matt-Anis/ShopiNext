@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { requireSession } from "@/lib/session"
 import { getOrderById, getOrderNotes } from "@/features/orders/queries"
 import { OrderHeader } from "./_components/order-header"
 import { OrderItemsCard } from "./_components/order-items-card"
@@ -13,9 +14,10 @@ export default async function OrderDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [order, notes] = await Promise.all([
+  const [order, notes, session] = await Promise.all([
     getOrderById(id),
     getOrderNotes(id),
+    requireSession(),
   ])
 
   if (!order) {
@@ -39,7 +41,11 @@ export default async function OrderDetailPage({
             <OrderTimeline events={order.timelineEvents} />
           </div>
           <div className="p-6">
-            <OrderStaffNotes orderId={order.id} notes={notes} />
+            <OrderStaffNotes
+              orderId={order.id}
+              notes={notes}
+              currentUserId={session.user.id}
+            />
           </div>
         </div>
         <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-9">
