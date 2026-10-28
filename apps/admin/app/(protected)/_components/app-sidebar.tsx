@@ -2,7 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, FolderTree, Image as ImageIcon, Package, Users } from "lucide-react"
+import {
+  ChevronRight,
+  FolderTree,
+  Image as ImageIcon,
+  Package,
+  ShoppingBag,
+  Users,
+} from "lucide-react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
@@ -56,6 +63,37 @@ export function AppSidebar({
                         isActive={pathname === "/staff/new"}
                       >
                         New staff
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+            <Collapsible defaultOpen>
+              <SidebarMenuItem>
+                <CollapsibleTrigger
+                  render={<SidebarMenuButton className="group/collapsible" />}
+                >
+                  <ShoppingBag />
+                  Orders
+                  <ChevronRight className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/orders" />}
+                        isActive={pathname === "/orders"}
+                      >
+                        All orders
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        render={<Link href="/orders/archived" />}
+                        isActive={pathname === "/orders/archived"}
+                      >
+                        Archived
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>
