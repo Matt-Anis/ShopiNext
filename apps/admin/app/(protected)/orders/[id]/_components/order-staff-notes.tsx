@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowDown, Loader2, Lock, MessageSquare, Send } from "lucide-react"
+import { ArrowDown, ArrowUp, Loader2, Lock, MessageSquare } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import { Button } from "@repo/ui/button"
@@ -149,7 +149,7 @@ export function OrderStaffNotes({
             <div className="flex flex-col gap-6 pr-3">
               {groupedNotes.map((group) => (
                 <div key={group.dateKey} className="flex flex-col gap-3">
-                  <Marker variant="separator">
+                  <Marker variant="separator" className="w-1/2 mx-auto py-1">
                     <MarkerContent className="text-xs font-medium text-muted-foreground">
                       {group.label}
                     </MarkerContent>
@@ -239,6 +239,18 @@ function OrderStaffNoteForm({ orderId, onSuccess }: OrderStaffNoteFormProps) {
   const [content, setContent] = React.useState("")
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
+  const adjustHeight = React.useCallback(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight}px`
+  }, [])
+
+  React.useEffect(() => {
+    adjustHeight()
+  }, [content, adjustHeight])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -257,41 +269,40 @@ function OrderStaffNoteForm({ orderId, onSuccess }: OrderStaffNoteFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-2xl border border-border p-4 bg-muted/10"
-    >
-      <Textarea
-        placeholder="Add a private note for staff regarding this order..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        disabled={isPending}
-        rows={2}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault()
-            handleSubmit(e)
-          }
-        }}
-      />
-      {error && <p className="text-xs text-destructive">{error}</p>}
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] text-muted-foreground">
-          Press Enter to post, Shift+Enter for new line
-        </span>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-1.5">
+      <div className="relative flex items-end gap-2 rounded-2xl border border-border bg-muted/10 p-2 transition-[color,box-shadow,border-color] focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/30">
+        <Textarea
+          ref={textareaRef}
+          placeholder="Send a note..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          disabled={isPending}
+          rows={1}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault()
+              handleSubmit(e)
+            }
+          }}
+          className="min-h-[36px] max-h-[84px] flex-1 resize-none overflow-y-auto border-0 bg-transparent px-2.5 py-2 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        />
+
         <Button
           type="submit"
-          size="sm"
+          size="icon-sm"
           disabled={isPending || !content.trim()}
+          className="shrink-0 rounded-lg"
         >
           {isPending ? (
-            <Loader2 className="animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Send className="size-3.5" />
+            <ArrowUp className="size-4" />
           )}
-          Post Note
+          <span className="sr-only">Send note</span>
         </Button>
       </div>
+
+      {error && <p className="px-1 text-xs text-destructive">{error}</p>}
     </form>
   )
 }
