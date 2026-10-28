@@ -65,6 +65,18 @@ export async function getOrderById(id: string) {
               product: {
                 columns: { id: true, name: true, slug: true },
               },
+              variantOptionValues: {
+                with: {
+                  optionValue: {
+                    columns: { id: true, value: true },
+                    with: {
+                      option: {
+                        columns: { id: true, name: true },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
