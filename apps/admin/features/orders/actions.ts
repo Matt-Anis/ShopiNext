@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm"
 
 import { db } from "@/db"
 import { requireSession } from "@/lib/session"
+import { sendOrderStatusEmail } from "@/lib/email"
 import {
   orders,
   orderTimelineEvents,
@@ -41,19 +42,40 @@ export async function unarchiveOrder(orderId: string) {
 export async function updateOrderStatus(
   orderId: string,
   status: OrderStatus,
-  publicNote?: string
+  publicNote?: string,
+  notifyCustomer: boolean = true
 ) {
   await requireSession()
 
-  await db.transaction(async (tx) => {
-    await tx.update(orders).set({ status }).where(eq(orders.id, orderId))
+  const trimmedNote = publicNote?.trim() || null
+
+  const updatedOrder = await db.transaction(async (tx) => {
+    const [order] = await tx
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, orderId))
+      .returning({
+        id: orders.id,
+        checkoutEmail: orders.checkoutEmail,
+      })
 
     await tx.insert(orderTimelineEvents).values({
       orderId,
       status,
-      note: publicNote?.trim() || null,
+      note: trimmedNote,
     })
+
+    return order
   })
+
+  if (notifyCustomer && updatedOrder?.checkoutEmail) {
+    await sendOrderStatusEmail({
+      to: updatedOrder.checkoutEmail,
+      orderId: updatedOrder.id,
+      status,
+      note: trimmedNote ?? undefined,
+    })
+  }
 
   revalidatePath("/orders")
   revalidatePath("/orders/archived")

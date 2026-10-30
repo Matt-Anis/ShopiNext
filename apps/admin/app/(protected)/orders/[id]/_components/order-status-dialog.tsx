@@ -4,6 +4,7 @@ import * as React from "react"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@repo/ui/button"
+import { Checkbox } from "@repo/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -72,12 +73,13 @@ function OrderStatusForm({
   const [selectedStatus, setSelectedStatus] =
     React.useState<OrderStatus>(currentStatus)
   const [note, setNote] = React.useState("")
+  const [notifyCustomer, setNotifyCustomer] = React.useState(true)
   const [isPending, startTransition] = React.useTransition()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
-      await updateOrderStatus(orderId, selectedStatus, note)
+      await updateOrderStatus(orderId, selectedStatus, note, notifyCustomer)
       onClose()
     })
   }
@@ -134,6 +136,21 @@ function OrderStatusForm({
             disabled={isPending}
             rows={3}
           />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="notify-customer"
+            checked={notifyCustomer}
+            onCheckedChange={(checked) => setNotifyCustomer(checked === true)}
+            disabled={isPending}
+          />
+          <Label
+            htmlFor="notify-customer"
+            className="cursor-pointer text-sm font-normal select-none text-foreground"
+          >
+            Send email update to customer
+          </Label>
         </div>
       </div>
 
