@@ -1,12 +1,12 @@
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import NavBar from "@/components/NavBar";
-import { CartProvider } from "@/features/cart/CartProvider";
-import { getCart } from "@/features/cart/actions";
+import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
+import NavBar from "@/components/NavBar"
+import { CartProvider } from "@/features/cart/CartProvider"
+import { getCart } from "@/features/cart/actions"
 
 export default async function ShopLayout({ children }: LayoutProps<"/">) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const initialCartItems = await getCart();
+  const session = await auth.api.getSession({ headers: await headers() })
+  const initialCartItems = await getCart()
 
   return (
     <CartProvider
@@ -16,5 +16,5 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
       <NavBar />
       <main className="pt-16">{children}</main>
     </CartProvider>
-  );
+  )
 }
