@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@repo/ui/table"
 import { cn } from "@repo/ui/utils"
+import { formatPrice } from "@/lib/utils"
 
 interface OptionValue {
   id: string
@@ -32,10 +33,6 @@ interface Variant {
 interface ProductVariantsProps {
   options: Option[]
   variants: Variant[]
-}
-
-function formatPrice(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`
 }
 
 export function ProductVariants({ options, variants }: ProductVariantsProps) {

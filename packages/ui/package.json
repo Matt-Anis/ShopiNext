@@ -27,6 +27,8 @@
     "./input": "./components/input.tsx",
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
+    "./marker": "./components/marker.tsx",
+    "./message": "./components/message.tsx",
     "./password-input": "./components/password-input.tsx",
     "./popover": "./components/popover.tsx",
     "./scroll-area": "./components/scroll-area.tsx",
@@ -45,6 +47,7 @@
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.5.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.31.0",
     "tailwind-merge": "^3.6.0"

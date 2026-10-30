@@ -21,6 +21,7 @@ export const orders = pgTable("orders", {
   stripeSessionId: text().unique().notNull(),
   totalAmount: integer().notNull().default(0),
   status: orderStatusEnum("status").notNull(),
+  archivedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp()
     .$onUpdate(() => new Date())
@@ -55,7 +56,7 @@ export const orderTimelineEvents = pgTable("order_timeline_events", {
   orderId: uuid()
     .notNull()
     .references(() => orders.id, { onDelete: "cascade" }),
-  status: orderStatusEnum("status"),
+  status: orderStatusEnum("status").notNull(),
   note: text(),
   createdAt: timestamp().defaultNow().notNull(),
 });

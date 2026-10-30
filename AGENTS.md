@@ -171,6 +171,21 @@ Types: `feat` `fix` `refactor` `chore` `docs` `style` `test` `perf` `ci` `build`
 
 ---
 
+## E2E Testing
+
+Playwright runs with `fullyParallel: true` across multiple workers sharing one test database. Follow these rules for all tests:
+
+- **No table wipes in parallel tests**: Never call `testDb.delete()` inside parallel test files.
+- **Isolate empty-state tests**: Put all empty-state tests in dedicated files matching `empty-state.spec.ts`. These run serially on a clean database before parallel tests execute.
+- **Always use unique suffixes**: Every seeded record (emails, slugs, names, notes) must append `uniqueSuffix()` so parallel test data never collides.
+- **Scoped locators only**: Never assert on global counts (`toHaveCount(n)`). Always scope locators to the specific seeded entity (e.g. `page.locator("tr", { hasText: order.checkoutEmail })`).
+- **Web-first removal assertions**: When asserting that a row was deleted or archived, use `await expect(row).toBeHidden()` instead of `toHaveCount(0)`.
+- **Async server actions and DB verification**: Never query the database immediately after a UI click. Wait for the UI confirmation first (toast, dialog close, button state change), and use `expect.poll` for database assertions to let writes settle cleanly.
+- **Mark multi-step mutation tests as slow**: Add `test.slow()` at the top of tests chaining DB seeds, sign-in, dialog confirmation, server actions, and table revalidation.
+- **Do not run tests automatically**: Write or update tests, verify types with `pnpm check`, and stop. Do not run the test suite unless explicitly asked.
+
+---
+
 ## Verification
 
 After any change you make, run `pnpm check` and report the output.

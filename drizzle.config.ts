@@ -8,7 +8,7 @@ export default defineConfig({
   schema: [
     "./packages/db/public/schema/index.ts",
     "./packages/db/public/auth-schema.ts",
-    "./packages/db/admin/schema.ts",
+    "./packages/db/admin/schema/index.ts",
     "./packages/db/admin/auth-schema.ts",
   ],
   dialect: "postgresql",
