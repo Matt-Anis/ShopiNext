@@ -166,6 +166,8 @@ builder can't express the query cleanly, and explain why when you do.
 
 Components: shadcn/ui first, Base UI when a headless primitive is needed.
 
+File size and mixed concerns: If a file is growing too large or starts mixing multiple concerns (e.g. layout rendering mixed with heavy local state, mutation handling, and modals), warn me about it — even when just reading or exploring the code — and propose extracting smaller sub-components or helper modules.
+
 Commits: `type(scope): imperative summary`, ~72 chars, no trailing period.
 Types: `feat` `fix` `refactor` `chore` `docs` `style` `test` `perf` `ci` `build` `revert`
 
@@ -182,6 +184,7 @@ Playwright runs with `fullyParallel: true` across multiple workers sharing one t
 - **Web-first removal assertions**: When asserting that a row was deleted or archived, use `await expect(row).toBeHidden()` instead of `toHaveCount(0)`.
 - **Async server actions and DB verification**: Never query the database immediately after a UI click. Wait for the UI confirmation first (toast, dialog close, button state change), and use `expect.poll` for database assertions to let writes settle cleanly.
 - **Mark multi-step mutation tests as slow**: Add `test.slow()` at the top of tests chaining DB seeds, sign-in, dialog confirmation, server actions, and table revalidation.
+- **Hydration-safe button clicks**: Interactive buttons on newly loaded client components paint before React attaches event listeners. Always use `clickUntilHydrated(button, assertion)` from `utils/interaction` instead of a bare `button.click()` whenever clicking an interactive button right after navigation or render to avoid dropped clicks during hydration gaps.
 - **Do not run tests automatically**: Write or update tests, verify types with `pnpm check`, and stop. Do not run the test suite unless explicitly asked.
 
 ---
