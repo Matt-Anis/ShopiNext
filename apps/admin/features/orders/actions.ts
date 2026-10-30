@@ -98,3 +98,51 @@ export async function addStaffNote(orderId: string, content: string) {
 
   revalidatePath(`/orders/${orderId}`)
 }
+
+export async function updateStaffNote(noteId: string, content: string) {
+  const session = await requireSession()
+
+  const trimmed = content.trim()
+  if (!trimmed) {
+    throw new Error("Note content cannot be empty")
+  }
+
+  const note = await db.query.adminOrderNotes.findFirst({
+    where: eq(adminOrderNotes.id, noteId),
+  })
+
+  if (!note) {
+    throw new Error("Note not found")
+  }
+
+  if (note.adminUserId !== session.user.id) {
+    throw new Error("Unauthorized to edit this note")
+  }
+
+  await db
+    .update(adminOrderNotes)
+    .set({ content: trimmed, updatedAt: new Date() })
+    .where(eq(adminOrderNotes.id, noteId))
+
+  revalidatePath(`/orders/${note.orderId}`)
+}
+
+export async function deleteStaffNote(noteId: string) {
+  const session = await requireSession()
+
+  const note = await db.query.adminOrderNotes.findFirst({
+    where: eq(adminOrderNotes.id, noteId),
+  })
+
+  if (!note) {
+    throw new Error("Note not found")
+  }
+
+  if (note.adminUserId !== session.user.id) {
+    throw new Error("Unauthorized to delete this note")
+  }
+
+  await db.delete(adminOrderNotes).where(eq(adminOrderNotes.id, noteId))
+
+  revalidatePath(`/orders/${note.orderId}`)
+}
