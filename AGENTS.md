@@ -191,6 +191,3 @@ Playwright runs with `fullyParallel: true` across multiple workers sharing one t
 After any change you make, run `pnpm check` and report the output.
 If it fails, show me the errors — do not fix them silently or
 start a second round of changes without asking.
-
-Before I commit anything touching routing, server actions, or
-component boundaries, tell me to run `pnpm build`.
