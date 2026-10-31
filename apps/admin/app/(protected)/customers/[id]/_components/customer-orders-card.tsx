@@ -87,9 +87,16 @@ export function CustomerOrdersCard({ orders }: CustomerOrdersCardProps) {
                         })}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={variant} className="text-xs">
-                          {statusLabel}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant={variant} className="text-xs">
+                            {statusLabel}
+                          </Badge>
+                          {order.archivedAt && (
+                            <Badge variant="outline" className="text-xs">
+                              Archived
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {order.itemCount}
