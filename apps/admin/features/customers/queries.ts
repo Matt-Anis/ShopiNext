@@ -64,7 +64,7 @@ export async function getCustomersList(): Promise<CustomerListItem[]> {
       userId: orders.userId,
       totalOrders: count(orders.id).as("total_orders"),
       totalSpent:
-        sql<number>`coalesce(sum(${orders.totalAmount}), 0)::int`.as(
+        sql<number>`coalesce(sum(case when ${orders.status} != 'cancelled' then ${orders.totalAmount} else 0 end), 0)::int`.as(
           "total_spent"
         ),
       lastOrderAt: max(orders.createdAt).as("last_order_at"),
@@ -180,13 +180,18 @@ export async function getCustomerById(
     })
   )
 
-  const totalSpent = formattedOrders.reduce(
+  const nonCancelledOrders = formattedOrders.filter(
+    (order) => order.status !== "cancelled"
+  )
+  const totalSpent = nonCancelledOrders.reduce(
     (acc, order) => acc + order.totalAmount,
     0
   )
   const totalOrders = formattedOrders.length
   const averageOrderValue =
-    totalOrders > 0 ? Math.round(totalSpent / totalOrders) : 0
+    nonCancelledOrders.length > 0
+      ? Math.round(totalSpent / nonCancelledOrders.length)
+      : 0
 
   return {
     id: customer.id,
