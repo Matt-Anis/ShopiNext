@@ -8,6 +8,7 @@ import {
   Image as ImageIcon,
   Package,
   ShoppingBag,
+  UserCheck,
   Users,
 } from "lucide-react"
 
@@ -100,6 +101,15 @@ export function AppSidebar({
                 </CollapsibleContent>
               </SidebarMenuItem>
             </Collapsible>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link href="/customers" />}
+                isActive={pathname.startsWith("/customers")}
+              >
+                <UserCheck />
+                Customers
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <Collapsible defaultOpen>
               <SidebarMenuItem>
                 <CollapsibleTrigger
