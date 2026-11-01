@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Badge } from "@repo/ui/badge";
 import { Skeleton } from "@repo/ui/skeleton";
 import { fetchProductBySlug } from "@/features/products/actions";
 import {
@@ -40,6 +41,15 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             <h1 className="font-heading text-2xl font-semibold sm:text-3xl">
               {product.name}
             </h1>
+            {product.categories.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {product.categories.map((category) => (
+                  <Badge key={category.id} variant="secondary">
+                    {category.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
             <VariantPrice className="text-2xl font-medium lg:hidden" />
           </div>
 
@@ -92,6 +102,7 @@ export function ProductDetailSkeleton() {
       <div className="flex flex-1 flex-col gap-6">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-8 w-2/3" />
+          <Skeleton className="h-5 w-24" />
           <Skeleton className="h-8 w-24 lg:hidden" />
         </div>
 
