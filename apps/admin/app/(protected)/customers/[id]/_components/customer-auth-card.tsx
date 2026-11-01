@@ -2,16 +2,11 @@ import { KeyRound, ShieldAlert, ShieldCheck } from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import type { CustomerAccountItem } from "@/features/customers/queries"
+import { formatProvider, type CustomerAccountItem } from "@/features/customers/queries"
 
 interface CustomerAuthCardProps {
   providers: CustomerAccountItem[]
   emailVerified: boolean
-}
-
-function formatProvider(providerId: string) {
-  if (providerId === "credential") return "Password"
-  return providerId.charAt(0).toUpperCase() + providerId.slice(1)
 }
 
 export function CustomerAuthCard({

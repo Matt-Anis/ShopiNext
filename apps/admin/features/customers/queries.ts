@@ -4,6 +4,11 @@ import { db } from "@/db"
 import { user, account } from "@repo/db/public/auth-schema"
 import { orders, type OrderStatus } from "@repo/db/public/schema"
 
+export function formatProvider(providerId: string) {
+  if (providerId === "credential") return "Password"
+  return providerId.charAt(0).toUpperCase() + providerId.slice(1)
+}
+
 export type CustomerListItem = {
   id: string
   name: string

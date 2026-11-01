@@ -14,15 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/dropdown-menu"
 import { formatPrice } from "@/lib/utils"
-import type { CustomerListItem } from "@/features/customers/queries"
+import { formatProvider, type CustomerListItem } from "@/features/customers/queries"
 
 interface GetColumnsOptions {
   onView: (customer: CustomerListItem) => void
-}
-
-function formatProvider(providerId: string) {
-  if (providerId === "credential") return "Password"
-  return providerId.charAt(0).toUpperCase() + providerId.slice(1)
 }
 
 export function getColumns({
