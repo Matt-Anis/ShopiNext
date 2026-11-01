@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
 
-import { requireSession } from "@/lib/session"
 import { getCustomerById } from "@/features/customers/queries"
 import { CustomerHeader } from "./_components/customer-header"
 import { CustomerKpis } from "./_components/customer-kpis"
@@ -14,10 +13,7 @@ export default async function CustomerDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [customer] = await Promise.all([
-    getCustomerById(id),
-    requireSession(),
-  ])
+  const customer = await getCustomerById(id)
 
   if (!customer) {
     notFound()
@@ -35,7 +31,6 @@ export default async function CustomerDetailPage({
           <CustomerAuthCard
             providers={customer.providers}
             emailVerified={customer.emailVerified}
-            email={customer.email}
           />
           <CustomerSessionsCard sessions={customer.sessions} />
         </div>

@@ -7,7 +7,6 @@ import type { CustomerAccountItem } from "@/features/customers/queries"
 interface CustomerAuthCardProps {
   providers: CustomerAccountItem[]
   emailVerified: boolean
-  email: string
 }
 
 function formatProvider(providerId: string) {
