@@ -2,7 +2,8 @@ import { KeyRound, ShieldAlert, ShieldCheck } from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import { formatProvider, type CustomerAccountItem } from "@/features/customers/queries"
+import { formatProvider } from "@/features/customers/utils"
+import type { CustomerAccountItem } from "@/features/customers/queries"
 
 interface CustomerAuthCardProps {
   providers: CustomerAccountItem[]
