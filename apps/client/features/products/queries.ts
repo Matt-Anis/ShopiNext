@@ -174,6 +174,11 @@ export const getProductBySlug = async (slug: string) => {
         where: eq(productVariants.isActive, true),
         with: {
           variantOptionValues: true,
+      },
+      },
+      productCategories: {
+        with: {
+          category: true,
         },
       },
     },
@@ -181,8 +186,19 @@ export const getProductBySlug = async (slug: string) => {
 
   if (!product) return null
 
+  const { productCategories, ...productWithoutCategories } = product
+
+  const categories = productCategories
+    .map((pc) => pc.category)
+    .filter((category) => category.isActive)
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+    }))
+
   return {
-    ...product,
+    ...productWithoutCategories,
+    categories,
     variants: product.variants.map(shapeVariant),
   }
 }
