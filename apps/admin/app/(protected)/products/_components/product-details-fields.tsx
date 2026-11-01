@@ -4,7 +4,7 @@ import type { ChangeEvent, Ref } from "react"
 
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
-import { Textarea } from "@repo/ui/textarea"
+import { MarkdownEditor } from "./markdown-editor"
 
 interface ProductDetailsFieldsProps {
   testIdPrefix: string
@@ -79,13 +79,12 @@ export function ProductDetailsFields({
         >
           Description
         </FieldLabel>
-        <Textarea
+        <MarkdownEditor
           id="description"
           name="description"
           defaultValue={defaultDescription}
           placeholder={descriptionPlaceholder}
-          className="border-border bg-transparent"
-          data-testid={`${testIdPrefix}-description-input`}
+          testId={`${testIdPrefix}-description-input`}
         />
       </Field>
     </FieldGroup>
