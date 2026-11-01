@@ -1,0 +1,64 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      admin: ${{ steps.filter.outputs.admin }}
+      drizzle: ${{ steps.filter.outputs.drizzle }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - "apps/client/**"
+              - "packages/**"
+              - "drizzle.config.ts"
+              - "drizzle/**"
+              - "pnpm-lock.yaml"
+              - ".github/workflows/client-tests.yml"
+              - ".github/workflows/pipeline.yml"
+            admin:
+              - "apps/admin/**"
+              - "packages/**"
+              - "drizzle.config.ts"
+              - "drizzle/**"
+              - "pnpm-lock.yaml"
+              - ".github/workflows/admin-tests.yml"
+              - ".github/workflows/pipeline.yml"
+            drizzle:
+              - "drizzle/**"
+
+  client-tests:
+    needs: changes
+    if: needs.changes.outputs.client == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/client-tests.yml
+    secrets: inherit
+
+  admin-tests:
+    needs: changes
+    if: needs.changes.outputs.admin == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/admin-tests.yml
+    secrets: inherit
+
+  migrate:
+    name: Production DB Migration
+    needs: [changes, client-tests, admin-tests]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.ref == 'refs/heads/main' &&
+      (needs.changes.outputs.drizzle == 'true' || github.event_name == 'workflow_dispatch')
+    uses: ./.github/workflows/prod-migrate.yml
+    secrets: inherit
