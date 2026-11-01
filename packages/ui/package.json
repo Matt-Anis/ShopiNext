@@ -28,6 +28,7 @@
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
     "./marker": "./components/marker.tsx",
+    "./markdown": "./components/markdown.tsx",
     "./message": "./components/message.tsx",
     "./password-input": "./components/password-input.tsx",
     "./popover": "./components/popover.tsx",
@@ -50,6 +51,8 @@
     "cn": "^0.5.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.31.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.6.0"
   },
   "peerDependencies": {
