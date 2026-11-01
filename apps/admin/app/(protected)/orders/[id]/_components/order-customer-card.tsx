@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { CreditCard, Mail, User } from "lucide-react"
 
 interface OrderCustomerCardProps {
@@ -45,7 +46,12 @@ export function OrderCustomerCard({
           <div className="flex flex-col gap-1">
             <dt className="text-xs text-muted-foreground">User ID</dt>
             <dd className="font-mono text-xs text-muted-foreground break-all">
-              {userId}
+              <Link
+                href={`/customers/${userId}`}
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                {userId}
+              </Link>
             </dd>
           </div>
         )}
