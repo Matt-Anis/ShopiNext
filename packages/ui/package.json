@@ -28,6 +28,7 @@
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
     "./marker": "./components/marker.tsx",
+    "./markdown": "./components/markdown.tsx",
     "./message": "./components/message.tsx",
     "./password-input": "./components/password-input.tsx",
     "./popover": "./components/popover.tsx",
