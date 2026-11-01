@@ -34,7 +34,7 @@ export function CustomerHeader({ customer }: CustomerHeaderProps) {
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">
-              {customer.name}
+              {customer.name || customer.email}
             </h1>
             <Badge variant={customer.emailVerified ? "secondary" : "outline"}>
               {customer.emailVerified ? "Verified" : "Unverified"}
