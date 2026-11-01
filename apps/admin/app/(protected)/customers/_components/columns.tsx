@@ -14,7 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/dropdown-menu"
 import { formatPrice } from "@/lib/utils"
-import { formatProvider, type CustomerListItem } from "@/features/customers/queries"
+import { formatProvider } from "@/features/customers/utils"
+import type { CustomerListItem } from "@/features/customers/queries"
 
 interface GetColumnsOptions {
   onView: (customer: CustomerListItem) => void
