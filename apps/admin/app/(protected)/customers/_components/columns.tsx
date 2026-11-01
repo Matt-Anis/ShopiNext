@@ -63,14 +63,9 @@ export function getColumns({
               )}
               <AvatarFallback>{initial}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="font-medium text-foreground">
-                {customer.name}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {customer.email}
-              </span>
-            </div>
+            <span className="font-medium text-foreground">
+              {customer.name || customer.email}
+            </span>
           </div>
         )
       },
