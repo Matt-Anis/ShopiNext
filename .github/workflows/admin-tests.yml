@@ -1,24 +1,8 @@
 name: Admin Tests
 
 on:
+  workflow_call:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "apps/admin/**"
-      - "packages/db/**"
-      - "drizzle.config.ts"
-      - "drizzle/**"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/admin-tests.yml"
-  pull_request:
-    paths:
-      - "apps/admin/**"
-      - "packages/db/**"
-      - "drizzle.config.ts"
-      - "drizzle/**"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/admin-tests.yml"
 
 jobs:
   check:
