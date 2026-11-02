@@ -1,3 +1,5 @@
+import { slugify } from "@/lib/utils"
+
 export interface OptionValue {
   id: string
   value: string
@@ -63,12 +65,7 @@ export function isRowDirty(row: Row) {
   )
 }
 
-export function slugifyLabel(label: string) {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-}
+export const slugifyLabel = slugify
 
 export function labelsForValueIds(
   valueLookup: ValueLookup,

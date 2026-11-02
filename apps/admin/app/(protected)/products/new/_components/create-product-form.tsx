@@ -4,18 +4,11 @@ import { useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import { createProduct } from "@/features/products/actions"
+import { slugify } from "@/lib/utils"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { ProductDetailsFields } from "../../_components/product-details-fields"
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-}
 
 export function CreateProductForm() {
   const router = useRouter()
