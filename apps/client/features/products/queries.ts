@@ -3,6 +3,7 @@ import {
   asc,
   desc,
   eq,
+  exists,
   gt,
   inArray,
   isNotNull,
@@ -12,7 +13,7 @@ import {
   type GetColumnData,
 } from "drizzle-orm"
 import { db } from "@/db"
-import { images, productVariants, products } from "@repo/db/public/schema"
+import { images, productCategories, productVariants, products } from "@repo/db/public/schema"
 
 export const optionLabelFor = (
   variantOptionValues: { optionValue: { value: string } }[]
@@ -47,6 +48,7 @@ export type ProductCursor = {
 }
 
 type GetAllProductsParams = {
+  categoryId?: string
   cursor?: ProductCursor | null
   limit?: number
   sortBy?: ProductSortBy
@@ -67,6 +69,7 @@ const cursorCompare = <TColumn extends Column>(
 }
 
 export const getAllProducts = async ({
+  categoryId,
   cursor,
   limit = DEFAULT_LIMIT,
   sortBy = "newest",
@@ -108,12 +111,27 @@ export const getAllProducts = async ({
       break
   }
 
+  const categoryWhere = categoryId
+    ? exists(
+        db
+          .select({ id: productCategories.id })
+          .from(productCategories)
+          .where(
+            and(
+              eq(productCategories.productId, products.id),
+              eq(productCategories.categoryId, categoryId)
+            )
+          )
+      )
+    : undefined
+
   const rawRows = await db.query.products.findMany({
     where: and(
       isNotNull(products.minPrice),
       eq(products.isActive, true),
       eq(products.status, "active"),
-      cursorWhere
+      cursorWhere,
+      categoryWhere
     ),
     orderBy,
     limit,

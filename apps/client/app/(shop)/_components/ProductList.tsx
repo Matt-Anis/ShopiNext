@@ -11,9 +11,15 @@ const SKELETON_COUNT = 8;
 export default function ProductList({
   initialProducts,
   initialCursor,
+  categoryId,
+  title = "Our products",
+  className,
 }: {
   initialProducts: Product[];
   initialCursor: ProductCursor | null;
+  categoryId?: string;
+  title?: string | null;
+  className?: string;
 }) {
   const [products, setProducts] = useState(initialProducts);
   const [cursor, setCursor] = useState(initialCursor);
@@ -27,16 +33,18 @@ export default function ProductList({
     isFetchingRef.current = true;
     startTransition(async () => {
       const { products: nextProducts, nextCursor } =
-        await loadMoreProducts(cursor);
+        await loadMoreProducts(cursor, categoryId);
       setProducts((prev) => [...prev, ...nextProducts]);
       setCursor(nextCursor);
       isFetchingRef.current = false;
     });
-  }, [inView, cursor]);
+  }, [inView, cursor, categoryId]);
 
   return (
-    <section className="px-6 py-16 md:px-10" id="products">
-      <h2 className="mb-8 text-center text-4xl font-semibold">Our products</h2>
+    <section className={className ?? "px-6 py-16 md:px-10"} id="products">
+      {title && (
+        <h2 className="mb-8 text-center text-4xl font-semibold">{title}</h2>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
