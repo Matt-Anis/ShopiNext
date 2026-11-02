@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, PackageOpen } from "lucide-react"
-import { Button } from "@repo/ui/button"
+import { buttonVariants } from "@repo/ui/button"
 import { getCategoryBySlug } from "@/features/categories/queries"
 import { getAllProducts } from "@/features/products/queries"
 import ProductList from "../../_components/ProductList"
@@ -69,14 +69,15 @@ export default async function CategoryProductsPage({
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             There are no products in this category right now. Check back soon!
           </p>
-          <Button
-            variant="outline"
-            className="mt-6 rounded-full"
-            nativeButton={false}
-            render={<Link href="/categories" />}
+          <Link
+            href="/categories"
+            className={buttonVariants({
+              variant: "outline",
+              className: "mt-6 rounded-full",
+            })}
           >
             Browse other categories
-          </Button>
+          </Link>
         </div>
       ) : (
         <ProductList

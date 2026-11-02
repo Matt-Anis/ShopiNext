@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { FolderOpen } from "lucide-react"
-import { Button } from "@repo/ui/button"
+import { buttonVariants } from "@repo/ui/button"
 import { getActiveCategories } from "@/features/categories/queries"
 import { CategoryCard } from "./_components/CategoryCard"
 
@@ -33,14 +33,15 @@ export default async function CategoriesPage() {
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             There are currently no active categories to browse. Check back soon!
           </p>
-          <Button
-            variant="outline"
-            className="mt-6 rounded-full"
-            nativeButton={false}
-            render={<Link href="/" />}
+          <Link
+            href="/"
+            className={buttonVariants({
+              variant: "outline",
+              className: "mt-6 rounded-full",
+            })}
           >
             Return to shop
-          </Button>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
