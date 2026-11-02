@@ -6,7 +6,8 @@
   "scripts": {
     "check": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx seed/index.ts"
+    "seed": "tsx seed/index.ts",
+    "wipe": "tsx wipe.ts"
   },
   "dependencies": {
     "@repo/db": "workspace:*",
