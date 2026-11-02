@@ -36,6 +36,7 @@ export default async function CategoriesPage() {
           <Button
             variant="outline"
             className="mt-6 rounded-full"
+            nativeButton={false}
             render={<Link href="/" />}
           >
             Return to shop

@@ -72,6 +72,7 @@ export default async function CategoryProductsPage({
           <Button
             variant="outline"
             className="mt-6 rounded-full"
+            nativeButton={false}
             render={<Link href="/categories" />}
           >
             Browse other categories
