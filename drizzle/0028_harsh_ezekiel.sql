@@ -1,0 +1,2 @@
+ALTER TABLE "categories" ADD COLUMN "slug" text NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "categories_slug_active_unique" ON "categories" USING btree ("slug") WHERE "categories"."isActive";

@@ -17,6 +17,7 @@ export const categories = pgTable(
   {
     id: uuid().primaryKey().defaultRandom(),
     name: text().notNull(),
+    slug: text().notNull(),
     description: text(),
     // Soft-delete only: false means trashed, to preserve product-category
     // associations for products that reference this row. Not a draft/unpublished
@@ -31,6 +32,9 @@ export const categories = pgTable(
   (table) => [
     uniqueIndex("categories_name_active_unique")
       .on(table.name)
+      .where(sql`${table.isActive}`),
+    uniqueIndex("categories_slug_active_unique")
+      .on(table.slug)
       .where(sql`${table.isActive}`),
   ],
 );
