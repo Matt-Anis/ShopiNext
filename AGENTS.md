@@ -166,7 +166,7 @@ builder can't express the query cleanly, and explain why when you do.
 
 Components: shadcn/ui first, Base UI when a headless primitive is needed.
 
-File size and mixed concerns: If a file is growing too large or starts mixing multiple concerns (e.g. layout rendering mixed with heavy local state, mutation handling, and modals), warn me about it — even when just reading or exploring the code — and propose extracting smaller sub-components or helper modules.
+Separation of concerns: Never mix unrelated responsibilities in the same file or function. Each file must have one clear purpose (e.g. authorization definitions separate from string formatting, domain schemas separate from presentation logic), and each function must handle a single concern. If a file or function starts doing multiple jobs or growing too large, stop, warn me, and propose extracting it into dedicated helper modules or sub-components.
 
 Commits: `type(scope): imperative summary`, ~72 chars, no trailing period.
 Types: `feat` `fix` `refactor` `chore` `docs` `style` `test` `perf` `ci` `build` `revert`
