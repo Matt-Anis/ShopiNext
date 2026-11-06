@@ -6,14 +6,14 @@ import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { categories } from "@repo/db/public/schema"
 import { isUniqueViolation, slugify, uniqueViolationConstraint } from "@/lib/utils"
-import { requireSession } from "@/lib/session"
+import { requireActionPermission } from "@/lib/auth-guard"
 
 export async function createCategory(
   name: string,
   description: string,
   slug?: string
 ) {
-  const session = await requireSession()
+  const session = await requireActionPermission("categories", "create")
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
@@ -53,7 +53,7 @@ export async function updateCategory(
   description: string,
   slug?: string
 ) {
-  const session = await requireSession()
+  const session = await requireActionPermission("categories", "update")
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
@@ -96,7 +96,7 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string) {
-  const session = await requireSession()
+  const session = await requireActionPermission("categories", "delete")
 
   try {
     await db

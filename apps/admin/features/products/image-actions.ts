@@ -5,7 +5,7 @@ import { and, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db"
 import { images, products } from "@repo/db/public/schema"
-import { requireSession } from "@/lib/session"
+import { requireActionPermission } from "@/lib/auth-guard"
 import {
   createPresignedUploadUrl,
   deleteStorageObject,
@@ -17,7 +17,7 @@ export async function getPresignedProductImageUploadUrl(
   filename: string,
   contentType: string
 ) {
-  await requireSession()
+  await requireActionPermission("media", "create")
 
   const [product] = await db
     .select({ id: products.id })
@@ -41,7 +41,7 @@ export async function createProductImage(
   url: string,
   altText?: string | null
 ) {
-  await requireSession()
+  await requireActionPermission("media", "create")
 
   const [product] = await db
     .select({ id: products.id })
@@ -83,7 +83,7 @@ export async function reorderProductImages(
   productId: string,
   orderedImageIds: string[]
 ) {
-  await requireSession()
+  await requireActionPermission("media", "update")
 
   if (!orderedImageIds.length) {
     return
@@ -109,7 +109,7 @@ export async function reorderProductImages(
 }
 
 export async function deleteProductImage(productId: string, imageId: string) {
-  await requireSession()
+  await requireActionPermission("media", "delete")
 
   const [image] = await db
     .select()
@@ -162,7 +162,7 @@ export async function updateProductImageAltText(
   imageId: string,
   altText: string
 ) {
-  await requireSession()
+  await requireActionPermission("media", "update")
 
   await db
     .update(images)

@@ -2,10 +2,10 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { requireSession } from "@/lib/session";
+import { requireActionPermission } from "@/lib/auth-guard";
 
 export async function createStaffAccount(name: string, email: string) {
-  await requireSession();
+  await requireActionPermission("user", "create");
 
   const { user } = await auth.api.createUser({
     body: { name, email, role: "staff" },

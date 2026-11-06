@@ -29,3 +29,15 @@ export async function assertActionPermission<R extends Resource>(
 
   return { ok: true as const, session }
 }
+
+export async function requireActionPermission<R extends Resource>(
+  resource: R,
+  action: Statements[R][number]
+) {
+  const result = await assertActionPermission(resource, action)
+  if (!result.ok) {
+    throw new Error(result.error)
+  }
+  return result.session
+}
+

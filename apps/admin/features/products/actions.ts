@@ -14,14 +14,14 @@ import {
   orderItems,
 } from "@repo/db/public/schema"
 import { isUniqueViolation, uniqueViolationConstraint } from "@/lib/utils"
-import { requireSession } from "@/lib/session"
+import { requireActionPermission } from "@/lib/auth-guard"
 
 export async function createProduct(
   name: string,
   slug: string,
   description: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "create")
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
@@ -57,7 +57,7 @@ export async function updateProductDetails(
   slug: string,
   description: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Name is required")
@@ -90,7 +90,7 @@ export async function addProductCategory(
   productId: string,
   categoryId: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   try {
     await db
@@ -109,7 +109,7 @@ export async function removeProductCategory(
   productId: string,
   categoryId: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   try {
     await db
@@ -129,7 +129,7 @@ export async function removeProductCategory(
 }
 
 export async function createProductOption(productId: string, name: string) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   const trimmedName = name.trim()
   if (!trimmedName) throw new Error("Option name is required")
@@ -152,7 +152,7 @@ export async function createProductOption(productId: string, name: string) {
 }
 
 export async function deleteProductOption(productId: string, optionId: string) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   const [activeVariant] = await db
     .select({ id: productVariants.id })
@@ -197,7 +197,7 @@ export async function addProductOptionValue(
   optionId: string,
   value: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   const trimmedValue = value.trim()
   if (!trimmedValue) throw new Error("Value is required")
@@ -226,7 +226,7 @@ export async function deleteProductOptionValue(
   productId: string,
   valueId: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   try {
     // Cascades to variantOptionValues if a variant already used this value.
@@ -276,7 +276,7 @@ export async function createProductVariant(
   fields: VariantFields,
   optionValueIds: string[]
 ) {
-  await requireSession()
+  await requireActionPermission("products", "create")
 
   const { sku, price, stock, maxPerOrder } = validateVariantFields(fields)
 
@@ -339,7 +339,7 @@ export async function updateProductVariant(
   variantId: string,
   fields: VariantFields
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   const { sku, price, stock, maxPerOrder } = validateVariantFields(fields)
 
@@ -363,7 +363,7 @@ export async function deleteProductVariant(
   productId: string,
   variantId: string
 ) {
-  await requireSession()
+  await requireActionPermission("products", "delete")
 
   const [orderItem] = await db
     .select({ id: orderItems.id })
@@ -389,7 +389,7 @@ export async function setProductStatus(
   productId: string,
   status: "draft" | "active"
 ) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   if (status === "active") {
     const [variant] = await db
@@ -416,7 +416,7 @@ export async function setProductStatus(
 }
 
 export async function deactivateProduct(productId: string) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   try {
     await db
@@ -433,7 +433,7 @@ export async function deactivateProduct(productId: string) {
 }
 
 export async function activateProduct(productId: string) {
-  await requireSession()
+  await requireActionPermission("products", "update")
 
   try {
     await db
