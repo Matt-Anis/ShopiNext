@@ -9,6 +9,7 @@ import { db } from "../db"
 import * as adminAuthSchema from "@repo/db/admin/auth-schema"
 import { sendStaffSetPasswordEmail } from "./email"
 import { passwordSchema } from "./validations/auth"
+import { ac, roles } from "./permissions"
 
 // Overridable in tests so the cache-staleness path can be exercised without
 // waiting out the real (5 minute default) window.
@@ -41,7 +42,14 @@ export const auth = betterAuth({
       await sendStaffSetPasswordEmail(user.email, url)
     },
   },
-  plugins: [admin()],
+  plugins: [
+    admin({
+      ac,
+      roles,
+      defaultRole: "staff",
+      adminRoles: ["owner"],
+    }),
+  ],
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       if (ctx.path === "/reset-password") {

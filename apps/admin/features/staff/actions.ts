@@ -8,7 +8,7 @@ export async function createStaffAccount(name: string, email: string) {
   await requireSession();
 
   const { user } = await auth.api.createUser({
-    body: { name, email, role: "user" },
+    body: { name, email, role: "staff" },
     headers: await headers(),
   });
 
