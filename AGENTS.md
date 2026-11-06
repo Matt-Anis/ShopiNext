@@ -168,6 +168,8 @@ Components: shadcn/ui first, Base UI when a headless primitive is needed.
 
 Separation of concerns: Never mix unrelated responsibilities in the same file or function. Each file must have one clear purpose (e.g. authorization definitions separate from string formatting, domain schemas separate from presentation logic), and each function must handle a single concern. If a file or function starts doing multiple jobs or growing too large, stop, warn me, and propose extracting it into dedicated helper modules or sub-components.
 
+Comments: Do not write unnecessary comments. Never add decorative labels, section banners, or comments that narrate what the code already says (e.g. `{/* Left column */}`, `// fetch user`). Write self-documenting code with clear names. Reserve comments strictly for non-obvious workarounds, edge-case caveats, or external constraints.
+
 Commits: `type(scope): imperative summary`, ~72 chars, no trailing period.
 Types: `feat` `fix` `refactor` `chore` `docs` `style` `test` `perf` `ci` `build` `revert`
 
