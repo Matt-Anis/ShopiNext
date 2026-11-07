@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "./auth"
+import { auth } from "./index"
 import { hasRolePermission, type Resource, type Statements } from "./permissions"
 
 export async function requirePermission<R extends Resource>(
@@ -43,4 +43,3 @@ export async function requireActionPermission<R extends Resource>(
   }
   return result.session
 }
-

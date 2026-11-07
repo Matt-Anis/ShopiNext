@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { hasRolePermission } from "@/lib/permissions"
+import { hasRolePermission } from "@/lib/auth/permissions"
 import { Button } from "@repo/ui/button"
 
 export default async function Page() {

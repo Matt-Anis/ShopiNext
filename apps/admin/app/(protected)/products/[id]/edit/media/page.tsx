@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductMediaData } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { MediaForm } from "./_components/media-form"

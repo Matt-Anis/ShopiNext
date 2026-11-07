@@ -1,11 +1,11 @@
 "use client"
 
-import { authClient } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth/client"
 import {
   hasRolePermission,
   type Resource,
   type Statements,
-} from "@/lib/permissions"
+} from "@/lib/auth/permissions"
 
 export function usePermission<R extends Resource>(
   resource: R,

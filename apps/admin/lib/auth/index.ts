@@ -5,10 +5,10 @@ import { createAuthMiddleware, APIError } from "better-auth/api"
 // Relative, not "@/", imports here: the better-auth CLI (create-admin/generate/
 // migrate) loads this file directly via jiti, which doesn't resolve our tsconfig
 // path alias — only Next.js's own bundler does.
-import { db } from "../db"
+import { db } from "../../db"
 import * as adminAuthSchema from "@repo/db/admin/auth-schema"
-import { sendStaffSetPasswordEmail } from "./email"
-import { passwordSchema } from "./validations/auth"
+import { sendStaffSetPasswordEmail } from "../email"
+import { passwordSchema } from "./validations"
 import { ac, roles } from "./permissions"
 
 // Overridable in tests so the cache-staleness path can be exercised without

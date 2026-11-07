@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductStep3Data } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { Step3Form } from "./_components/step-3-form"

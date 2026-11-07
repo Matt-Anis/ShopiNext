@@ -5,7 +5,7 @@ import { and, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db"
 import { images, products } from "@repo/db/public/schema"
-import { requireActionPermission } from "@/lib/auth-guard"
+import { requireActionPermission } from "@/lib/auth/guards"
 import {
   createPresignedUploadUrl,
   deleteStorageObject,

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductDetail } from "@/features/products/queries"
 import { ProductHeader } from "./_components/product-header"
 import { ProductDescription } from "./_components/product-description"

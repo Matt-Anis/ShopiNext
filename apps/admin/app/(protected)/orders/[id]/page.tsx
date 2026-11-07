@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { maskEmail } from "@/lib/utils"
 import { getOrderById, getOrderNotes } from "@/features/orders/queries"
 import { OrderHeader } from "./_components/order-header"

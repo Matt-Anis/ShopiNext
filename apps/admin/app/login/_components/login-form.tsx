@@ -4,7 +4,7 @@ import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@repo/ui/utils"
-import { authClient } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth/client"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
 import {

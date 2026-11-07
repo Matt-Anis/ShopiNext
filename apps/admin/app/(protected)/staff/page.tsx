@@ -1,7 +1,7 @@
 import { headers } from "next/headers"
 
 import { auth } from "@/lib/auth"
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { StaffClient } from "./_components/staff-client"
 
 export default async function StaffPage() {

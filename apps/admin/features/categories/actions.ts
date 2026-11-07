@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { categories } from "@repo/db/public/schema"
 import { isUniqueViolation, slugify, uniqueViolationConstraint } from "@/lib/utils"
-import { requireActionPermission } from "@/lib/auth-guard"
+import { requireActionPermission } from "@/lib/auth/guards"
 
 export async function createCategory(
   name: string,

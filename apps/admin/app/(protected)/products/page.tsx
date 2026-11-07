@@ -1,4 +1,4 @@
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductsList } from "@/features/products/queries"
 import { ProductsClient } from "./_components/products-client"
 

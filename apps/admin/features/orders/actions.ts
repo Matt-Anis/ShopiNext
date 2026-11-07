@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { eq } from "drizzle-orm"
 
 import { db } from "@/db"
-import { requireActionPermission } from "@/lib/auth-guard"
+import { requireActionPermission } from "@/lib/auth/guards"
 import { sendOrderStatusEmail } from "@/lib/email"
 import {
   orders,

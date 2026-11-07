@@ -87,6 +87,3 @@ export function hasRolePermission<R extends Resource>(
   }
   return targetRole.authorize(request).success
 }
-
-
-

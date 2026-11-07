@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { maskEmail } from "@/lib/utils"
 import { getCustomerById } from "@/features/customers/queries"
 import { CustomerHeader } from "./_components/customer-header"

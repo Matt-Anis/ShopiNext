@@ -1,4 +1,4 @@
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { maskEmail } from "@/lib/utils"
 import { getCustomersList } from "@/features/customers/queries"
 import { CustomersClient } from "./_components/customers-client"

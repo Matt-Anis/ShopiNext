@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { requireActionPermission } from "@/lib/auth-guard";
+import { requireActionPermission } from "@/lib/auth/guards";
 
 export async function createStaffAccount(name: string, email: string) {
   await requireActionPermission("user", "create");

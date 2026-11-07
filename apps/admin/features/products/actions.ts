@@ -14,7 +14,7 @@ import {
   orderItems,
 } from "@repo/db/public/schema"
 import { isUniqueViolation, uniqueViolationConstraint } from "@/lib/utils"
-import { requireActionPermission } from "@/lib/auth-guard"
+import { requireActionPermission } from "@/lib/auth/guards"
 
 export async function createProduct(
   name: string,

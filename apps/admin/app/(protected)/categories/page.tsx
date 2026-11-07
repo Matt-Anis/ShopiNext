@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { categories as categoriesTable } from "@repo/db/public/schema"
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { CategoriesClient } from "./_components/categories-client"
 
 export default async function CategoriesPage() {

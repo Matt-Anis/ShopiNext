@@ -1,4 +1,4 @@
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { getAllMediaList } from "@/features/media/queries"
 import { MediaClient } from "./_components/media-client"
 

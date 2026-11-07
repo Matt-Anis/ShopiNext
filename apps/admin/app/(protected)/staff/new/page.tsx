@@ -1,4 +1,4 @@
-import { requirePermission } from "@/lib/auth-guard"
+import { requirePermission } from "@/lib/auth/guards"
 import { CreateStaffForm } from "./_components/create-staff-form"
 
 export default async function NewStaffPage() {
