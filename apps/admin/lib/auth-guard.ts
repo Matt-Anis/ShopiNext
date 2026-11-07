@@ -1,14 +1,17 @@
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "./auth"
-import { requireSession } from "./session"
 import { hasRolePermission, type Resource, type Statements } from "./permissions"
 
 export async function requirePermission<R extends Resource>(
   resource: R,
   action: Statements[R][number]
 ) {
-  const session = await requireSession()
+  const session = await auth.api.getSession({ headers: await headers() })
+
+  if (!session?.user) {
+    redirect("/login")
+  }
 
   if (!hasRolePermission(session.user.role, resource, action)) {
     redirect("/unauthorized")

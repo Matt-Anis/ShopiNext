@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation"
-import { requireSession } from "@/lib/session"
+import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
 import { hasRolePermission } from "@/lib/permissions"
 import { Button } from "@repo/ui/button"
 
 export default async function Page() {
-  const session = await requireSession()
+  const session = await auth.api.getSession({ headers: await headers() })
+
+  if (!session?.user) {
+    redirect("/login")
+  }
 
   if (!hasRolePermission(session.user.role, "analytics", "read")) {
     if (hasRolePermission(session.user.role, "orders", "read")) {
