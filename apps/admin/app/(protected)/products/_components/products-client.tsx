@@ -16,6 +16,7 @@ import { Button } from "@repo/ui/button"
 import { ConfirmDialog } from "@repo/ui/confirm-dialog"
 import { toast } from "@repo/ui/toast"
 import { useBreadcrumb } from "../../_components/breadcrumb-provider"
+import { usePermission } from "@/hooks/use-permission"
 
 interface ProductsClientProps {
   products: Product[]
@@ -30,6 +31,9 @@ export function ProductsClient({ products }: ProductsClientProps) {
   const [isPending, startTransition] = useTransition()
   const [deactivateTarget, setDeactivateTarget] = useState<Product | null>(null)
   const [publishTarget, setPublishTarget] = useState<Product | null>(null)
+
+  const canCreate = usePermission("products", "create")
+  const canUpdate = usePermission("products", "update")
 
   const columns = getColumns({
     onView: (product) => router.push(`/products/${product.id}`),
@@ -50,6 +54,7 @@ export function ProductsClient({ products }: ProductsClientProps) {
       })
     },
     onTogglePublish: (product) => setPublishTarget(product),
+    canUpdate,
   })
 
   function handleDeactivate() {
@@ -115,13 +120,15 @@ export function ProductsClient({ products }: ProductsClientProps) {
         searchColumn="name"
         searchPlaceholder="Search products..."
         actions={
-          <Button
-            onClick={() => router.push("/products/new")}
-            data-testid="new-product-button"
-          >
-            <Plus />
-            New product
-          </Button>
+          canCreate ? (
+            <Button
+              onClick={() => router.push("/products/new")}
+              data-testid="new-product-button"
+            >
+              <Plus />
+              New product
+            </Button>
+          ) : undefined
         }
         emptyIcon={<Package />}
         emptyTitle="No products yet"

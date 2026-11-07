@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { requirePermission } from "@/lib/auth-guard"
 import { getProductMediaData } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { MediaForm } from "./_components/media-form"
@@ -7,6 +8,7 @@ import { MediaForm } from "./_components/media-form"
 export default async function ProductMediaPage({
   params,
 }: PageProps<"/products/[id]/edit/media">) {
+  await requirePermission("products", "update")
   const { id } = await params
   const product = await getProductMediaData(id)
 

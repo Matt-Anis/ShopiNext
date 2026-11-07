@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { requirePermission } from "@/lib/auth-guard"
 import { getProductStep3Data } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { Step3Form } from "./_components/step-3-form"
@@ -7,6 +8,7 @@ import { Step3Form } from "./_components/step-3-form"
 export default async function ProductVariantsPage({
   params,
 }: PageProps<"/products/[id]/edit/variants">) {
+  await requirePermission("products", "update")
   const { id } = await params
   const product = await getProductStep3Data(id)
 

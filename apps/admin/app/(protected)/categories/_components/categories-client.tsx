@@ -10,6 +10,7 @@ import { CategoryDrawer } from "./category-drawer"
 import { DeleteCategoryDialog } from "./delete-category-dialog"
 import { Button } from "@repo/ui/button"
 import { useBreadcrumb } from "../../_components/breadcrumb-provider"
+import { usePermission } from "@/hooks/use-permission"
 
 type DrawerState =
   | { mode: "closed" }
@@ -30,9 +31,15 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
   })
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
 
+  const canCreate = usePermission("categories", "create")
+  const canUpdate = usePermission("categories", "update")
+  const canDelete = usePermission("categories", "delete")
+
   const columns = getColumns({
     onEdit: (category) => setDrawerState({ mode: "edit", category }),
     onDelete: (category) => setDeleteTarget(category),
+    canUpdate,
+    canDelete,
   })
 
   return (
@@ -43,13 +50,15 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
         searchColumn="name"
         searchPlaceholder="Search categories..."
         actions={
-          <Button
-            onClick={() => setDrawerState({ mode: "create" })}
-            data-testid="new-category-button"
-          >
-            <Plus />
-            New category
-          </Button>
+          canCreate ? (
+            <Button
+              onClick={() => setDrawerState({ mode: "create" })}
+              data-testid="new-category-button"
+            >
+              <Plus />
+              New category
+            </Button>
+          ) : undefined
         }
         emptyIcon={<FolderTree />}
         emptyTitle="No categories yet"

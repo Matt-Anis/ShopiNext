@@ -7,6 +7,7 @@ import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
 import { useBreadcrumb } from "../../../_components/breadcrumb-provider"
 import { archiveOrder, unarchiveOrder } from "@/features/orders/actions"
+import { usePermission } from "@/hooks/use-permission"
 import { OrderStatusDialog } from "./order-status-dialog"
 import type { OrderStatus } from "@repo/db/public/schema"
 
@@ -35,6 +36,7 @@ const statusVariantMap: Record<
 export function OrderHeader({ order }: OrderHeaderProps) {
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
+  const canUpdate = usePermission("orders", "update")
 
   useBreadcrumb([
     { label: "Orders", href: "/orders" },
@@ -78,42 +80,46 @@ export function OrderHeader({ order }: OrderHeaderProps) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            disabled={isPending}
-            onClick={() => setStatusDialogOpen(true)}
-          >
-            <RefreshCw />
-            Update Status
-          </Button>
+        {canUpdate && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={() => setStatusDialogOpen(true)}
+            >
+              <RefreshCw />
+              Update Status
+            </Button>
 
-          <Button
-            variant={isArchived ? "secondary" : "outline"}
-            disabled={isPending}
-            onClick={handleToggleArchive}
-          >
-            {isArchived ? (
-              <>
-                <ArchiveRestore />
-                Unarchive
-              </>
-            ) : (
-              <>
-                <Archive />
-                Archive
-              </>
-            )}
-          </Button>
-        </div>
+            <Button
+              variant={isArchived ? "secondary" : "outline"}
+              disabled={isPending}
+              onClick={handleToggleArchive}
+            >
+              {isArchived ? (
+                <>
+                  <ArchiveRestore />
+                  Unarchive
+                </>
+              ) : (
+                <>
+                  <Archive />
+                  Archive
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
-      <OrderStatusDialog
-        open={statusDialogOpen}
-        onOpenChange={setStatusDialogOpen}
-        orderId={order.id}
-        currentStatus={order.status}
-      />
+      {canUpdate && (
+        <OrderStatusDialog
+          open={statusDialogOpen}
+          onOpenChange={setStatusDialogOpen}
+          orderId={order.id}
+          currentStatus={order.status}
+        />
+      )}
     </>
   )
 }

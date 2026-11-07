@@ -8,6 +8,7 @@ import { DataTable } from "@repo/ui/data-table"
 import { ConfirmDialog } from "@repo/ui/confirm-dialog"
 import { toast } from "@repo/ui/toast"
 import { useBreadcrumb } from "../../_components/breadcrumb-provider"
+import { usePermission } from "@/hooks/use-permission"
 import { archiveOrder, unarchiveOrder } from "@/features/orders/actions"
 import type { OrderListItem } from "@/features/orders/queries"
 import { getColumns } from "./columns"
@@ -27,6 +28,7 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [archiveTarget, setArchiveTarget] = useState<OrderListItem | null>(null)
+  const canUpdate = usePermission("orders", "update")
 
   const columns = getColumns({
     onView: (order) => router.push(`/orders/${order.id}`),
@@ -45,6 +47,7 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
           .catch(() => {})
       })
     },
+    canUpdate,
   })
 
   function handleArchive() {

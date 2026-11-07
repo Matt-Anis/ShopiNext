@@ -25,6 +25,7 @@ import {
   updateStaffNote,
   deleteStaffNote,
 } from "@/features/orders/actions"
+import { usePermission } from "@/hooks/use-permission"
 import type { OrderNoteItem } from "@/features/orders/queries"
 
 interface OrderStaffNotesProps {
@@ -74,6 +75,7 @@ export function OrderStaffNotes({
   notes,
   currentUserId,
 }: OrderStaffNotesProps) {
+  const canUpdate = usePermission("orders", "update")
   const [showJumpToLatest, setShowJumpToLatest] = React.useState(false)
   const [editingNoteId, setEditingNoteId] = React.useState<string | null>(null)
   const [editingContent, setEditingContent] = React.useState("")
@@ -286,7 +288,7 @@ export function OrderStaffNotes({
                                 )}
                               </div>
 
-                              {isOwn && !isEditing && (
+                              {canUpdate && isOwn && !isEditing && (
                                 <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                                   <Button
                                     type="button"
@@ -424,10 +426,12 @@ export function OrderStaffNotes({
         onConfirm={handleConfirmDelete}
       />
 
-      <OrderStaffNoteForm
-        orderId={orderId}
-        onSuccess={() => setTimeout(() => scrollToBottom("smooth"), 100)}
-      />
+      {canUpdate && (
+        <OrderStaffNoteForm
+          orderId={orderId}
+          onSuccess={() => setTimeout(() => scrollToBottom("smooth"), 100)}
+        />
+      )}
     </section>
   )
 }

@@ -27,6 +27,13 @@ export default async function ProtectedLayout({
             <SidebarTrigger className="-ml-1" />
             <HeaderBreadcrumb />
           </header>
+          {session.user.role === "demo" && (
+            <div className="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
+              <span>
+                Demo mode active: read-only access. Mutations are disabled and customer data is masked.
+              </span>
+            </div>
+          )}
           {children}
         </BreadcrumbProvider>
       </SidebarInset>

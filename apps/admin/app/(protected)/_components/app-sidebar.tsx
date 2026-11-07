@@ -25,6 +25,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@repo/ui/sidebar"
+import { usePermission } from "@/hooks/use-permission"
 import { NavUser } from "./nav-user"
 
 export function AppSidebar({
@@ -33,43 +34,50 @@ export function AppSidebar({
   user: { name: string; email: string; image?: string | null }
 }) {
   const pathname = usePathname()
+  const canViewStaff = usePermission("user", "list")
+  const canCreateStaff = usePermission("user", "create")
+  const canCreateProduct = usePermission("products", "create")
 
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <Collapsible defaultOpen>
-              <SidebarMenuItem>
-                <CollapsibleTrigger
-                  render={<SidebarMenuButton className="group/collapsible" />}
-                >
-                  <Users />
-                  Staff
-                  <ChevronRight className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton
-                        render={<Link href="/staff" />}
-                        isActive={pathname === "/staff"}
-                      >
-                        All staff
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton
-                        render={<Link href="/staff/new" />}
-                        isActive={pathname === "/staff/new"}
-                      >
-                        New staff
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
+            {canViewStaff && (
+              <Collapsible defaultOpen>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger
+                    render={<SidebarMenuButton className="group/collapsible" />}
+                  >
+                    <Users />
+                    Staff
+                    <ChevronRight className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          render={<Link href="/staff" />}
+                          isActive={pathname === "/staff"}
+                        >
+                          All staff
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      {canCreateStaff && (
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton
+                            render={<Link href="/staff/new" />}
+                            isActive={pathname === "/staff/new"}
+                          >
+                            New staff
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            )}
             <Collapsible defaultOpen>
               <SidebarMenuItem>
                 <CollapsibleTrigger
@@ -129,14 +137,16 @@ export function AppSidebar({
                         All products
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton
-                        render={<Link href="/products/new" />}
-                        isActive={pathname === "/products/new"}
-                      >
-                        New product
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
+                    {canCreateProduct && (
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          render={<Link href="/products/new" />}
+                          isActive={pathname === "/products/new"}
+                        >
+                          New product
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    )}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>

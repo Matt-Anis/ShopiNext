@@ -1,6 +1,18 @@
+import { redirect } from "next/navigation"
+import { requireSession } from "@/lib/session"
+import { hasRolePermission } from "@/lib/permissions"
 import { Button } from "@repo/ui/button"
 
-export default function Page() {
+export default async function Page() {
+  const session = await requireSession()
+
+  if (!hasRolePermission(session.user.role, "analytics", "read")) {
+    if (hasRolePermission(session.user.role, "orders", "read")) {
+      redirect("/orders")
+    }
+    redirect("/unauthorized")
+  }
+
   return (
     <div className="flex min-h-svh p-6">
       <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">

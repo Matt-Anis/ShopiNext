@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { requirePermission } from "@/lib/auth-guard"
 import { getProductDetail } from "@/features/products/queries"
 import { ProductHeader } from "./_components/product-header"
 import { ProductDescription } from "./_components/product-description"
@@ -12,6 +13,7 @@ import { ProductHistory } from "./_components/product-history"
 export default async function ProductViewPage({
   params,
 }: PageProps<"/products/[id]">) {
+  await requirePermission("products", "read")
   const { id } = await params
   const product = await getProductDetail(id)
 

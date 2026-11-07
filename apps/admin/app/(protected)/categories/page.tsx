@@ -1,9 +1,12 @@
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { categories as categoriesTable } from "@repo/db/public/schema"
+import { requirePermission } from "@/lib/auth-guard"
 import { CategoriesClient } from "./_components/categories-client"
 
 export default async function CategoriesPage() {
+  await requirePermission("categories", "read")
+
   const categories = await db.query.categories.findMany({
     where: eq(categoriesTable.isActive, true),
     orderBy: (categories, { asc }) => [asc(categories.name)],
