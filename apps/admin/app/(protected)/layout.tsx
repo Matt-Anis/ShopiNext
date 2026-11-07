@@ -2,6 +2,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
+import { roles } from "@/lib/auth/permissions"
 import { AppSidebar } from "./_components/app-sidebar"
 import { BreadcrumbProvider } from "./_components/breadcrumb-provider"
 import { HeaderBreadcrumb } from "./_components/header-breadcrumb"
@@ -16,6 +17,10 @@ export default async function ProtectedLayout({
 
   if (!session) {
     redirect("/login")
+  }
+
+  if (!session.user.role || !(session.user.role in roles)) {
+    redirect("/unauthorized")
   }
 
   return (

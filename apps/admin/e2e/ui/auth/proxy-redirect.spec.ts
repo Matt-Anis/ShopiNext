@@ -30,6 +30,23 @@ test.describe("Protected route redirects", () => {
     await page.waitForURL("/login")
   })
 
+  test("redirects to /login for non-existent routes when session cookie is forged", async ({
+    page,
+    context,
+  }) => {
+    await context.addCookies([
+      {
+        name: SESSION_COOKIE_NAME,
+        value: "forged-value",
+        url: "http://localhost:3001",
+      },
+    ])
+
+    await page.goto("/some-non-existent-route")
+
+    await page.waitForURL("/login")
+  })
+
   test("allows access to a protected route with a valid session", async ({
     page,
   }) => {
