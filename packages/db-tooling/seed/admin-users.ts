@@ -9,16 +9,26 @@ const ADMIN_PASSWORD_HASH =
 export async function seedAdminUsers() {
   console.log("Seeding admin accounts...")
 
-  const adminId = randomUUID()
+  const ownerId = randomUUID()
+  const managerId = randomUUID()
   const staffId = randomUUID()
+  const demoId = randomUUID()
+  const adminId = randomUUID()
 
   await db.insert(adminUser).values([
     {
-      id: adminId,
-      name: "Admin",
-      email: "admin@example.com",
+      id: ownerId,
+      name: "Store Owner",
+      email: "owner@example.com",
       emailVerified: true,
-      role: "admin",
+      role: "owner",
+    },
+    {
+      id: managerId,
+      name: "Store Manager",
+      email: "manager@example.com",
+      emailVerified: true,
+      role: "manager",
     },
     {
       id: staffId,
@@ -27,13 +37,34 @@ export async function seedAdminUsers() {
       emailVerified: true,
       role: "staff",
     },
+    {
+      id: demoId,
+      name: "Demo User",
+      email: "demo@example.com",
+      emailVerified: true,
+      role: "demo",
+    },
+    {
+      id: adminId,
+      name: "Admin",
+      email: "admin@example.com",
+      emailVerified: true,
+      role: "owner",
+    },
   ])
 
   await db.insert(adminAccount).values([
     {
       id: randomUUID(),
-      userId: adminId,
-      accountId: adminId,
+      userId: ownerId,
+      accountId: ownerId,
+      providerId: "credential",
+      password: ADMIN_PASSWORD_HASH,
+    },
+    {
+      id: randomUUID(),
+      userId: managerId,
+      accountId: managerId,
       providerId: "credential",
       password: ADMIN_PASSWORD_HASH,
     },
@@ -44,7 +75,21 @@ export async function seedAdminUsers() {
       providerId: "credential",
       password: ADMIN_PASSWORD_HASH,
     },
+    {
+      id: randomUUID(),
+      userId: demoId,
+      accountId: demoId,
+      providerId: "credential",
+      password: ADMIN_PASSWORD_HASH,
+    },
+    {
+      id: randomUUID(),
+      userId: adminId,
+      accountId: adminId,
+      providerId: "credential",
+      password: ADMIN_PASSWORD_HASH,
+    },
   ])
 
-  return { adminId, staffId }
+  return { adminId: ownerId, ownerId, managerId, staffId, demoId }
 }

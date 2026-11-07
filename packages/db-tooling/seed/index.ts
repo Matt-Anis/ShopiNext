@@ -23,8 +23,11 @@ async function main() {
 Seed complete!
 ------------------------------------------------------------
 Admin accounts:
-  admin@example.com (role: admin)
+  owner@example.com (role: owner)
+  manager@example.com (role: manager)
   staff@example.com (role: staff)
+  demo@example.com (role: demo)
+  admin@example.com (role: owner)
   (Password: "secret")
 
 Customer accounts:
