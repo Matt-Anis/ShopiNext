@@ -6,11 +6,14 @@ import {
   type Resource,
   type Statements,
 } from "@/lib/auth/permissions"
+import { useCurrentRole } from "@/app/(protected)/_components/role-provider"
 
 export function usePermission<R extends Resource>(
   resource: R,
   action: Statements[R][number]
 ): boolean {
+  const contextRole = useCurrentRole()
   const { data: session } = authClient.useSession()
-  return hasRolePermission(session?.user?.role, resource, action)
+  const role = contextRole ?? session?.user?.role
+  return hasRolePermission(role, resource, action)
 }

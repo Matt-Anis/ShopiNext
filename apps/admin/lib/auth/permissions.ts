@@ -74,6 +74,7 @@ export const roles = {
 export type Statements = typeof statement
 export type Resource = keyof Statements
 export type RoleName = keyof typeof roles
+export type Role = RoleName
 
 export function hasRolePermission<R extends Resource>(
   roleName: string | null | undefined,
