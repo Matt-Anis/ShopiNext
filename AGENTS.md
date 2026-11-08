@@ -29,7 +29,7 @@ apps/
     lib/auth.ts             # Better Auth config for client app
   admin/                    # Admin dashboard Next.js app
     db/index.ts             # Imports and re-exports public + admin schemas
-    lib/auth.ts             # Better Auth config for admin app (separate accounts)
+    lib/auth/               # Modular Better Auth config, guards & RBAC for admin app
 packages/
   db/                       # Schema definitions only — no runtime logic
     public/
@@ -78,7 +78,7 @@ Neither role can ALTER or DROP tables — schema changes are migration-only.
 
 - Both apps use Better Auth independently — the accounts are completely separate.
 - Client auth: `apps/client/lib/auth.ts` — uses tables in the `public` schema
-- Admin auth: `apps/admin/lib/auth.ts` — uses tables in the `admin` schema
+- Admin auth: `apps/admin/lib/auth/` — uses tables in the `admin` schema
 - Do not assume anything is shared between the two auth setups.
 
 ---
@@ -166,7 +166,9 @@ builder can't express the query cleanly, and explain why when you do.
 
 Components: shadcn/ui first, Base UI when a headless primitive is needed.
 
-File size and mixed concerns: If a file is growing too large or starts mixing multiple concerns (e.g. layout rendering mixed with heavy local state, mutation handling, and modals), warn me about it — even when just reading or exploring the code — and propose extracting smaller sub-components or helper modules.
+Separation of concerns: Never mix unrelated responsibilities in the same file or function. Each file must have one clear purpose (e.g. authorization definitions separate from string formatting, domain schemas separate from presentation logic), and each function must handle a single concern. If a file or function starts doing multiple jobs or growing too large, stop, warn me, and propose extracting it into dedicated helper modules or sub-components.
+
+Comments: Do not write unnecessary comments. Never add decorative labels, section banners, or comments that narrate what the code already says (e.g. `{/* Left column */}`, `// fetch user`). Write self-documenting code with clear names. Reserve comments strictly for non-obvious workarounds, edge-case caveats, or external constraints.
 
 Commits: `type(scope): imperative summary`, ~72 chars, no trailing period.
 Types: `feat` `fix` `refactor` `chore` `docs` `style` `test` `perf` `ci` `build` `revert`

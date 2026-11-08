@@ -39,6 +39,7 @@ interface GetColumnsOptions {
   onDeactivate: (product: Product) => void
   onActivate: (product: Product) => void
   onTogglePublish: (product: Product) => void
+  canUpdate?: boolean
 }
 
 export function getColumns({
@@ -47,6 +48,7 @@ export function getColumns({
   onDeactivate,
   onActivate,
   onTogglePublish,
+  canUpdate = true,
 }: GetColumnsOptions): ColumnDef<Product>[] {
   return [
     {
@@ -157,37 +159,41 @@ export function getColumns({
                 <Eye />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(product)}>
-                <Pencil />
-                Edit
-              </DropdownMenuItem>
-              {product.status === "active" ? (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => onTogglePublish(product)}
-                >
-                  <Archive />
-                  Move to draft
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => onTogglePublish(product)}>
-                  <Rocket />
-                  Publish
-                </DropdownMenuItem>
-              )}
-              {product.isActive ? (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => onDeactivate(product)}
-                >
-                  <CircleOff />
-                  Deactivate
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => onActivate(product)}>
-                  <CircleCheck />
-                  Activate
-                </DropdownMenuItem>
+              {canUpdate && (
+                <>
+                  <DropdownMenuItem onClick={() => onEdit(product)}>
+                    <Pencil />
+                    Edit
+                  </DropdownMenuItem>
+                  {product.status === "active" ? (
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => onTogglePublish(product)}
+                    >
+                      <Archive />
+                      Move to draft
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onTogglePublish(product)}>
+                      <Rocket />
+                      Publish
+                    </DropdownMenuItem>
+                  )}
+                  {product.isActive ? (
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => onDeactivate(product)}
+                    >
+                      <CircleOff />
+                      Deactivate
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onActivate(product)}>
+                      <CircleCheck />
+                      Activate
+                    </DropdownMenuItem>
+                  )}
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

@@ -40,7 +40,7 @@ test.describe("Create staff account", () => {
       .from(adminUser)
       .where(eq(adminUser.email, staff.email))
     expect(user).toBeDefined()
-    expect(user!.role).toBe("user")
+    expect(user!.role).toBe("staff")
 
     const accounts = await testDb
       .select()

@@ -20,6 +20,7 @@ interface GetColumnsOptions {
   onView: (order: OrderListItem) => void
   onArchive: (order: OrderListItem) => void
   onUnarchive: (order: OrderListItem) => void
+  canUpdate?: boolean
 }
 
 const statusVariantMap: Record<
@@ -38,6 +39,7 @@ export function getColumns({
   onView,
   onArchive,
   onUnarchive,
+  canUpdate = true,
 }: GetColumnsOptions): ColumnDef<OrderListItem>[] {
   return [
     {
@@ -149,19 +151,21 @@ export function getColumns({
                 <Eye />
                 View details
               </DropdownMenuItem>
-              {isArchived ? (
-                <DropdownMenuItem onClick={() => onUnarchive(order)}>
-                  <ArchiveRestore />
-                  Unarchive
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => onArchive(order)}
-                >
-                  <Archive />
-                  Archive
-                </DropdownMenuItem>
+              {canUpdate && (
+                isArchived ? (
+                  <DropdownMenuItem onClick={() => onUnarchive(order)}>
+                    <ArchiveRestore />
+                    Unarchive
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onArchive(order)}
+                  >
+                    <Archive />
+                    Archive
+                  </DropdownMenuItem>
+                )
               )}
             </DropdownMenuContent>
           </DropdownMenu>

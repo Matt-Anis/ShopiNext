@@ -16,9 +16,10 @@ const DEFAULT_TEST_ADMIN_PASSWORD_HASH =
   "990a68a7bb59286ea5ff7fef3bba58f5:fcc02e81336324522fa485074d41fcc6198e9381b91be18b80d654967d6ca5dcc0528145519ac6e07799435b35eb76a116b06bfba1ef3d32c14e7fd13361fa49"
 
 export async function seedAdmin(
-  overrides: Partial<typeof DEFAULT_TEST_ADMIN> = {}
+  overrides: Partial<typeof DEFAULT_TEST_ADMIN> & { role?: string | null } = {}
 ) {
-  const credentials = { ...DEFAULT_TEST_ADMIN, ...overrides }
+  const { role = "owner", ...creds } = overrides
+  const credentials = { ...DEFAULT_TEST_ADMIN, ...creds }
   const [localPart, domain] = credentials.email.split("@")
   credentials.email = `${localPart}+${uniqueSuffix()}@${domain}`
   const userId = randomUUID()
@@ -27,7 +28,7 @@ export async function seedAdmin(
     id: userId,
     name: credentials.name,
     email: credentials.email,
-    role: "admin",
+    role: role ?? null,
   })
 
   await testDb.insert(adminAccount).values({
@@ -75,7 +76,7 @@ export async function createStaffAccountViaApi(
 
   const createUserResponse = await request.post("/api/auth/admin/create-user", {
     headers: { origin: ORIGIN },
-    data: { name: staff.name, email: staff.email, role: "user" },
+    data: { name: staff.name, email: staff.email, role: "staff" },
   })
   if (!createUserResponse.ok()) {
     throw new Error(

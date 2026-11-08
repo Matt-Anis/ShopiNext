@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductStep2Data, getCategoriesList } from "@/features/products/queries"
 import { ProductWizardSteps } from "../../../_components/product-wizard-steps"
 import { Step2Form } from "./_components/step-2-form"
@@ -7,6 +8,7 @@ import { Step2Form } from "./_components/step-2-form"
 export default async function ProductCategoriesAndOptionsPage({
   params,
 }: PageProps<"/products/[id]/edit/categories-and-options">) {
+  await requirePermission("products", "update")
   const { id } = await params
   const [product, categories] = await Promise.all([
     getProductStep2Data(id),

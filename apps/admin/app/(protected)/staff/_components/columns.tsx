@@ -10,6 +10,17 @@ export type StaffMember = Awaited<
   ReturnType<typeof auth.api.listUsers>
 >["users"][number]
 
+const roleBadgeConfig: Record<
+  string,
+  { label: string; variant: "default" | "secondary" | "outline" }
+> = {
+  owner: { label: "Owner", variant: "default" },
+  admin: { label: "Owner", variant: "default" },
+  manager: { label: "Manager", variant: "secondary" },
+  staff: { label: "Staff", variant: "secondary" },
+  demo: { label: "Demo", variant: "outline" },
+}
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -40,11 +51,15 @@ export function getColumns(): ColumnDef<StaffMember>[] {
       accessorKey: "role",
       header: "Role",
       enableSorting: false,
-      cell: ({ row }) => (
-        <Badge variant={row.original.role === "admin" ? "default" : "secondary"}>
-          {row.original.role === "admin" ? "Root" : "Staff"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const role = row.original.role ?? "staff"
+        const config = roleBadgeConfig[role] ?? {
+          label: role.charAt(0).toUpperCase() + role.slice(1),
+          variant: "secondary" as const,
+        }
+
+        return <Badge variant={config.variant}>{config.label}</Badge>
+      },
     },
     {
       id: "image",

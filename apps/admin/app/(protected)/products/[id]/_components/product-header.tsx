@@ -6,6 +6,7 @@ import { Pencil } from "lucide-react"
 import { Button } from "@repo/ui/button"
 import { cn } from "@repo/ui/utils"
 import { useBreadcrumb } from "../../../_components/breadcrumb-provider"
+import { usePermission } from "@/hooks/use-permission"
 
 interface ProductHeaderProps {
   product: {
@@ -22,6 +23,8 @@ export function ProductHeader({ product }: ProductHeaderProps) {
     { label: "Products", href: "/products" },
     { label: product.name },
   ])
+
+  const canUpdate = usePermission("products", "update")
 
   return (
     <div className="flex items-start justify-between gap-4">
@@ -42,13 +45,15 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         <span className="text-sm text-muted-foreground">{product.slug}</span>
       </div>
 
-      <Button
-        nativeButton={false}
-        render={<Link href={`/products/${product.id}/edit/details`} />}
-      >
-        <Pencil />
-        Edit
-      </Button>
+      {canUpdate && (
+        <Button
+          nativeButton={false}
+          render={<Link href={`/products/${product.id}/edit/details`} />}
+        >
+          <Pencil />
+          Edit
+        </Button>
+      )}
     </div>
   )
 }

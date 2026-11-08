@@ -20,7 +20,7 @@ apps/
     lib/auth.ts             # Better Auth config for client app
   admin/                    # Admin dashboard Next.js app
     db/index.ts             # Imports and re-exports public + admin schemas
-    lib/auth.ts             # Better Auth config for admin app (separate accounts)
+    lib/auth/               # Modular Better Auth config, guards & RBAC for admin app
 packages/
   db/                       # Schema definitions only — no runtime logic
     public/
@@ -66,7 +66,7 @@ Neither role can ALTER or DROP tables — schema changes are migration-only.
 
 - Both apps use Better Auth independently — the accounts are completely separate.
 - Client auth: `apps/client/lib/auth.ts` — uses tables in the `public` schema
-- Admin auth: `apps/admin/lib/auth.ts` — uses tables in the `admin` schema
+- Admin auth: `apps/admin/lib/auth/` — uses tables in the `admin` schema
 - Do not assume anything is shared between the two auth setups.
 
 ---

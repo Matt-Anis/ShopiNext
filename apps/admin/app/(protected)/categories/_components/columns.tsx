@@ -20,11 +20,15 @@ export type Category = typeof categories.$inferSelect & {
 interface GetColumnsOptions {
   onEdit: (category: Category) => void
   onDelete: (category: Category) => void
+  canUpdate?: boolean
+  canDelete?: boolean
 }
 
 export function getColumns({
   onEdit,
   onDelete,
+  canUpdate = true,
+  canDelete = true,
 }: GetColumnsOptions): ColumnDef<Category>[] {
   return [
     {
@@ -88,6 +92,10 @@ export function getColumns({
       cell: ({ row }) => {
         const category = row.original
 
+        if (!canUpdate && !canDelete) {
+          return null
+        }
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -99,17 +107,21 @@ export function getColumns({
               }
             />
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(category)}>
-                <Pencil />
-                Update
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => onDelete(category)}
-              >
-                <CircleOff />
-                Deactivate
-              </DropdownMenuItem>
+              {canUpdate && (
+                <DropdownMenuItem onClick={() => onEdit(category)}>
+                  <Pencil />
+                  Update
+                </DropdownMenuItem>
+              )}
+              {canDelete && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => onDelete(category)}
+                >
+                  <CircleOff />
+                  Deactivate
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

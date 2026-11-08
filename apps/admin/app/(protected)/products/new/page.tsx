@@ -1,7 +1,10 @@
+import { requirePermission } from "@/lib/auth/guards"
 import { CreateProductForm } from "./_components/create-product-form"
 import { ProductWizardSteps } from "../_components/product-wizard-steps"
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  await requirePermission("products", "create")
+
   return (
     <div className="flex gap-10 px-8 pt-9 pb-16">
       <ProductWizardSteps step={1} />

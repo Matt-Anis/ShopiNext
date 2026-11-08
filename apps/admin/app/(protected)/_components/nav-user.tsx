@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronsUpDown, LogOut, ShieldCheck } from "lucide-react"
 
-import { authClient } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth/client"
 import { toast } from "@repo/ui/toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 import {

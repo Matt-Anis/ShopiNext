@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { eq } from "drizzle-orm"
 
 import { db } from "@/db"
-import { requireSession } from "@/lib/session"
+import { requireActionPermission } from "@/lib/auth/guards"
 import { sendOrderStatusEmail } from "@/lib/email"
 import {
   orders,
@@ -14,7 +14,7 @@ import {
 import { adminOrderNotes } from "@repo/db/admin/schema"
 
 export async function archiveOrder(orderId: string) {
-  await requireSession()
+  await requireActionPermission("orders", "update")
 
   await db
     .update(orders)
@@ -27,7 +27,7 @@ export async function archiveOrder(orderId: string) {
 }
 
 export async function unarchiveOrder(orderId: string) {
-  await requireSession()
+  await requireActionPermission("orders", "update")
 
   await db
     .update(orders)
@@ -45,7 +45,7 @@ export async function updateOrderStatus(
   publicNote?: string,
   notifyCustomer: boolean = true
 ) {
-  await requireSession()
+  await requireActionPermission("orders", "update")
 
   const trimmedNote = publicNote?.trim() || null
 
@@ -83,7 +83,7 @@ export async function updateOrderStatus(
 }
 
 export async function addStaffNote(orderId: string, content: string) {
-  const session = await requireSession()
+  const session = await requireActionPermission("orders", "update")
 
   const trimmed = content.trim()
   if (!trimmed) {
@@ -100,7 +100,7 @@ export async function addStaffNote(orderId: string, content: string) {
 }
 
 export async function updateStaffNote(noteId: string, content: string) {
-  const session = await requireSession()
+  const session = await requireActionPermission("orders", "update")
 
   const trimmed = content.trim()
   if (!trimmed) {
@@ -128,7 +128,7 @@ export async function updateStaffNote(noteId: string, content: string) {
 }
 
 export async function deleteStaffNote(noteId: string) {
-  const session = await requireSession()
+  const session = await requireActionPermission("orders", "update")
 
   const note = await db.query.adminOrderNotes.findFirst({
     where: eq(adminOrderNotes.id, noteId),

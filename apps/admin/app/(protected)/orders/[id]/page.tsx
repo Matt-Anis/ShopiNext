@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 
-import { requireSession } from "@/lib/session"
+import { requirePermission } from "@/lib/auth/guards"
+import { maskEmail } from "@/lib/utils"
 import { getOrderById, getOrderNotes } from "@/features/orders/queries"
 import { OrderHeader } from "./_components/order-header"
 import { OrderItemsCard } from "./_components/order-items-card"
@@ -17,19 +18,23 @@ export default async function OrderDetailPage({
   const [order, notes, session] = await Promise.all([
     getOrderById(id),
     getOrderNotes(id),
-    requireSession(),
+    requirePermission("orders", "read"),
   ])
 
   if (!order) {
     notFound()
   }
 
+  const isDemo = session.user.role === "demo"
+  const checkoutEmail = isDemo ? maskEmail(order.checkoutEmail) : order.checkoutEmail
+  const displayOrder = isDemo ? { ...order, checkoutEmail } : order
+
   return (
     <div className="px-8 py-9">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
         <div className="divide-y divide-border rounded-2xl border border-border">
           <div className="p-6">
-            <OrderHeader order={order} />
+            <OrderHeader order={displayOrder} />
           </div>
           <div className="p-6">
             <OrderItemsCard
@@ -51,7 +56,7 @@ export default async function OrderDetailPage({
         <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-9">
           <div className="p-6">
             <OrderCustomerCard
-              customerEmail={order.checkoutEmail}
+              customerEmail={checkoutEmail}
               userId={order.userId}
               stripeSessionId={order.stripeSessionId}
             />

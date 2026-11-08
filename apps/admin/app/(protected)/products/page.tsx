@@ -1,7 +1,9 @@
+import { requirePermission } from "@/lib/auth/guards"
 import { getProductsList } from "@/features/products/queries"
 import { ProductsClient } from "./_components/products-client"
 
 export default async function ProductsPage() {
+  await requirePermission("products", "read")
   const products = await getProductsList()
 
   return (

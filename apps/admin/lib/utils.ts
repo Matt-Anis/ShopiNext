@@ -27,3 +27,11 @@ export function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
 }
+
+export function maskEmail(email: string): string {
+  const [name, domain] = email.split("@")
+  if (!name || !domain) return "***@***"
+  if (name.length <= 2) return `${name[0]}***@${domain}`
+  return `${name[0]}***${name[name.length - 1]}@${domain}`
+}
+

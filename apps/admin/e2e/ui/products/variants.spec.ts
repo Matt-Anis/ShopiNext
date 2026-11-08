@@ -297,6 +297,10 @@ test.describe("Creating variants", () => {
 })
 
 test.describe("Editing and deleting variants (step 3)", () => {
+  test.beforeEach(() => {
+    test.slow()
+  })
+
   test("keeps Save disabled until a field changes, and re-disables after reverting it", async ({
     page,
   }) => {
@@ -336,7 +340,9 @@ test.describe("Editing and deleting variants (step 3)", () => {
 
     const row = page.locator("tr").filter({ hasText: "Blue" })
     await row.getByRole("textbox").fill(v1.sku)
-    await row.getByRole("button", { name: "Save changes" }).click()
+    const save = row.getByRole("button", { name: "Save changes" })
+    await expect(save).toBeEnabled()
+    await save.click()
 
     await expect(page.getByText("This SKU is already in use")).toBeVisible()
   })
@@ -416,6 +422,10 @@ test.describe("Editing and deleting variants (step 3)", () => {
 })
 
 test.describe("Publishing", () => {
+  test.beforeEach(() => {
+    test.slow()
+  })
+
   test("publishes the product once at least one variant exists", async ({
     page,
   }) => {

@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test"
 
 config({ path: ".env.local" })
 
-// The session cookie cache's configured max age (see apps/admin/lib/auth.ts)
+// The session cookie cache's configured max age (see apps/admin/lib/auth/)
 // while testing - cookie-cache.spec.ts checks the cookie's expiry against it.
 export const TEST_COOKIE_CACHE_MAX_AGE_SECONDS = 4
 

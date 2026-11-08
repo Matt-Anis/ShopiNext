@@ -1,6 +1,9 @@
+import { requirePermission } from "@/lib/auth/guards"
 import { CreateStaffForm } from "./_components/create-staff-form"
 
-export default function NewStaffPage() {
+export default async function NewStaffPage() {
+  await requirePermission("user", "create")
+
   return (
     <div className="px-8 pt-9">
       <div className="max-w-[480px]">
