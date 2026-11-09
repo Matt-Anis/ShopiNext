@@ -98,12 +98,14 @@ export function StaffSecurityCard({
 
   function handleDeleteConfirm() {
     startTransition(async () => {
+      let deleted = false
+
       await toast
         .promise(deleteStaffMember(staff.id), {
           loading: { title: "Deleting staff account..." },
           success: () => {
+            deleted = true
             setDeleteDialogOpen(false)
-            router.push("/staff")
             return { title: "Staff account deleted" }
           },
           error: (error: Error) => ({
@@ -112,6 +114,11 @@ export function StaffSecurityCard({
           }),
         })
         .catch(() => {})
+
+      if (deleted) {
+        router.push("/staff")
+        router.refresh()
+      }
     })
   }
 

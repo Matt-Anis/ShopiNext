@@ -178,8 +178,6 @@ export async function deleteStaffMember(userId: string) {
   }
 
   await db.delete(adminUser).where(eq(adminUser.id, userId))
-
-  revalidatePath("/staff")
 }
 
 export async function revokeStaffSession(userId: string, sessionId: string) {
