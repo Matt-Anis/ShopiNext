@@ -33,6 +33,7 @@
     "./password-input": "./components/password-input.tsx",
     "./popover": "./components/popover.tsx",
     "./scroll-area": "./components/scroll-area.tsx",
+    "./select": "./components/select.tsx",
     "./separator": "./components/separator.tsx",
     "./sheet": "./components/sheet.tsx",
     "./sidebar": "./components/sidebar.tsx",
