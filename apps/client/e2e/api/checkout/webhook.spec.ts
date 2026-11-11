@@ -16,6 +16,7 @@ import {
   createConfirmedTestPaymentIntent,
 } from "../../utils/checkout";
 import { testStripe } from "../../utils/stripe";
+import { uniqueSuffix } from "../../utils/unique";
 
 test.describe("POST /api/webhooks/stripe", () => {
   test("rejects a request with no signature header", async ({ request }) => {
@@ -42,6 +43,7 @@ test.describe("POST /api/webhooks/stripe", () => {
   test("creates an order and order_items for a valid signed event", async ({
     request,
   }) => {
+    const checkoutEmail = `delivered+${uniqueSuffix()}@resend.dev`;
     const product = await seedProduct();
     const session = await createTestCheckoutSession({
       variantId: product.variant.id,
@@ -52,7 +54,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: "guest@example.com",
+      customerEmail: checkoutEmail,
       amountTotal: session.amount_total!,
       metadata: { source: "cart" },
     });
@@ -74,7 +76,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     expect(order).toBeTruthy();
     expect(order.userId).toBeNull();
-    expect(order.checkoutEmail).toBe("guest@example.com");
+    expect(order.checkoutEmail).toBe(checkoutEmail);
     expect(order.totalAmount).toBe(session.amount_total);
 
     const items = await testDb
@@ -100,7 +102,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: "guest@example.com",
+      customerEmail: `delivered+${uniqueSuffix()}@resend.dev`,
       amountTotal: session.amount_total!,
       metadata: { source: "cart" },
     });
@@ -142,7 +144,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: "guest@example.com",
+      customerEmail: `delivered+${uniqueSuffix()}@resend.dev`,
       amountTotal: session.amount_total!,
       metadata: { source: "cart" },
       paymentIntent: paymentIntent.id,
@@ -186,7 +188,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: "guest@example.com",
+      customerEmail: `delivered+${uniqueSuffix()}@resend.dev`,
       amountTotal: session.amount_total!,
       metadata: { source: "cart" },
     });
@@ -229,7 +231,7 @@ test.describe("POST /api/webhooks/stripe", () => {
 
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: "guest@example.com",
+      customerEmail: `delivered+${uniqueSuffix()}@resend.dev`,
       amountTotal: session.amount_total!,
       metadata: { source: "cart" },
       paymentStatus: "unpaid",
@@ -256,6 +258,7 @@ test.describe("POST /api/webhooks/stripe", () => {
   test("clears the DB cart for a logged in cart checkout, not for buy-now", async ({
     request,
   }) => {
+    const checkoutEmail = `delivered+${uniqueSuffix()}@resend.dev`;
     const credentials = await seedUser(request);
     const [seededUser] = await testDb.query.user.findMany({
       where: (fields, { eq }) => eq(fields.email, credentials.email),
@@ -280,7 +283,7 @@ test.describe("POST /api/webhooks/stripe", () => {
     });
     const { body, signature } = buildSignedCheckoutEvent({
       sessionId: session.id,
-      customerEmail: credentials.email,
+      customerEmail: checkoutEmail,
       amountTotal: session.amount_total!,
       metadata: { userId: seededUser.id, source: "buy-now" },
     });
@@ -307,7 +310,7 @@ test.describe("POST /api/webhooks/stripe", () => {
     });
     const cartEvent = buildSignedCheckoutEvent({
       sessionId: cartSession.id,
-      customerEmail: credentials.email,
+      customerEmail: checkoutEmail,
       amountTotal: cartSession.amount_total!,
       metadata: { userId: seededUser.id, source: "cart" },
     });
