@@ -29,7 +29,7 @@ export default async function CheckoutSuccessPage({
         Payment successful
       </h1>
       <p className="text-muted-foreground">
-        Thanks for your order, a confirmation has been sent to{" "}
+        Thanks for your order. Your payment confirmation will be emailed to{" "}
         {session.customer_details?.email}.
       </p>
       <Button nativeButton={false} render={<Link href="/" />}>

@@ -2,7 +2,8 @@
 
 This document describes how checkout works in ShopiNext: buying a single
 product directly from its page, checking out a full cart, guest and
-logged in customers, and how an order actually gets recorded after payment.
+logged in customers, how an order gets recorded after payment, and how its
+confirmation email is sent.
 
 ## Overview diagram
 
@@ -15,6 +16,7 @@ sequenceDiagram
     participant Webhook as Route Handler: /api/webhooks/stripe
     participant Complete as Route Handler: /api/checkout/complete
     participant DB as Database
+    participant Resend as Resend
 
     Customer->>Browser: Click "Buy now" or "Checkout"
     Browser->>ServerAction: Submit form
@@ -41,11 +43,24 @@ sequenceDiagram
     and Server to server event, guaranteed and retried on failure
         Stripe->>Webhook: POST checkout.session.completed, signed
         Webhook->>Webhook: Verify signature against STRIPE_WEBHOOK_SECRET
-        Webhook->>Stripe: List line items, expand product metadata
-        Webhook->>Webhook: Validate productId, quantity, unit amount, email, total
-        Webhook->>DB: Insert order and order_items, unique on stripeSessionId
-        alt Logged in customer and source is cart
-            Webhook->>DB: Clear DB cart
+        Webhook->>DB: Find order by stripeSessionId
+        alt No saved order
+            Webhook->>Stripe: List line items, expand product metadata
+            Webhook->>Webhook: Validate variantId, quantity, unit amount, email, total
+            Webhook->>DB: Commit order, items, stock changes and timeline
+            Note over Webhook,DB: Concurrent insert conflicts load the saved order
+            alt Newly created order, logged in customer and source is cart
+                Webhook->>DB: Clear DB cart
+            end
+        end
+        alt confirmationEmailSentAt is empty
+            Webhook->>Resend: Send confirmation with an order-specific idempotency key
+            alt Resend accepts the email
+                Resend-->>Webhook: Email ID
+                Webhook->>DB: Set confirmationEmailSentAt if still empty
+            else Resend fails or the result is uncertain
+                Webhook->>Webhook: Log error, keep saved purchase, return 500 for retry
+            end
         end
         Webhook-->>Stripe: 200 received, or a non 2xx to trigger a retry
     end
@@ -73,7 +88,7 @@ flowchart TD
 
 Buying a single product from its page and checking out the whole cart are
 the same underlying operation with different inputs, a list of
-`{ productId, quantity }`. Both `checkoutNow` and `checkoutCart` in
+`{ variantId, quantity }`. Both `checkoutNow` and `checkoutCart` in
 `features/checkout/actions.ts` are Server Actions that funnel into one
 shared `createCheckoutSession` function. Neither one ever trusts a price
 coming from the browser, the price is always re-looked up from the
@@ -118,11 +133,65 @@ render.
 
 ### Idempotency
 
-Stripe may redeliver the same webhook event more than once. `orders`
-has a unique constraint on `stripeSessionId`, and `createOrder` in
-`features/orders/queries.ts` uses `onConflictDoNothing` on that column,
-so a redelivered event simply no ops instead of creating a duplicate
-order.
+Stripe may redeliver the same webhook event more than once.
+`getOrCreateCheckoutOrder` in `features/orders/get-or-create-checkout-order.ts`
+first looks for the saved order by `stripeSessionId`. Existing orders bypass
+Stripe line-item retrieval and purchase creation.
+
+`orders` has a unique constraint on `stripeSessionId`, and `createOrder` in
+`features/orders/queries.ts` uses `onConflictDoNothing` on that column. If two
+deliveries race to create an order, the losing insert loads the saved order.
+Stock changes, items and the initial timeline event belong to the creation
+transaction, so they are not repeated on a retry.
+
+**Confirmation emails and retries**
+
+`processPaidCheckout` in `features/orders/process-paid-checkout.ts` waits for
+the purchase transaction to commit and clears the signed-in customer's cart
+for a newly created cart order before attempting confirmation delivery.
+The email uses the saved order's `checkoutEmail` for both guests and signed-in
+customers. It includes payment confirmation, the first eight characters of the
+order ID as the reference, and the saved total formatted in USD, matching
+checkout. The shared email layout keeps the existing ShopiNext design.
+
+`sendOrderConfirmationEmail` checks both Resend's returned error and thrown
+exceptions. A successful response must contain an email ID. Only then does
+the workflow set `confirmationEmailSentAt`; the conditional update preserves
+the first recorded timestamp. This timestamp records Resend acceptance, not
+delivery to the customer's inbox.
+
+If sending or recording acceptance fails, the webhook logs the error with
+order and session identifiers and returns HTTP 500 so Stripe can retry.
+The order and stock changes remain committed. A retry loads the saved order
+and attempts any pending confirmation. Once its timestamp is set, later
+deliveries skip sending.
+
+Each send uses the stable key `order-confirmation/<order-id>` and the same
+message content. Resend's [idempotency keys](https://resend.com/docs/dashboard/emails/idempotency-keys)
+protect retries and concurrent sends for 24 hours. If Resend accepts a message
+but the timestamp write fails, a retry within that window can record acceptance
+without sending again. After the window expires, that uncertain outcome can
+result in another email. This flow does not provide permanent exactly-once
+delivery across that failure; avoid changing a pending message's payload
+while retrying with the same key.
+
+There is no automatic backfill. Existing orders have an empty timestamp, so
+redelivering an older paid checkout event can send its first confirmation.
+
+The browser redirect and webhook are independent. The success page may appear
+before email acceptance, so it describes the confirmation as forthcoming.
+
+**Migration prerequisite**
+
+Apply the generated migration `drizzle/0029_stormy_starjammers.sql` manually
+before deploying code that reads or writes `confirmationEmailSentAt`:
+
+```bash
+pnpm db:migrate
+```
+
+Migration generation and application are manual operations; the webhook does
+neither.
 
 ### Validation instead of silent defaults
 
