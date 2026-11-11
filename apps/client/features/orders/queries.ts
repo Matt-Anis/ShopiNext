@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   orders,
@@ -27,6 +27,19 @@ type CreateOrderInput = {
   }[];
 };
 
+export const getOrderByStripeSessionId = async (stripeSessionId: string) => {
+  return db.query.orders.findFirst({
+    where: eq(orders.stripeSessionId, stripeSessionId),
+  });
+};
+
+export const markOrderConfirmationEmailSent = async (orderId: string) => {
+  await db
+    .update(orders)
+    .set({ confirmationEmailSentAt: new Date() })
+    .where(and(eq(orders.id, orderId), isNull(orders.confirmationEmailSentAt)));
+};
+
 export const createOrder = async ({
   stripeSessionId,
   userId,
@@ -40,7 +53,7 @@ export const createOrder = async ({
       .insert(orders)
       .values({ stripeSessionId, userId, checkoutEmail, totalAmount, status })
       .onConflictDoNothing({ target: orders.stripeSessionId })
-      .returning({ id: orders.id });
+      .returning();
 
     if (!order) return null;
 
