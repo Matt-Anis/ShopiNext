@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import { db } from "@/db";
 import * as authSchema from "@repo/db/public/auth-schema";
-import { emailSignUpSchema } from "@/lib/validations/auth";
+import { emailSignUpSchema, profileNameSchema } from "@/lib/validations/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
 import { mergeGuestCartIntoDb } from "@/features/cart/queries";
@@ -45,6 +45,22 @@ export const auth = betterAuth({
             message: result.error.issues[0]?.message ?? "Invalid input",
           });
         }
+      }
+
+      if (ctx.path === "/update-user" && ctx.body?.name !== undefined) {
+        const result = profileNameSchema.safeParse(ctx.body);
+        if (!result.success) {
+          throw new APIError("BAD_REQUEST", {
+            message: result.error.issues[0]?.message ?? "Invalid name",
+          });
+        }
+
+        return {
+          context: {
+            ...ctx,
+            body: { ...ctx.body, ...result.data },
+          },
+        };
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
