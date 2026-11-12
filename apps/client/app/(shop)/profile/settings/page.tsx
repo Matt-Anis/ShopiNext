@@ -37,7 +37,7 @@ export default async function ProfileSettingsPage() {
             <ProfileNameForm key={user.name} initialName={user.name} />
           </CardContent>
         </Card>
-        <PasswordSettings userId={user.id} />
+        <PasswordSettings userId={user.id} email={user.email} />
         <ActiveSessions currentSessionId={session.id} />
       </div>
     </div>

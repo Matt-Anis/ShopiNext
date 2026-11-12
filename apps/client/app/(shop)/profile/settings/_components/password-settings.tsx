@@ -1,8 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@repo/ui/card"
 import { hasCustomerPassword } from "@/features/account/credentials"
-import { ChangePasswordForm } from "./change-password-form"
+import { PasswordResetRequest } from "./password-reset-request"
 
-export async function PasswordSettings({ userId }: { userId: string }) {
+export async function PasswordSettings({
+  userId,
+  email,
+}: {
+  userId: string
+  email: string
+}) {
   const hasPassword = await hasCustomerPassword(userId).catch(
     (error: unknown) => {
       console.error("Unable to load customer password settings", error)
@@ -18,7 +24,7 @@ export async function PasswordSettings({ userId }: { userId: string }) {
           {hasPassword === null
             ? "Password settings are temporarily unavailable."
             : hasPassword
-              ? "Choose a new password for your account."
+              ? "Reset your password using a link sent to your email."
               : "Your password is managed through Google."}
         </CardDescription>
       </CardHeader>
@@ -29,7 +35,7 @@ export async function PasswordSettings({ userId }: { userId: string }) {
             page to try again.
           </p>
         ) : hasPassword ? (
-          <ChangePasswordForm />
+          <PasswordResetRequest email={email} />
         ) : (
           <p className="text-sm text-muted-foreground">
             You sign in with Google and don&apos;t have a ShopiNext password. To

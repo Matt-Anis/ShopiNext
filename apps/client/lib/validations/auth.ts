@@ -63,16 +63,3 @@ export const resetPasswordFormSchema = z
   });
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
-
-export const changePasswordFormSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;

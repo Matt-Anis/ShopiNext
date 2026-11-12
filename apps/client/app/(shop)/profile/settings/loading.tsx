@@ -14,11 +14,9 @@ export default function ProfileSettingsLoading() {
         </div>
         <div className="space-y-6">
           <Skeleton className="h-6 w-24" />
-          <Skeleton className="h-11 w-full" />
-          <Skeleton className="h-11 w-full" />
-          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-4 w-full max-w-80" />
           <Skeleton className="h-4 w-full max-w-96" />
-          <Skeleton className="h-9 w-40 rounded-full" />
+          <Skeleton className="h-9 w-52 rounded-full" />
         </div>
         <div className="space-y-6">
           <Skeleton className="h-6 w-40" />
