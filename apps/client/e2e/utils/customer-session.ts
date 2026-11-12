@@ -35,10 +35,18 @@ export async function createCustomerSession(
 }
 
 export async function snapshotCustomerSession(page: Page, baseURL: string) {
-  return request.newContext({
+  const context = await request.newContext({
     baseURL,
     storageState: await page.context().storageState(),
   })
+
+  try {
+    expect(await readCustomerSession(context)).not.toBeNull()
+    return context
+  } catch (error) {
+    await context.dispose()
+    throw error
+  }
 }
 
 export async function readCustomerSession(
