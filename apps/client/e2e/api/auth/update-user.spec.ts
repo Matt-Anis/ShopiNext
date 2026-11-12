@@ -23,7 +23,7 @@ test("rejects invalid names submitted directly without changing the account", as
 
   const customer = await seedUser(request, {
     name: `AS ${uniqueNameSuffix()}`,
-    email: "account-server-validation@example.com",
+    email: "account-update@example.com",
   })
   const signInResponse = await request.post("/api/auth/sign-in/email", {
     headers: { origin: baseURL! },
