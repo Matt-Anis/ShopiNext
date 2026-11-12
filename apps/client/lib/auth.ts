@@ -8,6 +8,7 @@ import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
 import { mergeGuestCartIntoDb } from "@/features/cart/queries";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/password-rules";
+import { enforcePasswordResetPolicy } from "@/lib/auth/password-reset-policy";
 
 export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL as string],
@@ -26,6 +27,7 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     minPasswordLength: MIN_PASSWORD_LENGTH,
     maxPasswordLength: MAX_PASSWORD_LENGTH,
+    revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url);
     },
@@ -39,6 +41,9 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      const resetResponse = await enforcePasswordResetPolicy(ctx);
+      if (resetResponse) return resetResponse;
+
       if (ctx.path === "/sign-up/email") {
         const result = emailSignUpSchema.safeParse(ctx.body);
         if (!result.success) {

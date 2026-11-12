@@ -70,7 +70,8 @@ export function ResetPasswordForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Reset your password</CardTitle>
           <CardDescription>
-            Enter a new password for your account.
+            Enter a new password for your account. Resetting your password signs
+            you out on all devices. You&apos;ll need to sign in again.
           </CardDescription>
         </CardHeader>
         <CardContent>
