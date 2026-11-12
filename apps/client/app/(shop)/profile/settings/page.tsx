@@ -1,13 +1,9 @@
 import type { Metadata } from "next"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@repo/ui/card"
+import { Card, CardContent, CardDescription, CardHeader } from "@repo/ui/card"
 import { requireCustomerSession } from "@/lib/require-customer-session"
 import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { ProfileNameForm } from "./_components/profile-name-form"
+import { PasswordSettings } from "./_components/password-settings"
 
 export const metadata: Metadata = {
   title: "Account settings | ShopiNext",
@@ -24,21 +20,24 @@ export default async function ProfileSettingsPage() {
           Account settings
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Update the name on your account.
+          Manage your name and account security.
         </p>
       </header>
       <AccountNavigation currentPath="/profile/settings" />
-      <Card>
-        <CardHeader>
-          <h2 className="font-heading text-lg font-semibold">Full name</h2>
-          <CardDescription>
-            Choose how your name appears in your profile.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProfileNameForm key={user.name} initialName={user.name} />
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <h2 className="font-heading text-lg font-semibold">Full name</h2>
+            <CardDescription>
+              Choose how your name appears in your profile.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProfileNameForm key={user.name} initialName={user.name} />
+          </CardContent>
+        </Card>
+        <PasswordSettings userId={user.id} />
+      </div>
     </div>
   )
 }

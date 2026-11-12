@@ -4,12 +4,22 @@ import { AccountPageLoading } from "../_components/account-page-loading"
 export default function ProfileSettingsLoading() {
   return (
     <AccountPageLoading label="Loading account settings">
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <Skeleton className="h-11 w-full" />
-          <Skeleton className="h-4 w-full max-w-80" />
+      <div className="space-y-10">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Skeleton className="h-11 w-full" />
+            <Skeleton className="h-4 w-full max-w-80" />
+          </div>
+          <Skeleton className="h-9 w-28 rounded-full" />
         </div>
-        <Skeleton className="h-9 w-28 rounded-full" />
+        <div className="space-y-6">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-4 w-full max-w-96" />
+          <Skeleton className="h-9 w-40 rounded-full" />
+        </div>
       </div>
     </AccountPageLoading>
   )

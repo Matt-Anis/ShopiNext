@@ -9,6 +9,7 @@ import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
 import { mergeGuestCartIntoDb } from "@/features/cart/queries";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/password-rules";
 import { enforcePasswordResetPolicy } from "@/lib/auth/password-reset-policy";
+import { revokePasswordChangeSessions } from "@/lib/auth/password-change-policy";
 
 export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL as string],
@@ -70,6 +71,12 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      const passwordResponse = await revokePasswordChangeSessions(
+        ctx,
+        ctx.context.returned,
+      );
+      if (passwordResponse) return passwordResponse;
+
       const newSession = ctx.context.newSession;
       if (!newSession?.user?.id) return;
 
