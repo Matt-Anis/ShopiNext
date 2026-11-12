@@ -9,6 +9,7 @@ import {
 } from "@repo/ui/table"
 import type { CustomerOrder } from "@/features/orders/customer-queries"
 import { formatPrice } from "@/lib/utils"
+import { OrderProductSummary } from "./order-product-summary"
 
 export function OrderItemsTable({
   items,
@@ -36,15 +37,7 @@ export function OrderItemsTable({
             {items.map((item) => (
               <TableRow key={item.id} data-testid="order-item">
                 <TableCell className="min-w-48 whitespace-normal">
-                  <p className="font-medium">{item.variant.product.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.variant.variantOptionValues
-                      .map(
-                        ({ optionValue }) =>
-                          `${optionValue.option.name}: ${optionValue.value}`
-                      )
-                      .join(", ")}
-                  </p>
+                  <OrderProductSummary variant={item.variant} />
                 </TableCell>
                 <TableCell className="text-right">{item.quantity}</TableCell>
                 <TableCell className="text-right">
