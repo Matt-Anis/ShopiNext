@@ -4,6 +4,7 @@ import { requireCustomerSession } from "@/lib/require-customer-session"
 import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { ProfileNameForm } from "./_components/profile-name-form"
 import { PasswordSettings } from "./_components/password-settings"
+import { ActiveSessions } from "./_components/active-sessions"
 
 export const metadata: Metadata = {
   title: "Account settings | ShopiNext",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProfileSettingsPage() {
-  const { user } = await requireCustomerSession()
+  const { user, session } = await requireCustomerSession()
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-16">
@@ -37,6 +38,7 @@ export default async function ProfileSettingsPage() {
           </CardContent>
         </Card>
         <PasswordSettings userId={user.id} />
+        <ActiveSessions currentSessionId={session.id} />
       </div>
     </div>
   )
