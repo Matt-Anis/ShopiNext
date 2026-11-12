@@ -9,7 +9,7 @@ export async function sendAccountDeletionEmail(to: string, url: string) {
     html: renderEmail({
       heading: "Delete your account?",
       body: "You requested to permanently delete your ShopiNext account. Confirming removes your profile, sign-ins, and cart. Existing orders and their checkout email are retained. This link expires in 24 hours. You must be signed in to the account you want to delete.",
-      action: { label: "Confirm account deletion", url },
+      action: { label: "Review account deletion", url },
       footer:
         "If you didn't request this, ignore this email. Your account will remain active.",
     }),

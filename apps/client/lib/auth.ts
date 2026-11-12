@@ -47,8 +47,10 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       deleteTokenExpiresIn: 60 * 60 * 24,
-      sendDeleteAccountVerification: async ({ user, url }) => {
-        await sendAccountDeletionEmail(user.email, url);
+      sendDeleteAccountVerification: async ({ user, token }) => {
+        const url = new URL("/delete-account", process.env.BETTER_AUTH_URL);
+        url.searchParams.set("token", token);
+        await sendAccountDeletionEmail(user.email, url.toString());
       },
     },
   },
