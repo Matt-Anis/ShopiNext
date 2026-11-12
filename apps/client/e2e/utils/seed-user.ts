@@ -38,3 +38,14 @@ export async function seedUser(
 
   return credentials
 }
+
+export async function getSeededUserId(email: string): Promise<string> {
+  const [seededUser] = await testDb
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, email))
+
+  if (!seededUser) throw new Error(`Seeded user not found: ${email}`)
+
+  return seededUser.id
+}
