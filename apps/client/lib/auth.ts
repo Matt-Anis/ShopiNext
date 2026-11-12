@@ -7,6 +7,7 @@ import { emailSignUpSchema, profileNameSchema } from "@/lib/validations/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
 import { mergeGuestCartIntoDb } from "@/features/cart/queries";
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/password-rules";
 
 export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL as string],
@@ -23,8 +24,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    minPasswordLength: 8,
-    maxPasswordLength: 20,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
+    maxPasswordLength: MAX_PASSWORD_LENGTH,
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url);
     },
