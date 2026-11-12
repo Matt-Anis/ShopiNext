@@ -1,5 +1,6 @@
 import { Monitor, Smartphone, Tablet, CircleHelp } from "lucide-react"
 import type { CustomerSession } from "@/features/account/session-types"
+import { SessionSignOutButton } from "./session-sign-out-button"
 
 const deviceIcons = {
   computer: Monitor,
@@ -17,13 +18,13 @@ export function SessionList({ sessions }: { sessions: CustomerSession[] }) {
         return (
           <li
             key={session.id}
-            className="flex items-start gap-3 py-4 first:pt-0 last:pb-0"
+            className="flex flex-wrap items-start gap-3 py-4 first:pt-0 last:pb-0"
           >
             <DeviceIcon
               className="mt-0.5 size-5 shrink-0 text-muted-foreground"
               aria-hidden="true"
             />
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 flex-1 basis-48 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium">{session.description}</p>
                 {session.isCurrent && (
@@ -39,6 +40,7 @@ export function SessionList({ sessions }: { sessions: CustomerSession[] }) {
                 </time>
               </p>
             </div>
+            <SessionSignOutButton session={session} />
           </li>
         )
       })}

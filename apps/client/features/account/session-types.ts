@@ -11,3 +11,8 @@ export type CustomerSessionsResult =
   | { status: "ready"; sessions: CustomerSession[] }
   | { status: "reauthenticate" }
   | { status: "error" }
+
+export type SessionActionResult =
+  | { status: "success"; signedOut: boolean }
+  | { status: "reauthenticate" }
+  | { status: "error"; message: string }

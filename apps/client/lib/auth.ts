@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, APIError } from "better-auth/api";
+import { nextCookies } from "better-auth/next-js";
 import { db } from "@/db";
 import * as authSchema from "@repo/db/public/auth-schema";
 import { emailSignUpSchema, profileNameSchema } from "@/lib/validations/auth";
@@ -12,6 +13,7 @@ import { enforcePasswordResetPolicy } from "@/lib/auth/password-reset-policy";
 import { revokePasswordChangeSessions } from "@/lib/auth/password-change-policy";
 
 export const auth = betterAuth({
+  plugins: [nextCookies()],
   trustedOrigins: [process.env.BETTER_AUTH_URL as string],
   database: drizzleAdapter(db, {
     provider: "pg",
