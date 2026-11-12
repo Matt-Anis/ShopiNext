@@ -24,6 +24,7 @@ export default function ProfileSettingsLoading() {
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-16 w-full" />
           <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-9 w-44 rounded-full" />
         </div>
       </div>
     </AccountPageLoading>

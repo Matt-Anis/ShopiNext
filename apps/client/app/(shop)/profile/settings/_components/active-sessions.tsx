@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@repo/ui/card"
 import { getCustomerSessions } from "@/features/account/sessions"
 import { SessionList } from "./session-list"
 import { SignInAgainButton } from "./sign-in-again-button"
+import { SignOutAllDevices } from "./sign-out-all-devices"
 
 export async function ActiveSessions({
   currentSessionId,
@@ -17,12 +18,17 @@ export async function ActiveSessions({
           Signed-in devices
         </h2>
         <CardDescription>
-          See where you&apos;re signed in to your ShopiNext account.
+          Manage where you&apos;re signed in to your ShopiNext account.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {result.status === "ready" ? (
-          <SessionList sessions={result.sessions} />
+          <div className="space-y-6">
+            <SessionList sessions={result.sessions} />
+            <div className="border-t border-border pt-6">
+              <SignOutAllDevices />
+            </div>
+          </div>
         ) : result.status === "reauthenticate" ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">

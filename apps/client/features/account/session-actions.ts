@@ -10,7 +10,10 @@ import type { SessionActionResult } from "./session-types"
 
 const sessionIdSchema = z.string().min(1).max(256)
 
-function sessionActionFailure(error: unknown): SessionActionResult {
+function sessionActionFailure(
+  error: unknown,
+  message: string
+): SessionActionResult {
   if (
     isAPIError(error) &&
     (error.body?.code === "SESSION_NOT_FRESH" || error.statusCode === 401)
@@ -21,7 +24,7 @@ function sessionActionFailure(error: unknown): SessionActionResult {
   console.error("Unable to revoke customer sessions", error)
   return {
     status: "error",
-    message: "We couldn't sign out the selected device. Please try again.",
+    message,
   }
 }
 
@@ -71,6 +74,24 @@ export async function revokeCustomerSession(
 
     return { status: "success", signedOut }
   } catch (error) {
-    return sessionActionFailure(error)
+    return sessionActionFailure(
+      error,
+      "We couldn't sign out the selected device. Please try again."
+    )
+  }
+}
+
+export async function revokeAllCustomerSessions(): Promise<SessionActionResult> {
+  try {
+    const requestHeaders = await headers()
+    await auth.api.revokeSessions({ headers: requestHeaders })
+    await auth.api.signOut({ headers: requestHeaders })
+
+    return { status: "success", signedOut: true }
+  } catch (error) {
+    return sessionActionFailure(
+      error,
+      "We couldn't sign out all devices. Please try again."
+    )
   }
 }
