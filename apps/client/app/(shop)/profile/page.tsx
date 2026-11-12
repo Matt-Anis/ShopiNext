@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { requireCustomerSession } from "@/lib/require-customer-session"
+import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { ProfileDetails } from "./_components/profile-details"
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default async function ProfilePage() {
           View your account details.
         </p>
       </header>
+      <AccountNavigation currentPath="/profile" />
       <ProfileDetails
         name={user.name}
         email={user.email}

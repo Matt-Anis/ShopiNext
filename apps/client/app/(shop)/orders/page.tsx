@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { getCustomerOrders } from "@/features/orders/customer-queries"
 import { ordersPageHref, parseOrdersPage } from "@/features/orders/pagination"
 import { OrderPagination } from "./_components/order-pagination"
@@ -33,6 +34,8 @@ export default async function OrdersPage({
           View your purchases and their latest updates.
         </p>
       </header>
+
+      <AccountNavigation currentPath="/orders" />
 
       {orders.length === 0 ? (
         <OrdersEmptyState />

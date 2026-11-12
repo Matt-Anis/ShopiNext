@@ -6,6 +6,7 @@ import {
   CardHeader,
 } from "@repo/ui/card"
 import { requireCustomerSession } from "@/lib/require-customer-session"
+import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { ProfileNameForm } from "./_components/profile-name-form"
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default async function ProfileSettingsPage() {
           Update the name on your account.
         </p>
       </header>
+      <AccountNavigation currentPath="/profile/settings" />
       <Card>
         <CardHeader>
           <h2 className="font-heading text-lg font-semibold">Full name</h2>
