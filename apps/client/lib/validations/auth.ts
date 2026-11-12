@@ -1,12 +1,20 @@
 import { z } from "zod";
 
+export const customerNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Name is required")
+  .max(20, "Name must be at most 20 characters")
+  .regex(/^[\p{L}\s'-]+$/u, "Name can only contain letters");
+
+export const profileNameSchema = z.object({
+  name: customerNameSchema,
+});
+
+export type ProfileNameValues = z.infer<typeof profileNameSchema>;
+
 export const emailSignUpSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Name is required")
-    .max(20, "Name must be at most 20 characters")
-    .regex(/^[\p{L}\s'-]+$/u, "Name can only contain letters"),
+  name: customerNameSchema,
   email: z
     .email("Enter a valid email address")
     .max(50, "Email must be at most 50 characters"),
