@@ -11,7 +11,7 @@ export default function PrivacyPolicyPage() {
         Privacy Policy
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Last updated: August 20, 2026
+        Last updated: November 12, 2026
       </p>
 
       <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground">
@@ -65,7 +65,8 @@ export default function PrivacyPolicyPage() {
                 Transactional emails —
               </span>{" "}
               we use Resend to send account-related emails, such as email
-              verification and password reset links.
+              verification, password reset links, and account deletion
+              confirmation links.
             </li>
           </ul>
         </section>
@@ -96,6 +97,29 @@ export default function PrivacyPolicyPage() {
             run the site — Stripe (payments) and Resend (transactional
             email) — and only to the extent required for them to provide
             that service.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-medium">Account Deletion</h2>
+          <p className="mt-2">
+            You can request account deletion in your account settings. You must
+            confirm the request using a link sent to your account email while
+            signed in to that account. Requesting a link alone does not delete
+            your account.
+          </p>
+          <p className="mt-2">
+            Confirmed deletion permanently removes your profile, linked sign-in
+            accounts, sessions, and saved cart. You lose access to your account
+            and its order history. Existing orders are not cancelled or deleted:
+            we retain their checkout email, payment reference, items, amounts,
+            statuses, and order notes to handle fulfilment, refunds, and support.
+            These orders are no longer linked to your deleted account.
+          </p>
+          <p className="mt-2">
+            Deleting your ShopiNext account does not automatically erase payment
+            records held by Stripe or email records held by Resend. Contact us
+            below for requests concerning retained personal information.
           </p>
         </section>
 

@@ -6,6 +6,7 @@ import { db } from "@/db";
 import * as authSchema from "@repo/db/public/auth-schema";
 import { emailSignUpSchema, profileNameSchema } from "@/lib/validations/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
+import { sendAccountDeletionEmail } from "@/lib/email/account-deletion";
 import { CART_COOKIE_NAME, parseCookie } from "@/features/cart/cookie";
 import { mergeGuestCartIntoDb } from "@/features/cart/queries";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/password-rules";
@@ -40,6 +41,15 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       await sendVerificationEmail(user.email, url);
+    },
+  },
+  user: {
+    deleteUser: {
+      enabled: true,
+      deleteTokenExpiresIn: 60 * 60 * 24,
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        await sendAccountDeletionEmail(user.email, url);
+      },
     },
   },
   hooks: {
