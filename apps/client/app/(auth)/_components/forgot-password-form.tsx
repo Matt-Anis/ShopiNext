@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@repo/ui/utils";
-import { authClient } from "@/lib/auth-client";
+import { requestPasswordReset } from "@/lib/request-password-reset";
 import { toast } from "@repo/ui/toast";
 import {
   forgotPasswordSchema,
@@ -40,17 +40,8 @@ export function ForgotPasswordForm({
   });
 
   const onSubmit = handleSubmit(async ({ email }) => {
-    const requestPromise = authClient
-      .requestPasswordReset({ email, redirectTo: "/reset-password" })
-      .then((res) => {
-        if (res.error) {
-          throw new Error(res.error.message ?? "Something went wrong");
-        }
-        return res.data;
-      });
-
     await toast
-      .promise(requestPromise, {
+      .promise(requestPasswordReset(email), {
         loading: { title: "Sending reset link..." },
         success: () => ({
           title: "Reset link sent",
