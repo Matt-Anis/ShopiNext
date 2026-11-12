@@ -14,6 +14,11 @@ export function OrderTimeline({
         <h2 className="font-heading text-xl font-semibold">Status history</h2>
       </CardHeader>
       <CardContent>
+        {events.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No status updates have been recorded yet.
+          </p>
+        )}
         <ol className="space-y-5" aria-label="Public order status history">
           {events.map((event) => (
             <li

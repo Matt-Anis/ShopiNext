@@ -4,6 +4,7 @@ import { getCustomerOrders } from "@/features/orders/customer-queries"
 import { ordersPageHref, parseOrdersPage } from "@/features/orders/pagination"
 import { OrderPagination } from "./_components/order-pagination"
 import { OrderSummaryCard } from "./_components/order-summary-card"
+import { OrdersEmptyState } from "./_components/orders-empty-state"
 
 export const metadata: Metadata = {
   title: "Your orders | ShopiNext",
@@ -33,14 +34,20 @@ export default async function OrdersPage({
         </p>
       </header>
 
-      <ol className="space-y-5" aria-label="Your orders">
-        {orders.map((order) => (
-          <li key={order.id}>
-            <OrderSummaryCard order={order} />
-          </li>
-        ))}
-      </ol>
-      <OrderPagination page={page} totalPages={totalPages} />
+      {orders.length === 0 ? (
+        <OrdersEmptyState />
+      ) : (
+        <>
+          <ol className="space-y-5" aria-label="Your orders">
+            {orders.map((order) => (
+              <li key={order.id}>
+                <OrderSummaryCard order={order} />
+              </li>
+            ))}
+          </ol>
+          <OrderPagination page={page} totalPages={totalPages} />
+        </>
+      )}
     </div>
   )
 }
