@@ -2,12 +2,14 @@ import Link from "next/link"
 import { AccountLink } from "@/features/account/components/account-link"
 import { CartTrigger } from "./cart-trigger"
 import { StorefrontNavigation } from "./storefront-navigation"
+import { MobileNavigation } from "./mobile-navigation"
 import Logo from "./Logo"
 
 export default function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 md:px-10">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:gap-3 sm:px-6 md:gap-6 md:px-10">
+        <MobileNavigation />
         <Link
           href="/"
           aria-label="ShopiNext home"
