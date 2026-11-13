@@ -53,7 +53,13 @@ export function LogoutButton() {
       }}
     >
       <AlertDialogTrigger
-        render={<Button variant="ghost" data-testid="logout-button" />}
+        render={
+          <Button
+            variant="ghost"
+            className="h-10 text-muted-foreground hover:text-destructive md:w-full md:justify-start"
+            data-testid="logout-button"
+          />
+        }
       >
         <LogOut aria-hidden="true" />
         Log out
