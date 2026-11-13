@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@repo/ui/button"
 
 const storefrontLinks = [
-  { href: "/#products", label: "Shop", paths: ["/", "/products"] },
+  { href: "/#products", label: "All products", paths: ["/", "/products"] },
   { href: "/categories", label: "Categories", paths: ["/categories"] },
 ]
 
