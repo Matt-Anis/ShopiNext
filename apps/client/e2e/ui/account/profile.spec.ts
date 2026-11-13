@@ -8,13 +8,19 @@ test("hides account navigation from guests and protects both account pages", asy
   page,
 }) => {
   await page.goto("/")
-  await expect(page.getByTestId("signin-nav-button")).toBeVisible()
-  await expect(page.getByTestId("user-menu-trigger")).toBeHidden()
+  const header = page.getByRole("banner")
+  await expect(
+    header.getByRole("link", { name: "Sign in", exact: true })
+  ).toBeVisible()
+  await expect(
+    header.getByRole("link", { name: "Account", exact: true })
+  ).toBeHidden()
+  await expect(
+    page.getByRole("navigation", { name: "Account", exact: true })
+  ).toBeHidden()
+  await expect(page.getByTestId("logout-button")).toBeHidden()
 
   const accountPaths = ["/profile", "/profile/settings"]
-  for (const path of accountPaths) {
-    await expect(page.locator(`nav a[href="${path}"]`)).toBeHidden()
-  }
   for (const path of accountPaths) {
     await page.goto(path)
     await expect(page).toHaveURL(/\/login$/)
@@ -38,17 +44,14 @@ test("shows the signed-in customers details and connects account pages", async (
   const { user } = await sessionResponse.json()
   expect(user.email).toBe(customer.email)
 
-  const profileMenuItem = page.getByRole("menuitem", {
-    name: "Profile",
+  const accountLink = page.getByRole("banner").getByRole("link", {
+    name: "Account",
     exact: true,
   })
-  await clickUntilHydrated(page.getByTestId("user-menu-trigger"), () =>
-    expect(profileMenuItem).toBeVisible()
+  await expect(accountLink).toHaveAttribute("href", "/profile")
+  await clickUntilHydrated(accountLink, () =>
+    expect(page).toHaveURL("/profile")
   )
-  await expect(
-    page.getByRole("menuitem", { name: "Settings", exact: true })
-  ).toHaveAttribute("href", "/profile/settings")
-  await profileMenuItem.click()
 
   const main = page.getByRole("main")
   await expect(
@@ -88,6 +91,10 @@ test("shows the signed-in customers details and connects account pages", async (
     await expect(navigation.locator(`a[href="${path}"]`)).toHaveAttribute(
       "aria-current",
       "page"
+    )
+    await expect(navigation.locator("a[aria-current]")).toHaveAttribute(
+      "href",
+      path
     )
   }
 })
