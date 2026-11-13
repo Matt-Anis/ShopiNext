@@ -85,7 +85,9 @@ test("requires confirmation and verification, deletes account data, and preserve
     await clickUntilHydrated(
       page.getByRole("button", { name: "Delete my account", exact: true }),
       () =>
-        expect(page.getByRole("alert")).toContainText("This link is invalid")
+        expect(page.getByRole("main").getByRole("alert")).toContainText(
+          "This link is invalid"
+        )
     )
     await expect
       .poll(() => readCustomerSession(originalSession))
