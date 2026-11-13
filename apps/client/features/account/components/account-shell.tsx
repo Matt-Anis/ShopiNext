@@ -9,9 +9,11 @@ export function AccountShell({ children }: { children: ReactNode }) {
         <p className="px-3 text-sm font-medium text-muted-foreground">
           Your account
         </p>
-        <AccountNavigation />
-        <div className="border-t border-border pt-4">
-          <LogoutButton />
+        <div className="flex items-center gap-2 md:block md:space-y-4">
+          <AccountNavigation />
+          <div className="ml-auto shrink-0 md:ml-0 md:border-t md:border-border md:pt-4">
+            <LogoutButton />
+          </div>
         </div>
       </aside>
       <div className="min-w-0">{children}</div>

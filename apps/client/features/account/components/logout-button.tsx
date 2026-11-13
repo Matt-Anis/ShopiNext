@@ -55,13 +55,13 @@ export function LogoutButton() {
       <AlertDialogTrigger
         render={
           <Button
-            variant="ghost"
-            className="h-10 text-muted-foreground hover:text-destructive md:w-full md:justify-start"
+            variant="destructive"
+            className="h-10 rounded-xl px-2 md:w-full md:justify-start md:px-3"
             data-testid="logout-button"
           />
         }
       >
-        <LogOut aria-hidden="true" />
+        <LogOut className="hidden sm:block" aria-hidden="true" />
         Log out
       </AlertDialogTrigger>
       <AlertDialogContent size="sm" aria-busy={isPending}>
