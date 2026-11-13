@@ -43,7 +43,7 @@ export function MobileNavigation() {
         <Menu aria-hidden="true" />
       </SheetTrigger>
       <SheetContent
-        side="left"
+        side="right"
         className="max-w-xs overflow-y-auto"
         data-testid="mobile-nav-content"
       >
