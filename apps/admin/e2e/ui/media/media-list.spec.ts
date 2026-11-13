@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test"
 import { seedAdmin } from "../../utils/seed-user"
 import { seedProduct, seedProductImage } from "../../utils/seed-product"
 import { signIn } from "../../utils/auth"
+import { clickUntilHydrated } from "../../utils/interaction"
 import { uniqueSuffix } from "../../utils/unique"
 
 let admin: Awaited<ReturnType<typeof seedAdmin>>
@@ -20,13 +21,12 @@ test.describe("Media Page Table", () => {
     await seedProductImage(product.id, { altText })
 
     await signIn(page, admin)
-    await page.goto("/products")
+    await page.goto("/products", { waitUntil: "domcontentloaded" })
 
-    // Click Media in the sidebar
-    await page.getByRole("link", { name: "Media" }).click()
-    await expect(page).toHaveURL("/media")
+    const mediaLink = page.getByRole("link", { name: "Media", exact: true })
+    await expect(mediaLink).toBeVisible()
+    await clickUntilHydrated(mediaLink, () => expect(page).toHaveURL("/media"))
 
-    // Verify row scoped strictly to this product
     const row = page.locator("tr", { hasText: productName })
     await expect(row).toBeVisible()
     await expect(row).toContainText(altText)

@@ -72,7 +72,7 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
 
       - name: Run e2e tests
-        run: pnpm --filter client run test:e2e -- --shard=${{ matrix.shard }}/2
+        run: pnpm --filter client run test:e2e --shard=${{ matrix.shard }}/2
 
       - name: Upload Playwright report
         if: failure()
