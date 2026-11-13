@@ -9,7 +9,6 @@ export default function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:gap-3 sm:px-6 md:gap-6 md:px-10">
-        <MobileNavigation />
         <Link
           href="/"
           aria-label="ShopiNext home"
@@ -24,8 +23,9 @@ export default function Navbar() {
           <StorefrontNavigation />
         </div>
         <div className="ml-auto flex items-center gap-1">
-          <AccountLink />
           <CartTrigger />
+          <AccountLink />
+          <MobileNavigation />
         </div>
       </div>
     </header>
