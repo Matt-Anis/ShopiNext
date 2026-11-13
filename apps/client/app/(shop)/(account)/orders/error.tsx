@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/button"
 export default function OrdersError({ retry }: { retry: () => void }) {
   return (
     <div
-      className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6"
+      className="flex flex-col items-center gap-4 py-16 text-center"
       role="alert"
     >
       <AlertCircle

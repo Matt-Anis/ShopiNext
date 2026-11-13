@@ -3,11 +3,7 @@ import { Skeleton } from "@repo/ui/skeleton"
 
 export default function OrdersLoading() {
   return (
-    <div
-      className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-16"
-      role="status"
-      aria-busy="true"
-    >
+    <div role="status" aria-busy="true">
       <span className="sr-only">Loading your orders</span>
       <div aria-hidden="true">
         <div className="mb-8 space-y-3">
