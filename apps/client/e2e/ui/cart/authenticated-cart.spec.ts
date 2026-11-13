@@ -7,19 +7,20 @@ import { seedUser } from "../../utils/seed-user";
 import { seedProduct, seedProductWithVariants } from "../../utils/seed-product";
 import { clickUntilHydrated, visible } from "../../utils/interaction";
 import { signIn } from "../../utils/auth";
+import { uniqueNameSuffix, uniqueSuffix } from "../../utils/unique";
 
 let credentials: Awaited<ReturnType<typeof seedUser>>;
 let product: Awaited<ReturnType<typeof seedProduct>>;
 let userId: string;
 
 test.beforeEach(async ({ page, request }) => {
-  credentials = await seedUser(request);
+  credentials = await seedUser(request, { name: `AC ${uniqueNameSuffix()}` });
   const [seededUser] = await testDb
     .select()
     .from(user)
     .where(eq(user.email, credentials.email));
   userId = seededUser.id;
-  product = await seedProduct();
+  product = await seedProduct({ name: `Cart product ${uniqueSuffix()}` });
   await signIn(page, credentials);
 });
 
@@ -29,8 +30,8 @@ test.describe("Authenticated cart", () => {
       page.getByTestId(`cart-control-add-${product.id}`),
       () =>
         expect(
-          page.getByTestId(`cart-control-quantity-${product.id}`),
-        ).toHaveText("1 in cart", { timeout: 1000 }),
+          page.getByTestId(`cart-control-quantity-${product.id}`)
+        ).toHaveText("1 in cart", { timeout: 1000 })
     );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
   });
@@ -42,13 +43,13 @@ test.describe("Authenticated cart", () => {
       page.getByTestId(`cart-control-add-${product.id}`),
       () =>
         expect(
-          page.getByTestId(`cart-control-quantity-${product.id}`),
-        ).toHaveText("1 in cart", { timeout: 1000 }),
+          page.getByTestId(`cart-control-quantity-${product.id}`)
+        ).toHaveText("1 in cart", { timeout: 1000 })
     );
 
     await page.getByTestId(`cart-control-increment-${product.id}`).click();
     await expect(
-      page.getByTestId(`cart-control-quantity-${product.id}`),
+      page.getByTestId(`cart-control-quantity-${product.id}`)
     ).toHaveText("2 in cart");
 
     const [cartRow] = await testDb
@@ -61,8 +62,8 @@ test.describe("Authenticated cart", () => {
       .where(
         and(
           eq(cartItems.cartId, cartRow.id),
-          eq(cartItems.variantId, product.variant.id),
-        ),
+          eq(cartItems.variantId, product.variant.id)
+        )
       );
 
     expect(item.quantity).toBe(2);
@@ -82,17 +83,17 @@ test.describe("Authenticated cart", () => {
 
     await page.goto(`/products/${multiVariantProduct.slug}`);
     await clickUntilHydrated(visible(page, "variant-pill-Size-S"), () =>
-      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 }),
+      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 })
     );
     await visible(page, "cart-control-add").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
-      "1 in cart",
+      "1 in cart"
     );
 
     await visible(page, "variant-pill-Size-M").click();
     await visible(page, "cart-control-add").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
-      "1 in cart",
+      "1 in cart"
     );
 
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -124,18 +125,18 @@ test.describe("Authenticated cart", () => {
 
     await page.goto(`/products/${multiVariantProduct.slug}`);
     await clickUntilHydrated(visible(page, "variant-pill-Size-S"), () =>
-      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 }),
+      expect(visible(page, "cart-control-add")).toBeVisible({ timeout: 1000 })
     );
     await visible(page, "cart-control-add").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
-      "1 in cart",
+      "1 in cart"
     );
 
     await visible(page, "variant-pill-Size-M").click();
     await visible(page, "cart-control-add").click();
     await visible(page, "cart-control-increment").click();
     await expect(visible(page, "cart-control-quantity")).toHaveText(
-      "2 in cart",
+      "2 in cart"
     );
 
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -152,57 +153,83 @@ test.describe("Authenticated cart", () => {
     await sRow.getByTestId("cart-control-decrement").click();
     await page.getByTestId("cart-remove-confirm-button").click();
 
-    await expect(sRow).toHaveCount(0);
+    await expect(sRow).toBeHidden();
     await expect(mRow.getByTestId("cart-control-quantity")).toHaveText(
-      "2 in cart",
+      "2 in cart"
     );
   });
 
-  test("logging out resets cart UI immediately and keeps server cart on next sign-in", async ({
+  test("logging out clears the guest cart and keeps the saved cart on next sign-in", async ({
     page,
   }) => {
+    test.slow();
+
     await page.goto(`/products/${product.slug}`);
     await clickUntilHydrated(visible(page, "cart-control-add"), () =>
       expect(visible(page, "cart-control-quantity")).toHaveText("1 in cart", {
         timeout: 1000,
-      }),
+      })
     );
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
 
-    await page.getByTestId("user-menu-trigger").click();
-    await page.getByTestId("logout-menu-item").click();
-    await expect(page.getByText("Log out?")).toBeVisible();
-    await page.getByTestId("logout-confirm-button").click();
+    await clickUntilHydrated(page.getByTestId("account-nav-link"), () =>
+      expect(page).toHaveURL("/profile")
+    );
+    const confirmation = page.getByRole("alertdialog", { name: "Log out?" });
+    await clickUntilHydrated(page.getByTestId("logout-button"), () =>
+      expect(confirmation).toBeVisible()
+    );
+    await clickUntilHydrated(
+      confirmation.getByTestId("logout-confirm-button"),
+      () => expect(page).toHaveURL("/")
+    );
 
     await expect(page.getByTestId("signin-nav-button")).toBeVisible();
-    await expect(page.getByTestId("cart-badge")).toHaveCount(0);
-    await expect(visible(page, "cart-control-add")).toBeVisible();
-    await expect(visible(page, "cart-control-quantity")).toHaveCount(0);
+    await expect(page.getByTestId("account-nav-link")).toBeHidden();
+    await expect(page.getByTestId("cart-badge")).toBeHidden();
 
-    await page.getByTestId("cart-trigger").click();
-    await expect(page.getByTestId("cart-empty-state")).toBeVisible();
+    const drawer = page.getByTestId("cart-drawer-content");
+    await clickUntilHydrated(page.getByTestId("cart-trigger"), () =>
+      expect(drawer).toBeVisible()
+    );
+    await expect(drawer.getByTestId("cart-empty-state")).toBeVisible();
     await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
 
-    const [cartRow] = await testDb
-      .select()
-      .from(cart)
-      .where(eq(cart.userId, userId));
-    const [dbItem] = await testDb
-      .select()
-      .from(cartItems)
-      .where(
-        and(
-          eq(cartItems.cartId, cartRow.id),
-          eq(cartItems.variantId, product.variant.id),
-        ),
-      );
-    expect(dbItem).toBeDefined();
-    expect(dbItem.quantity).toBe(1);
+    await page.goto(`/products/${product.slug}`);
+    await expect(visible(page, "cart-control-add")).toBeVisible();
+    await expect(visible(page, "cart-control-quantity")).toBeHidden();
+
+    await expect
+      .poll(async () => {
+        const [dbItem] = await testDb
+          .select({ quantity: cartItems.quantity })
+          .from(cartItems)
+          .innerJoin(cart, eq(cartItems.cartId, cart.id))
+          .where(
+            and(
+              eq(cart.userId, userId),
+              eq(cartItems.variantId, product.variant.id)
+            )
+          );
+        return dbItem?.quantity;
+      })
+      .toBe(1);
 
     await signIn(page, credentials);
     await expect(page.getByTestId("cart-badge")).toHaveText("1");
-    await page.getByTestId("cart-trigger").click();
-    await expect(page.getByTestId("cart-empty-state")).toHaveCount(0);
+    await clickUntilHydrated(page.getByTestId("cart-trigger"), () =>
+      expect(drawer).toBeVisible()
+    );
+    await expect(drawer.getByTestId("cart-empty-state")).toBeHidden();
+    const savedItem = drawer
+      .locator('[data-slot="card"]')
+      .filter({ hasText: product.name });
+    await expect(savedItem.getByTestId("cart-item-name")).toHaveText(
+      product.name
+    );
+    await expect(savedItem.getByTestId("cart-control-quantity")).toHaveText(
+      "1 in cart"
+    );
   });
 });
-

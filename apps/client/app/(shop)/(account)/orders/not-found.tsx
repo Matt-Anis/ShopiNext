@@ -4,7 +4,7 @@ import { Button } from "@repo/ui/button"
 
 export default function OrderNotFound() {
   return (
-    <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
+    <div className="flex flex-col items-center gap-4 py-16 text-center">
       <PackageSearch
         className="size-10 text-muted-foreground"
         aria-hidden="true"

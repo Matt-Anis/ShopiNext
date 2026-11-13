@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { getCustomerOrders } from "@/features/orders/customer-queries"
 import { ordersPageHref, parseOrdersPage } from "@/features/orders/pagination"
 import { OrderPagination } from "./_components/order-pagination"
@@ -25,7 +24,7 @@ export default async function OrdersPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-16">
+    <div>
       <header className="mb-8">
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
           Your orders
@@ -34,8 +33,6 @@ export default async function OrdersPage({
           View your purchases and their latest updates.
         </p>
       </header>
-
-      <AccountNavigation currentPath="/orders" />
 
       {orders.length === 0 ? (
         <OrdersEmptyState />

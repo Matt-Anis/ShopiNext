@@ -94,4 +94,33 @@ test("shows purchased items and chronological public history without staff notes
   await expect(events.nth(0)).toContainText(paid.note!)
   await expect(events.nth(1)).toContainText(processing.note!)
   await expect(page.getByRole("main")).not.toContainText(staffNote.content)
+
+  const navigation = page.getByRole("main").getByRole("navigation", {
+    name: "Account",
+    exact: true,
+  })
+  await expect(navigation.locator("a[aria-current]")).toHaveAttribute(
+    "href",
+    "/orders"
+  )
+  for (const { name, path, heading } of [
+    {
+      name: "Settings",
+      path: "/profile/settings",
+      heading: "Account settings",
+    },
+    { name: "Profile", path: "/profile", heading: "Your profile" },
+  ]) {
+    await clickUntilHydrated(
+      navigation.getByRole("link", { name, exact: true }),
+      () => expect(page).toHaveURL(path)
+    )
+    await expect(
+      page.getByRole("heading", { name: heading, exact: true })
+    ).toBeVisible()
+    await expect(navigation.locator("a[aria-current]")).toHaveAttribute(
+      "href",
+      path
+    )
+  }
 })

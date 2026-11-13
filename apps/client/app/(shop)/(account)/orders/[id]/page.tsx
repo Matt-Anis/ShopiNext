@@ -21,7 +21,7 @@ export default async function OrderDetailPage({
   const order = await getCustomerOrder(id)
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-16">
+    <div>
       <Link
         href="/orders"
         className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"

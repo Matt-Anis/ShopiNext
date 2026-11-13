@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Card, CardContent, CardDescription, CardHeader } from "@repo/ui/card"
 import { requireCustomerSession } from "@/lib/require-customer-session"
-import { AccountNavigation } from "@/features/account/components/account-navigation"
 import { ProfileNameForm } from "./_components/profile-name-form"
 import { PasswordSettings } from "./_components/password-settings"
 import { ActiveSessions } from "./_components/active-sessions"
@@ -16,7 +15,7 @@ export default async function ProfileSettingsPage() {
   const { user, session } = await requireCustomerSession()
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-16">
+    <div>
       <header className="mb-8">
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
           Account settings
@@ -25,7 +24,6 @@ export default async function ProfileSettingsPage() {
           Manage your name and account security.
         </p>
       </header>
-      <AccountNavigation currentPath="/profile/settings" />
       <div className="space-y-6">
         <Card>
           <CardHeader>
