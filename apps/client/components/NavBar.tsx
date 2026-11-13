@@ -1,64 +1,31 @@
-"use client"
-
-import { motion, useScroll, useMotionValueEvent } from "motion/react"
-import { useState } from "react"
 import Link from "next/link"
-import { ShoppingCart } from "lucide-react"
-import { Button } from "@repo/ui/button"
-import { Badge } from "@repo/ui/badge"
-import { DrawerTrigger } from "@repo/ui/drawer"
-import { CartDrawer } from "@/app/(shop)/_components/CartDrawer"
 import { AccountLink } from "@/features/account/components/account-link"
-import { useCart } from "@/features/cart/CartProvider"
+import { CartTrigger } from "./cart-trigger"
+import { StorefrontNavigation } from "./storefront-navigation"
 import Logo from "./Logo"
 
 export default function Navbar() {
-  const [hidden, setHidden] = useState(false)
-  const { scrollY } = useScroll()
-  const { count } = useCart()
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0
-    setHidden(latest > previous && latest > 64)
-  })
-
   return (
-    <motion.nav
-      variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
-      animate={hidden ? "hidden" : "visible"}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="h-17 pt-1 px-6 md:px-10 flex items-center justify-center bg-background/90 backdrop-blur-md fixed -top-1 w-full z-50 border-b-2 border-primary perspective-normal"
-    >
-      <div className="w-full h-full flex max-w-7xl items-center">
-        <Link href="/">
-          <Logo className="text-foreground size-8" />
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 md:px-10">
+        <Link
+          href="/"
+          aria-label="ShopiNext home"
+          className="flex shrink-0 items-center gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <Logo className="size-8 text-foreground" />
+          <span className="font-heading text-lg font-semibold tracking-tight">
+            ShopiNext
+          </span>
         </Link>
-        <div className="ml-auto flex items-center gap-0 md:gap-1">
-          <CartDrawer>
-            <DrawerTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative"
-                  data-testid="cart-trigger"
-                >
-                  <ShoppingCart />
-                  {count > 0 && (
-                    <Badge
-                      className="absolute -top-1 -right-1 h-4 min-w-4 justify-center rounded-full px-1 text-[10px]"
-                      data-testid="cart-badge"
-                    >
-                      {count}
-                    </Badge>
-                  )}
-                </Button>
-              }
-            />
-          </CartDrawer>
+        <div className="hidden md:block">
+          <StorefrontNavigation />
+        </div>
+        <div className="ml-auto flex items-center gap-1">
           <AccountLink />
+          <CartTrigger />
         </div>
       </div>
-    </motion.nav>
+    </header>
   )
 }
