@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Button } from "@repo/ui/button"
+import { buttonVariants } from "@repo/ui/button"
+import { cn } from "@repo/ui/utils"
 
 const storefrontLinks = [
   { href: "/#products", label: "All products", paths: ["/", "/products"] },
@@ -38,24 +39,19 @@ export function StorefrontNavigation({
 
           return (
             <li key={href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className={
+              <Link
+                href={href}
+                aria-current={isActive ? "location" : undefined}
+                onClick={onSelect}
+                className={cn(
+                  buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
                   layout === "vertical"
                     ? "h-12 w-full justify-start rounded-xl px-4 text-base"
                     : "h-10"
-                }
-                nativeButton={false}
-                render={
-                  <Link
-                    href={href}
-                    aria-current={isActive ? "location" : undefined}
-                    onClick={onSelect}
-                  />
-                }
+                )}
               >
                 {label}
-              </Button>
+              </Link>
             </li>
           )
         })}

@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Settings, ShoppingBag, UserRound } from "lucide-react"
-import { Button } from "@repo/ui/button"
+import { buttonVariants } from "@repo/ui/button"
+import { cn } from "@repo/ui/utils"
 
 const accountLinks = [
   { href: "/profile", label: "Profile", icon: UserRound },
@@ -24,20 +25,17 @@ export function AccountNavigation() {
 
           return (
             <li key={href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className="h-10 w-full rounded-xl px-2 md:justify-start md:px-3"
-                nativeButton={false}
-                render={
-                  <Link
-                    href={href}
-                    aria-current={isActive ? "page" : undefined}
-                  />
-                }
+              <Link
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
+                  "h-10 w-full rounded-xl px-2 md:justify-start md:px-3"
+                )}
               >
                 <Icon className="hidden md:block" aria-hidden="true" />
                 {label}
-              </Button>
+              </Link>
             </li>
           )
         })}
