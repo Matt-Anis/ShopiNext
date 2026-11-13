@@ -5,6 +5,7 @@ import { AccountNavigation } from "@/features/account/components/account-navigat
 import { ProfileNameForm } from "./_components/profile-name-form"
 import { PasswordSettings } from "./_components/password-settings"
 import { ActiveSessions } from "./_components/active-sessions"
+import { AccountDeletionSettings } from "./_components/account-deletion-settings"
 
 export const metadata: Metadata = {
   title: "Account settings | ShopiNext",
@@ -39,6 +40,7 @@ export default async function ProfileSettingsPage() {
         </Card>
         <PasswordSettings userId={user.id} email={user.email} />
         <ActiveSessions currentSessionId={session.id} />
+        <AccountDeletionSettings email={user.email} />
       </div>
     </div>
   )

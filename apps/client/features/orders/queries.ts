@@ -1,5 +1,6 @@
 import { and, eq, gte, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { user } from "@repo/db/public/auth-schema";
 import {
   orders,
   orderItems,
@@ -49,9 +50,24 @@ export const createOrder = async ({
   items,
 }: CreateOrderInput) => {
   return db.transaction(async (tx) => {
+    // Hold the customer reference until insertion so deletion cannot race the lookup.
+    const [customer] = userId
+      ? await tx
+          .select({ id: user.id })
+          .from(user)
+          .where(eq(user.id, userId))
+          .for("key share")
+      : [];
+
     const [order] = await tx
       .insert(orders)
-      .values({ stripeSessionId, userId, checkoutEmail, totalAmount, status })
+      .values({
+        stripeSessionId,
+        userId: customer?.id ?? null,
+        checkoutEmail,
+        totalAmount,
+        status,
+      })
       .onConflictDoNothing({ target: orders.stripeSessionId })
       .returning();
 
