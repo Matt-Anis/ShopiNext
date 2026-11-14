@@ -22,7 +22,7 @@ type FooterProps = Omit<ComponentProps<"footer">, "children"> & {
   action: FooterLink
   groups: readonly FooterLinkGroup[]
   copyright: string
-  linkComponent?: ComponentType<FooterAnchorProps>
+  linkComponent?: ComponentType<FooterAnchorProps> | "a"
 }
 
 const footerLinkClassName =
