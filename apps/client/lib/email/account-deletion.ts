@@ -1,8 +1,8 @@
-import { FROM_EMAIL, resend } from "@/lib/email/client"
+import { FROM_EMAIL, sendEmail } from "@/lib/email/client"
 import { renderEmail } from "@/lib/email/layout"
 
 export async function sendAccountDeletionEmail(to: string, url: string) {
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to,
     subject: "Confirm your ShopiNext account deletion",

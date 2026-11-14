@@ -1,11 +1,11 @@
-import { FROM_EMAIL, resend } from "@/lib/email/client"
+import { FROM_EMAIL, sendEmail } from "@/lib/email/client"
 import { renderEmail } from "@/lib/email/layout"
 
 const ACCOUNT_EMAIL_FOOTER =
   "If you didn't request this, you can safely ignore this email."
 
 export async function sendVerificationEmail(to: string, url: string) {
-  await resend.emails.send({
+  await sendEmail({
     from: FROM_EMAIL,
     to,
     subject: "Verify your email address",
@@ -19,7 +19,7 @@ export async function sendVerificationEmail(to: string, url: string) {
 }
 
 export async function sendPasswordResetEmail(to: string, url: string) {
-  await resend.emails.send({
+  await sendEmail({
     from: FROM_EMAIL,
     to,
     subject: "Reset your password",
