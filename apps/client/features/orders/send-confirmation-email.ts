@@ -1,4 +1,4 @@
-import { FROM_EMAIL, resend } from "@/lib/email/client"
+import { FROM_EMAIL, sendEmail } from "@/lib/email/client"
 import { renderOrderConfirmationEmail } from "@/lib/email/order-confirmation"
 
 export async function sendOrderConfirmationEmail(order: {
@@ -6,7 +6,7 @@ export async function sendOrderConfirmationEmail(order: {
   checkoutEmail: string
   totalAmount: number
 }) {
-  const { data, error } = await resend.emails.send(
+  const { data, error } = await sendEmail(
     {
       from: FROM_EMAIL,
       to: order.checkoutEmail,

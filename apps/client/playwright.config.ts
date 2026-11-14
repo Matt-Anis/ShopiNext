@@ -38,6 +38,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       ...process.env,
+      E2E_EMAIL_MOCK: "1",
       DATABASE_URL: process.env.DATABASE_URL_TEST!,
     },
   },
