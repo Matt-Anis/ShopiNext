@@ -9,6 +9,7 @@ test("hides account navigation from guests and protects both account pages", asy
 }) => {
   await page.goto("/")
   const header = page.getByRole("banner")
+  const main = page.getByRole("main")
   await expect(
     header.getByRole("link", { name: "Sign in", exact: true })
   ).toBeVisible()
@@ -16,9 +17,14 @@ test("hides account navigation from guests and protects both account pages", asy
     header.getByRole("link", { name: "Account", exact: true })
   ).toBeHidden()
   await expect(
-    page.getByRole("navigation", { name: "Account", exact: true })
+    main.getByRole("navigation", { name: "Account", exact: true })
   ).toBeHidden()
   await expect(page.getByTestId("logout-button")).toBeHidden()
+
+  const footer = page.getByRole("contentinfo")
+  await expect(
+    footer.getByRole("navigation", { name: "Footer Account", exact: true })
+  ).toBeVisible()
 
   const accountPaths = ["/profile", "/profile/settings"]
   for (const path of accountPaths) {
