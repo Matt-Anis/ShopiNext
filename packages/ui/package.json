@@ -24,6 +24,7 @@
     "./empty": "./components/empty.tsx",
     "./field": "./components/field.tsx",
     "./floating-label-input": "./components/floating-label-input.tsx",
+    "./footer": "./components/footer.tsx",
     "./input": "./components/input.tsx",
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
