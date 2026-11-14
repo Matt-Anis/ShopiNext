@@ -36,7 +36,7 @@ function FooterGroup({
   linkComponent: ComponentType<FooterAnchorProps> | "a"
 }) {
   return (
-    <nav aria-label={group.title}>
+    <nav aria-label={`Footer ${group.title}`}>
       <h3 className="mb-3 text-xs font-medium tracking-widest text-zinc-400 uppercase">
         {group.title}
       </h3>
