@@ -6,6 +6,88 @@ import {
 } from "../../utils/layout"
 import { uniqueSuffix } from "../../utils/unique"
 
+test("superseded requests are canceled and cannot replace the newer results", async ({
+  page,
+}) => {
+  const suffix = uniqueSuffix()
+  const olderQuery = `shirt ${suffix}`
+  const newerQuery = `shoes ${suffix}`
+  const olderTitle = `Older preview ${suffix}`
+  const newerTitle = `Newer preview ${suffix}`
+  let firstStarted = false
+  let releaseFirst!: () => void
+  const gate = new Promise<void>((resolve) => {
+    releaseFirst = resolve
+  })
+  await page.route("**/__search-test/multi-search", async (route) => {
+    const payload = route.request().postDataJSON() as {
+      queries: { q: string }[]
+    }
+    const older = payload.queries[0]?.q === olderQuery
+    if (older) {
+      firstStarted = true
+      await gate
+    }
+    try {
+      await route.fulfill({
+        json: {
+          results: [
+            {
+              indexUid: "public_products",
+              hits: [
+                {
+                  id: older ? "older" : "newer",
+                  name: older ? olderTitle : newerTitle,
+                  slug: "preview",
+                  description: "",
+                  thumbnailUrl: null,
+                  categoryNames: [],
+                },
+              ],
+            },
+            { indexUid: "public_categories", hits: [] },
+          ],
+        },
+      })
+    } catch (error) {
+      if (!route.request().failure()) throw error
+    }
+  })
+  try {
+    await page.goto("/")
+    const trigger = page.getByRole("button", {
+      name: "Search products and categories",
+      exact: true,
+    })
+    const input = page.getByRole("combobox", {
+      name: "Search products and categories",
+      exact: true,
+    })
+    await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+    await input.fill(olderQuery)
+    await expect.poll(() => firstStarted).toBe(true)
+    const canceled = page.waitForEvent(
+      "requestfailed",
+      (request) =>
+        request.url().includes("/__search-test/multi-search") &&
+        (request.postDataJSON() as { queries: { q: string }[] }).queries[0]
+          ?.q === olderQuery
+    )
+    await input.fill(newerQuery)
+    await canceled
+    await expect(
+      page.getByRole("option").filter({ hasText: newerTitle })
+    ).toBeVisible()
+    releaseFirst()
+    await expect(
+      page.getByRole("option").filter({ hasText: olderTitle })
+    ).toBeHidden()
+    await expect(input).toHaveValue(newerQuery)
+  } finally {
+    releaseFirst()
+  }
+})
+
 test("desktop search sits left of navigation and queries only public indexes", async ({
   page,
 }) => {
