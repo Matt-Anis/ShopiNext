@@ -9,12 +9,21 @@
     "setup": "tsx setup/index.ts"
   },
   "dependencies": {
+    "@repo/db": "workspace:*",
     "@repo/search": "workspace:*",
     "dotenv": "^17.4.2",
-    "meilisearch": "0.62.0"
+    "drizzle-orm": "0.45.2",
+    "hast-util-to-text": "^4.0.3",
+    "meilisearch": "0.62.0",
+    "pg": "^8.23.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pg": "^8.21.0",
     "tsx": "^4.23.12",
     "typescript": "^5"
   }

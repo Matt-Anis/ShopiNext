@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["setup/**/*.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }
