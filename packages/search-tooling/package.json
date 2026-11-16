@@ -9,7 +9,8 @@
     "setup": "tsx setup/index.ts",
     "index": "tsx indexing/index.ts",
     "sync": "tsx sync/index.ts",
-    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts"
+    "reconcile": "tsx reconciliation/index.ts",
+    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts reconciliation/*.test.ts"
   },
   "dependencies": {
     "@repo/db": "workspace:*",

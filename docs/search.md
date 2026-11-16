@@ -7,8 +7,9 @@ pricing, checkout validation, or authorization data.
 Phases 1–3 provide contracts, index settings, the persistent local service,
 initialization, projections, population/rebuild commands, and outbox migration
 files. Phase 4 now includes a manual leased outbox worker with task recovery and
-retries. Reconciliation and scheduling are still to come, followed by app search
-endpoints and interfaces. These tools do not add a working search bar.
+retries and a run-once reconciliation command. Scheduling is still to come,
+followed by app search endpoints and interfaces. These tools do not add a working
+search bar.
 
 **Why Meilisearch**
 
@@ -410,7 +411,26 @@ lease owner marks abandoned running records interrupted. A run with failed jobs
 exits nonzero while leaving them recoverable. `NODE_ENV=production` skips before
 opening connections. Test sources are included but are not executed by checks.
 
-Automatic scheduling and daily reconciliation are not implemented yet.
+**Run-once reconciliation**
+
+```sh
+pnpm search:reconcile
+pnpm search:reconcile --batch-size 50 --max-jobs 500
+```
+
+Reconciliation shares the worker lease and operational reporting. It compares
+complete database projections with indexed documents in bounded batches, then
+scans indexed IDs for deleted or newly ineligible entities. Object key order does
+not cause a repair, but obsolete fields do. Empty database sources still remove
+index orphans. A count-only comparison would miss replaced or outdated records.
+
+Differences enqueue entity refreshes, preserving existing task recovery state.
+No index writes occur during scanning, so worker deletions do not shift offset
+pages and skip orphans. After scanning all seven indexes, the same outbox
+processor performs up to 1000 claims by default; overflow remains queued for the
+next sync. Known tasks settle before conflicting writes. Reads are not a single
+database snapshot, and concurrent app changes or previously accepted remote
+tasks can require another pass. Automatic daily scheduling is the next step.
 
 **Implementation phases**
 
