@@ -20,6 +20,7 @@ export function readPublicProductsPage(
         eq(product.isActive, true),
         eq(product.status, "active"),
         isNotNull(product.minPrice),
+        page.entityId ? eq(product.id, page.entityId) : undefined,
         page.afterId ? gt(product.id, page.afterId) : undefined,
       ),
     orderBy: (product, { asc }) => [asc(product.id)],
@@ -53,6 +54,7 @@ export function readCategoriesPage(
     where: (category, { and, eq, gt }) =>
       and(
         eq(category.isActive, true),
+        page.entityId ? eq(category.id, page.entityId) : undefined,
         page.afterId ? gt(category.id, page.afterId) : undefined,
       ),
     orderBy: (category, { asc }) => [asc(category.id)],

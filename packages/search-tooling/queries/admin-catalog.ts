@@ -15,8 +15,11 @@ export function readAdminProductsPage(
       status: true,
       minPrice: true,
     },
-    where: (product, { gt }) =>
-      page.afterId ? gt(product.id, page.afterId) : undefined,
+    where: (product, { and, eq, gt }) =>
+      and(
+        page.entityId ? eq(product.id, page.entityId) : undefined,
+        page.afterId ? gt(product.id, page.afterId) : undefined,
+      ),
     orderBy: (product, { asc }) => [asc(product.id)],
     limit: page.limit,
     with: {

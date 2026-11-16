@@ -14,8 +14,11 @@ export function readOrdersPage(
       createdAt: true,
       archivedAt: true,
     },
-    where: (order, { gt }) =>
-      page.afterId ? gt(order.id, page.afterId) : undefined,
+    where: (order, { and, eq, gt }) =>
+      and(
+        page.entityId ? eq(order.id, page.entityId) : undefined,
+        page.afterId ? gt(order.id, page.afterId) : undefined,
+      ),
     orderBy: (order, { asc }) => [asc(order.id)],
     limit: page.limit,
   });

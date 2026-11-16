@@ -5,12 +5,14 @@ import * as publicAuthSchema from "@repo/db/public/auth-schema";
 import * as adminSchema from "@repo/db/admin/schema";
 import * as adminAuthSchema from "@repo/db/admin/auth-schema";
 
-export function createSearchReadDatabase(connectionString: string) {
+function createSearchDatabase(connectionString: string, readOnly: boolean) {
   const pool = new Pool({
     connectionString,
-    max: 1,
+    max: readOnly ? 1 : 2,
     connectionTimeoutMillis: 5_000,
-    options: "-c default_transaction_read_only=on",
+    options: readOnly
+      ? "-c default_transaction_read_only=on"
+      : "-c statement_timeout=10000 -c lock_timeout=5000",
   });
   const db = drizzle(pool, {
     schema: {
@@ -22,6 +24,14 @@ export function createSearchReadDatabase(connectionString: string) {
   });
 
   return { db, close: () => pool.end() };
+}
+
+export function createSearchReadDatabase(connectionString: string) {
+  return createSearchDatabase(connectionString, true);
+}
+
+export function createSearchWorkerDatabase(connectionString: string) {
+  return createSearchDatabase(connectionString, false);
 }
 
 export type SearchReadDatabase = ReturnType<
