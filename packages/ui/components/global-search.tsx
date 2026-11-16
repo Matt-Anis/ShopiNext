@@ -2,12 +2,14 @@
 
 import { useRef, useState } from "react";
 import { SearchIcon } from "lucide-react";
+import type { RecentSearchHistory } from "@repo/search/browser";
 import {
   SEARCH_SETUP_URL,
   SEARCH_UNAVAILABLE_MESSAGE,
 } from "@repo/search/availability";
 import { useIsMobile } from "../hooks/use-mobile";
 import { useSearch, type SearchExecutor } from "../hooks/use-search";
+import { useRecentSearches } from "../hooks/use-recent-searches";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 import {
@@ -32,6 +34,7 @@ type GlobalSearchProps = {
   onNavigate: (href: string) => void;
   label: string;
   className?: string;
+  history?: RecentSearchHistory;
 };
 
 export function GlobalSearch({
@@ -40,14 +43,17 @@ export function GlobalSearch({
   onNavigate,
   label,
   className,
+  history,
 }: GlobalSearchProps) {
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const mobile = useIsMobile();
   const { state, setQuery, reset } = useSearch(search, available);
+  const recent = useRecentSearches(history);
   function changeOpen(next: boolean) {
     setOpen(next);
     if (!next) reset();
+    else if (available) recent.load();
   }
   const trigger = (
     <Button
@@ -66,8 +72,23 @@ export function GlobalSearch({
       label={label}
       inputRef={inputRef}
       onQueryChange={setQuery}
+      recentQueries={recent.queries}
+      onQueryCommit={() => recent.remember(state.query)}
+      onRecentSelect={(query) => {
+        setQuery(query);
+        inputRef.current?.focus();
+      }}
+      onRecentRemove={(query) => {
+        recent.remove(query);
+        inputRef.current?.focus();
+      }}
+      onHistoryClear={() => {
+        recent.clear();
+        inputRef.current?.focus();
+      }}
       onClose={() => changeOpen(false)}
       onSelect={(result) => {
+        recent.remember(state.query);
         changeOpen(false);
         onNavigate(result.href);
       }}

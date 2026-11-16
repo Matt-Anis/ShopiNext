@@ -38,7 +38,7 @@ export default async function ProtectedLayout({
                   <HeaderBreadcrumb />
                 </div>
               </div>
-              <AdminGlobalSearch />
+              <AdminGlobalSearch accountId={session.user.id} />
               <div aria-hidden="true" />
             </header>
             {session.user.role === "demo" && (

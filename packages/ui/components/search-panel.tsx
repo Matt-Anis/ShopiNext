@@ -16,6 +16,7 @@ import {
 } from "./combobox";
 import { InputGroupAddon } from "./input-group";
 import { SearchResult } from "./search-result";
+import { SearchHistory } from "./search-history";
 
 const groupLabels = {
   product: "Products",
@@ -32,6 +33,11 @@ type SearchPanelProps = {
   onQueryChange: (query: string) => void;
   onSelect: (result: SearchPreview) => void;
   onClose: () => void;
+  recentQueries: string[];
+  onQueryCommit: () => void;
+  onRecentSelect: (query: string) => void;
+  onRecentRemove: (query: string) => void;
+  onHistoryClear: () => void;
 };
 
 export function SearchPanel({
@@ -41,6 +47,11 @@ export function SearchPanel({
   onQueryChange,
   onSelect,
   onClose,
+  recentQueries,
+  onQueryCommit,
+  onRecentSelect,
+  onRecentRemove,
+  onHistoryClear,
 }: SearchPanelProps) {
   const groups = state.groups.filter((group) => group.results.length > 0);
   const results = groups.flatMap((group) => group.results);
@@ -79,22 +90,35 @@ export function SearchPanel({
         showTrigger={false}
         showClear
         className="w-full"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.nativeEvent.isComposing)
+            onQueryCommit();
+        }}
       >
         <InputGroupAddon align="inline-start">
           <SearchIcon aria-hidden="true" />
         </InputGroupAddon>
       </ComboboxInput>
+      {!state.query.trim() && recentQueries.length > 0 && (
+        <SearchHistory
+          queries={recentQueries}
+          onSelect={onRecentSelect}
+          onRemove={onRecentRemove}
+          onClear={onHistoryClear}
+        />
+      )}
       <div
         role="status"
         aria-live="polite"
         aria-atomic="true"
         className="text-sm text-muted-foreground"
       >
-        {state.status === "idle" && (
-          <p className="px-3 py-5">
-            Type at least {SEARCH_LIMITS.minQueryLength} characters to search.
-          </p>
-        )}
+        {state.status === "idle" &&
+          (state.query.trim() || recentQueries.length === 0) && (
+            <p className="px-3 py-5">
+              Type at least {SEARCH_LIMITS.minQueryLength} characters to search.
+            </p>
+          )}
         {state.status === "loading" && (
           <p className="flex items-center gap-2 px-3 py-5">
             <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
