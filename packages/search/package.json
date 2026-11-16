@@ -12,6 +12,8 @@
     "./contracts": "./src/contracts.ts",
     "./public": "./src/public.ts",
     "./availability": "./src/availability.ts",
+    "./browser": "./src/browser/index.ts",
+    "./query": "./src/query.ts",
     "./server/documents": "./src/server/documents.ts",
     "./server/environment": "./src/server/environment.ts",
     "./server/indexes": "./src/server/indexes.ts",

@@ -7,8 +7,8 @@ pricing, checkout validation, or authorization data.
 Phases 1–3 provide contracts, index settings, the persistent local service,
 initialization, projections, population/rebuild commands, and outbox migration
 files. Phase 4 now includes a manual leased outbox worker with task recovery and
-retries, reconciliation, and opt-in local scheduling. App search endpoints and
-interfaces are subsequent phases. These tools do not add a working search bar.
+retries, reconciliation, and opt-in local scheduling. Phase 5 includes the direct
+public adapter; the admin endpoint follows. Search interfaces come in Phase 6.
 
 **Why Meilisearch**
 
@@ -279,11 +279,33 @@ The generated file contains:
 | `MEILISEARCH_ADMIN_SEARCH_KEY` | Admin server; admin indexes, search only |
 | `MEILISEARCH_WORKER_KEY` | Local indexing/synchronization commands |
 
-When the app adapters are implemented, copy the two `NEXT_PUBLIC_` entries into
+To configure the app adapters, copy the two `NEXT_PUBLIC_` entries into
 `apps/client/.env.local` and the URL/admin key into `apps/admin/.env.local`. Keep
 the worker key in local tooling configuration. Never copy master, setup, admin,
-or worker credentials into a `NEXT_PUBLIC_` variable. The two app consumers are
-implemented in later phases. Empty indexes are expected until population is run.
+or worker credentials into a `NEXT_PUBLIC_` variable. The public consumer exists;
+the admin consumer follows in Phase 5. Empty indexes are expected until population is run.
+
+**Public query adapter**
+
+`apps/client/lib/search.ts` exports `searchPublicCatalog(query, signal?)` for the
+future search UI. It uses the official SDK through the browser-safe
+`@repo/search/browser` entry point and sends one multi-search request directly to
+Meilisearch's two public indexes. It never calls a product-loading query or a
+Next.js search proxy. Query options and retrieved fields are fixed; the public
+key's index scopes are the actual security boundary.
+
+Queries are trimmed, capped at 200 characters, and skipped below two characters.
+Each group returns at most five previews. Abort signals propagate to the SDK and
+are checked before returning, so canceled requests do not deliver results. The
+Phase 6 UI will own debounce and cancellation of superseded input. Description
+crops and category matches become plain text segments, never raw HTML. Results
+contain only contract fields and encoded navigation destinations.
+
+Configuration is read only when a valid local query is made. Production returns
+no results before looking for credentials or making requests; the future UI uses
+the shared availability message. Next.js public env values use explicit static
+property references so they can be bundled correctly. Restart development after
+copying generated values into `apps/client/.env.local`.
 
 **Population and rebuild**
 

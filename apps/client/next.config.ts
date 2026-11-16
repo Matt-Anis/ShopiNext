@@ -1,10 +1,10 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@repo/db", "@repo/ui"],
+  transpilePackages: ["@repo/db", "@repo/search", "@repo/ui"],
   images: {
     remotePatterns: [{ hostname: "picsum.photos" }],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

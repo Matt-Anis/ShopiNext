@@ -10,7 +10,7 @@
     "index": "tsx indexing/index.ts",
     "sync": "tsx sync/index.ts",
     "reconcile": "tsx reconciliation/index.ts",
-    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts reconciliation/*.test.ts"
+    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts reconciliation/*.test.ts search/*.test.ts"
   },
   "dependencies": {
     "@repo/db": "workspace:*",
