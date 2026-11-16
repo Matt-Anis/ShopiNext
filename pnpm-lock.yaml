@@ -42,6 +42,9 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@repo/search':
+        specifier: workspace:*
+        version: link:../../packages/search
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui

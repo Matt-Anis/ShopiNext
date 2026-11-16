@@ -8,7 +8,7 @@ Phases 1–3 provide contracts, index settings, the persistent local service,
 initialization, projections, population/rebuild commands, and outbox migration
 files. Phase 4 now includes a manual leased outbox worker with task recovery and
 retries, reconciliation, and opt-in local scheduling. Phase 5 includes the direct
-public adapter; the admin endpoint follows. Search interfaces come in Phase 6.
+public adapter and permission-aware admin endpoint. Search interfaces come in Phase 6.
 
 **Why Meilisearch**
 
@@ -282,8 +282,8 @@ The generated file contains:
 To configure the app adapters, copy the two `NEXT_PUBLIC_` entries into
 `apps/client/.env.local` and the URL/admin key into `apps/admin/.env.local`. Keep
 the worker key in local tooling configuration. Never copy master, setup, admin,
-or worker credentials into a `NEXT_PUBLIC_` variable. The public consumer exists;
-the admin consumer follows in Phase 5. Empty indexes are expected until population is run.
+or worker credentials into a `NEXT_PUBLIC_` variable. Both query consumers exist.
+Empty indexes are expected until population is run.
 
 **Public query adapter**
 
@@ -306,6 +306,43 @@ no results before looking for credentials or making requests; the future UI uses
 the shared availability message. Next.js public env values use explicit static
 property references so they can be bundled correctly. Restart development after
 copying generated values into `apps/client/.env.local`.
+
+**Admin query endpoint**
+
+`GET /api/search?q=shirt` in the admin app resolves the existing Better Auth
+session once, then uses `hasRolePermission` for each entity group. It does not
+call a session-checking guard repeatedly or introduce another role policy/cache.
+Staff results require both `user.list` and `user.get`; the other groups use their
+existing read permissions. Banned users and roles with no searchable groups are
+denied. The proxy leaves this exact API namespace to the endpoint, which returns
+JSON errors rather than login redirects.
+
+Only one `q` parameter is accepted. Callers cannot supply indexes, filters,
+returned fields, or a result limit. The server chooses fixed index/field sets,
+caps each group at five previews, and maps hits into the shared response contract.
+The engine URL/admin key are read lazily in a module protected by `server-only`.
+Abort signals reach the SDK, and HTTP requests have a five-second timeout.
+
+Demo requests remove `email` and `checkoutEmail` from `attributesToSearchOn`,
+then apply the existing `maskEmail` utility to approved email preview fields.
+Raw hits, formatted objects, match-position objects, and engine metadata never
+cross the endpoint. Masking alone would not prevent raw email query discovery;
+the request-level searchable-attribute restriction is necessary as well.
+Meilisearch can report formatting/match positions for non-searchable fields,
+so those raw objects must remain internal.
+
+All responses use `Cache-Control: private, no-store`. Missing sessions return
+401, denied access 403, invalid query parameters 400, and unavailable search 503.
+Production returns the shared local-demo message before session lookup or search
+configuration is read. Unexpected errors return a generic message rather than
+SDK details or credentials. Short queries return no groups without contacting
+Meilisearch; normal catalog/detail queries remain separate.
+
+Handler and query-boundary test sources are included, plus an unauthenticated
+API integration test. Ordinary checks only type-check/lint them. No tests or
+live engine/database calls were executed while implementing this phase.
+The admin category URL points to the agreed `categoryId` destination; opening
+that drawer from the URL is still Phase 6 work.
 
 **Population and rebuild**
 
