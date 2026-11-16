@@ -309,6 +309,28 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/search-tooling:
+    dependencies:
+      '@repo/search':
+        specifier: workspace:*
+        version: link:../search
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      meilisearch:
+        specifier: 0.62.0
+        version: 0.62.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.12
+        version: 4.23.12
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/ui:
     dependencies:
       '@base-ui/react':

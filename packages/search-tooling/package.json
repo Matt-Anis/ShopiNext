@@ -1,0 +1,21 @@
+{
+  "name": "@repo/search-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "setup": "tsx setup/index.ts"
+  },
+  "dependencies": {
+    "@repo/search": "workspace:*",
+    "dotenv": "^17.4.2",
+    "meilisearch": "0.62.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  }
+}
