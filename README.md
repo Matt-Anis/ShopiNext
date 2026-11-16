@@ -2,6 +2,9 @@
 
 See [`docs/database.md`](./docs/database.md) for database setup notes.
 
+See [`docs/search.md`](./docs/search.md) for the local-only search architecture,
+public/admin contracts, alternatives, and implementation phases.
+
 ## Features
 
 ### MVP
