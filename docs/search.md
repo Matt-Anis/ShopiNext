@@ -10,7 +10,9 @@ files. Phase 4 now includes a manual leased outbox worker with task recovery and
 retries, reconciliation, and opt-in local scheduling. Phase 5 includes the direct
 public adapter and permission-aware admin endpoint. Phase 6 adds the shared search
 panels, responsive header controls, and admin category URL selection. Keyword
-history remains Phase 7 work.
+history, remaining test sources, and the operating guide complete Phase 7.
+Use [local setup and recovery](./search-operations.md) for the ordered workflow
+and an explicit account of what has and has not been verified.
 
 **Why Meilisearch**
 
@@ -361,7 +363,8 @@ old results, cancels scheduled/in-flight work, and increments a request generati
 Both abort state and generation must match before a response can update the UI.
 Closing/unmounting cancels work. Short input shows a prompt without browsing an
 index; loading, no-results, recoverable errors, and retry states are explicit.
-No keywords or results are stored yet. UI package checking is now part of
+Only committed keywords are persisted by the separate history adapter; results
+remain in UI state. UI package checking is now part of
 `pnpm check`, including the shared hook and panel modules.
 
 Admin search is centered with equal side columns; breadcrumbs stay within the
@@ -391,6 +394,27 @@ tests intercept `/api/search`; client UI tests use a same-origin fake engine URL
 from the Playwright web-server configuration and intercept its multi-search
 requests. They require no running Meilisearch. Tests have not been executed;
 static checks do not establish browser behavior or visual correctness.
+
+**Keyword history**
+
+History is read when the panel opens. The latest ten unique trimmed keywords
+appear as removable chips on empty input, with clear-all and click-to-rerun.
+Only Enter and result selection save terms; keystrokes do not. Clicking a chip
+queries again rather than reusing results. Storage contains JSON string arrays,
+with case-insensitive deduplication and invalid/oversized entries ignored.
+
+Public history uses localStorage key `shopinext:search:public`. Admin history uses
+account-scoped sessionStorage under `shopinext:search:admin:`. The server layout
+passes its existing account ID, and changing account/role remounts the search
+control. Successful admin logout clears admin history keys; failed logout leaves
+them intact. Storage errors are caught so search remains usable when browser
+persistence is blocked. No results or analytics are stored. Production does not
+load history because its panel only displays the local-demo explanation.
+
+`packages/search/src/recent-queries.ts` owns normalization;
+`src/browser/history.ts` owns storage. `packages/ui/hooks/use-recent-searches.ts`
+owns the UI list, and `search-history.tsx` renders its controls. Query lifecycle
+and app authorization remain separate.
 
 **Population and rebuild**
 
@@ -612,6 +636,11 @@ Run `pnpm check` after each implementation step. If it fails, report the errors
 and stop before further changes. Do not run test suites without an explicit
 request. Never generate/apply migrations, hand-edit generated migration output,
 or access the database on the user's behalf.
+
+All seven phases are implemented in source. Checks passed before implementation
+commits, but test suites, actual SQL behavior, engine integration, image startup,
+and browser interactions remain unverified. See the operating guide's validation
+section for optional commands and outstanding runtime acceptance.
 
 **References**
 

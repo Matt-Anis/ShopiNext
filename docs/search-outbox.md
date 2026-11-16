@@ -76,7 +76,7 @@ task. Recover saved task references before assuming an old run has stopped.
 This is synchronization monitoring, not user search analytics. Recent keywords
 stay in browser storage, and search requests do not write these tables. The
 manual population/rebuild commands remain read-only on PostgreSQL and do not
-create scheduled-run records. Avoid running them alongside the future worker.
+create scheduled-run records. Avoid running them alongside the worker.
 
 **Trigger sources and dependencies**
 
@@ -163,23 +163,11 @@ workflow. Migration installation uses the migration superuser described in
 
 The initial table migration `0030_sparkling_pet_avengers.sql` and custom migration
 `0031_search_outbox_triggers.sql` are already committed. Do not regenerate or edit
-them. The following generation commands document how those files were prepared;
-they are not setup commands to repeat:
+them. The six SQL source files preserve how the custom migration was prepared;
+do not run their sections independently or refill the committed migration.
+Future DDL changes require a new user-generated migration.
 
-```sh
-pnpm db:generate
-pnpm exec drizzle-kit generate --custom --name=search_outbox_triggers
-```
-
-Review the generated table migration and copy the combined output below into
-the newly generated custom migration file. Keep all six source files together
-in their listed order; do not run individual sections outside a transaction.
-
-```sh
-cat packages/db-tooling/sql/search/*.sql
-```
-
-Then apply the reviewed migrations to the intended local database:
+Apply only the reviewed, pending migrations to the intended local database:
 
 ```sh
 pnpm db:migrate
@@ -207,6 +195,9 @@ rollback, no-op updates, relationship moves, cascading deletes, and role boundar
 still need database verification after the user installs the migrations. No
 migration generation/application, database connection, or SQL execution is performed
 by this phase's implementation or verification commands.
+
+See [local setup and recovery](./search-operations.md) for the final command
+sequence, credential handoff, scheduler configuration, and validation limits.
 
 **References**
 
