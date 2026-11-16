@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "setup": "tsx setup/index.ts",
     "index": "tsx indexing/index.ts",
-    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts"
+    "sync": "tsx sync/index.ts",
+    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts"
   },
   "dependencies": {
     "@repo/db": "workspace:*",

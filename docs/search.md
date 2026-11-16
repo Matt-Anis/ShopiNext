@@ -4,11 +4,11 @@ Search is an English-only navigation feature. Results are small previews that
 open existing pages; they are not catalog pages or a source of live stock,
 pricing, checkout validation, or authorization data.
 
-Phases 1 and 2 provide the contracts, index settings, persistent local service,
-initialization, document projections, and population/rebuild commands. Database
-triggers, automatic synchronization, search endpoints, and the interfaces are
-subsequent phases. Initializing indexes alone does not populate them, and these
-tooling commands do not add a working search bar.
+Phases 1–3 provide contracts, index settings, the persistent local service,
+initialization, projections, population/rebuild commands, and outbox migration
+files. Phase 4 now includes a manual leased outbox worker with task recovery and
+retries. Reconciliation and scheduling are still to come, followed by app search
+endpoints and interfaces. These tools do not add a working search bar.
 
 **Why Meilisearch**
 
@@ -150,7 +150,8 @@ tokens, payment-provider identifiers, order notes, and timeline text are exclude
 
 The [outbox and migration guide](./search-outbox.md) defines the Phase 3 tables,
 capture dependencies, database permissions, and user-run migration checkpoint.
-Its trigger SQL is source only until those migrations are prepared and applied.
+The table and custom trigger migrations are committed; they need to be applied
+by the user to the intended local database before running a worker.
 
 ```mermaid
 sequenceDiagram
@@ -184,9 +185,9 @@ does not leave a sync job behind. Database permissions must let writes from eith
 app enqueue work without giving the client access to admin data or worker state.
 
 Changes to images, category names and links, and variant SKUs must refresh affected
-products. Changes to listing eligibility must remove public documents. The exact
-dependency triggers and their SQL belong to the later outbox phase; they are not
-implemented by application CRUD functions.
+products. Changes to listing eligibility must remove public documents. The
+dependency triggers are defined in the outbox migration; they are not implemented
+by application CRUD functions.
 
 Claim work with recoverable leases. Initially serialize sync and reconciliation
 runs. Never keep a database transaction open while awaiting Meilisearch. Retrying
@@ -286,8 +287,8 @@ implemented in later phases. Empty indexes are expected until population is run.
 
 **Population and rebuild**
 
-Set `SEARCH_DATABASE_URL` in `.env.search.local` to a local database login with
-read access to both schemas, such as the existing `admin_app` login. Use its
+Set `SEARCH_DATABASE_URL` in `.env.search.local` to the dedicated local
+`search_worker` login installed by the outbox trigger migration. Use its
 actual local password, not the placeholder in `.env.search.example`. The source
 database needs to be set up through the existing user-run migration workflow.
 The indexer does not create database roles, run migrations, seed, or update rows.
@@ -347,10 +348,10 @@ index incomplete; rerun the rebuild after correcting the failure. The preflight
 cannot guarantee later reads or network operations will succeed.
 
 Run population/rebuild while local application writes and other indexing commands
-are idle. Pages are not a single database snapshot, and there is no cross-process
-worker lease yet. A record changed behind an ID cursor can require another pass.
-The later transactional outbox and reconciliation phases handle ongoing writes;
-they are not implemented by these manual commands. No database transaction stays
+are idle. Pages are not a single database snapshot, and these manual commands do
+not participate in the worker lease. A record changed behind an ID cursor can
+require another pass. The outbox worker handles ongoing writes; reconciliation
+will add daily repair. No database transaction stays
 open while waiting for Meilisearch. `NODE_ENV=production` skips both commands
 without opening connections or requiring search credentials.
 
@@ -375,6 +376,41 @@ key or change Meilisearch's own API permissions.
 The apps stay on Vercel. Search has no cloud deployment, hosted scheduler, Redis,
 or worker HTTP endpoint. Later phases add a local scheduler that invokes the worker
 every 15 minutes and reconciliation daily, alongside manual run-once commands.
+
+**Manual outbox synchronization**
+
+Before running the worker, apply the committed migrations to the intended local
+database and set the `search_worker` password using the user-run workflow in
+[search-outbox.md](./search-outbox.md). The agent does not perform these actions.
+Update `SEARCH_DATABASE_URL` to use that login; application roles cannot write
+the operational tables. Initialize Meilisearch indexes and generated keys first.
+
+```sh
+pnpm search:sync
+pnpm search:sync --max-jobs 25
+```
+
+One run handles at most 100 claims by default, then closes its database pool and
+exits. An already-owned global lease causes a successful skip. Jobs use renewable
+120-second leases and database-clock comparisons. Each HTTP request is bounded
+to ten seconds and each task wait to thirty seconds, with renewal between waits.
+No database transaction spans a network request.
+
+The worker saves accepted task UIDs before submitting further operations. On
+recovery it settles saved tasks before submitting missing work. Successful older
+tasks cannot acknowledge newer changes: those changes stay due. Failed/canceled
+or removed tasks are retried after all known tasks settle; unknown outcomes keep
+their references. Retry delay grows from thirty seconds to fifteen minutes.
+There is no retry limit that silently drops a change.
+
+A crash between task submission and saving its UID can repeat an idempotent
+replacement/deletion. This is at-least-once delivery, not distributed exactly-once
+execution. Runs record counts, sanitized errors, and success/failure; the next
+lease owner marks abandoned running records interrupted. A run with failed jobs
+exits nonzero while leaving them recoverable. `NODE_ENV=production` skips before
+opening connections. Test sources are included but are not executed by checks.
+
+Automatic scheduling and daily reconciliation are not implemented yet.
 
 **Implementation phases**
 
