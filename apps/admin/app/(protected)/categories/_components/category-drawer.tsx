@@ -22,18 +22,21 @@ interface CategoryDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   category?: Category
+  readOnly?: boolean
 }
 
 export function CategoryDrawer({
   open,
   onOpenChange,
   category,
+  readOnly = false,
 }: CategoryDrawerProps) {
   const [isPending, startTransition] = useTransition()
   const isEditing = !!category
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (readOnly) return
 
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
@@ -71,7 +74,11 @@ export function CategoryDrawer({
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>
-            {isEditing ? "Edit category" : "New category"}
+            {readOnly
+              ? "Category details"
+              : isEditing
+                ? "Edit category"
+                : "New category"}
           </DrawerTitle>
         </DrawerHeader>
 
@@ -88,6 +95,7 @@ export function CategoryDrawer({
                 name="name"
                 type="text"
                 required
+                readOnly={readOnly}
                 defaultValue={category?.name}
                 className="border-border bg-transparent"
                 data-testid="category-name-input"
@@ -98,6 +106,7 @@ export function CategoryDrawer({
               <Textarea
                 id="description"
                 name="description"
+                readOnly={readOnly}
                 defaultValue={category?.description ?? ""}
                 className="border-border bg-transparent"
                 data-testid="category-description-input"
@@ -107,15 +116,17 @@ export function CategoryDrawer({
 
           <DrawerFooter className="mt-4 flex-row justify-end p-0">
             <DrawerClose render={<Button type="button" variant="outline" />}>
-              Cancel
+              {readOnly ? "Close" : "Cancel"}
             </DrawerClose>
-            <Button
-              type="submit"
-              disabled={isPending}
-              data-testid="category-submit-button"
-            >
-              {isEditing ? "Save changes" : "Create category"}
-            </Button>
+            {!readOnly && (
+              <Button
+                type="submit"
+                disabled={isPending}
+                data-testid="category-submit-button"
+              >
+                {isEditing ? "Save changes" : "Create category"}
+              </Button>
+            )}
           </DrawerFooter>
         </form>
       </DrawerContent>

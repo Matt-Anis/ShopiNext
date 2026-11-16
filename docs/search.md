@@ -8,7 +8,9 @@ Phases 1–3 provide contracts, index settings, the persistent local service,
 initialization, projections, population/rebuild commands, and outbox migration
 files. Phase 4 now includes a manual leased outbox worker with task recovery and
 retries, reconciliation, and opt-in local scheduling. Phase 5 includes the direct
-public adapter and permission-aware admin endpoint. Search interfaces come in Phase 6.
+public adapter and permission-aware admin endpoint. Phase 6 adds the shared search
+panels, responsive header controls, and admin category URL selection. Keyword
+history remains Phase 7 work.
 
 **Why Meilisearch**
 
@@ -88,7 +90,7 @@ portfolio. Existing destination pages still validate current database visibility
 | Index | Searchable fields, in priority order | Preview | Required access | Destination |
 | --- | --- | --- | --- | --- |
 | `admin_products` | `name`, `skus`, `slug`, `categoryNames`, `description`, `id` | ID, name, slug, thumbnail, categories, matched SKU or description, publication/trash state | `products.read` | `/products/[id]` |
-| `admin_categories` | `name`, `slug`, `description`, `id` | ID, name, slug, matched description | `categories.read` | `/categories?categoryId=[id]` (to implement) |
+| `admin_categories` | `name`, `slug`, `description`, `id` | ID, name, slug, matched description | `categories.read` | `/categories?categoryId=[id]` |
 | `admin_orders` | `reference`, `id`, `checkoutEmail` | ID, eight-character reference, checkout email, status, amount, creation date, archive state | `orders.read` | `/orders/[id]` |
 | `admin_customers` | `name`, `email`, `id` | ID, name, email, avatar | `customers.read` | `/customers/[id]` |
 | `admin_staff` | `name`, `email`, `id` | ID, name, email, avatar, role, banned state | `user.list` and `user.get` | `/staff/[id]` |
@@ -288,7 +290,7 @@ Empty indexes are expected until population is run.
 **Public query adapter**
 
 `apps/client/lib/search.ts` exports `searchPublicCatalog(query, signal?)` for the
-future search UI. It uses the official SDK through the browser-safe
+storefront search UI. It uses the official SDK through the browser-safe
 `@repo/search/browser` entry point and sends one multi-search request directly to
 Meilisearch's two public indexes. It never calls a product-loading query or a
 Next.js search proxy. Query options and retrieved fields are fixed; the public
@@ -297,12 +299,12 @@ key's index scopes are the actual security boundary.
 Queries are trimmed, capped at 200 characters, and skipped below two characters.
 Each group returns at most five previews. Abort signals propagate to the SDK and
 are checked before returning, so canceled requests do not deliver results. The
-Phase 6 UI will own debounce and cancellation of superseded input. Description
+shared UI owns debounce and cancellation of superseded input. Description
 crops and category matches become plain text segments, never raw HTML. Results
 contain only contract fields and encoded navigation destinations.
 
 Configuration is read only when a valid local query is made. Production returns
-no results before looking for credentials or making requests; the future UI uses
+no results before looking for credentials or making requests; the UI uses
 the shared availability message. Next.js public env values use explicit static
 property references so they can be bundled correctly. Restart development after
 copying generated values into `apps/client/.env.local`.
@@ -341,8 +343,54 @@ Meilisearch; normal catalog/detail queries remain separate.
 Handler and query-boundary test sources are included, plus an unauthenticated
 API integration test. Ordinary checks only type-check/lint them. No tests or
 live engine/database calls were executed while implementing this phase.
-The admin category URL points to the agreed `categoryId` destination; opening
-that drawer from the URL is still Phase 6 work.
+The admin category URL opens the selected category drawer. Existing read-only
+roles can inspect it without receiving editing controls.
+
+**Search panels and navigation**
+
+Both apps use `@repo/ui/global-search`. Its header control opens an anchored
+desktop dropdown or a mobile dialog containing an inline Base UI combobox.
+The existing popover/dialog primitives manage dismissal and focus restoration;
+the combobox manages arrows, selection, grouping, and active options. Search
+navigation uses the approved preview href, while normal page queries remain
+unchanged. Results show thumbnail/icon, title, metadata, and escaped match
+segments. Matched text renders as React text inside `mark`, never indexed HTML.
+
+The shared `useSearch` hook owns the 250 ms debounce. Every input change clears
+old results, cancels scheduled/in-flight work, and increments a request generation.
+Both abort state and generation must match before a response can update the UI.
+Closing/unmounting cancels work. Short input shows a prompt without browsing an
+index; loading, no-results, recoverable errors, and retry states are explicit.
+No keywords or results are stored yet. UI package checking is now part of
+`pnpm check`, including the shared hook and panel modules.
+
+Admin search is centered with equal side columns; breadcrumbs stay within the
+left column and are hidden on smaller screens. The wrapper uses the existing
+permission-aware HTTP endpoint, and role changes remount it to discard old
+preview state. The storefront has one search component: beside the logo on the
+desktop left, in a centered second row on mobile. Mobile main-content padding
+matches the 112 px header; desktop keeps 64 px. Cart/account/menu controls retain
+their own space.
+
+With `NODE_ENV=production`, the control opens only the local-demo message and a
+repository setup-guide link. There is no query input or request. No search
+credentials are required to render this explanation.
+
+`/categories?categoryId=...` derives the drawer selection from the URL and the
+page's already-loaded, active categories. Missing/trashed records show an
+unavailable notice. Category read permission remains enforced by the page;
+only users with update permission receive editable fields and a save button.
+The existing server action remains the authority for writes. Native history
+updates integrate with Next.js search params, preserve unrelated parameters,
+and avoid refetching the list merely to open/close a drawer. URL selection takes
+priority over an open creation form.
+
+UI test sources cover keyboard selection, focus restoration, responsive
+placement, error recovery, text escaping, and category destinations. Admin UI
+tests intercept `/api/search`; client UI tests use a same-origin fake engine URL
+from the Playwright web-server configuration and intercept its multi-search
+requests. They require no running Meilisearch. Tests have not been executed;
+static checks do not establish browser behavior or visual correctness.
 
 **Population and rebuild**
 
@@ -425,7 +473,7 @@ server exports. Credentials are read on demand, not during module import.
 
 When `NODE_ENV === 'production'`, application search is unavailable. This also
 intentionally disables search in a local production build. There is no separate
-feature flag. The future UI displays "Search is available in the local demo. See
+feature flag. The UI displays "Search is available in the local demo. See
 the setup guide to try it." and links here. It sends no search requests; the admin
 handler also rejects direct calls without contacting Meilisearch. Production builds
 and application startup must work without any Meilisearch environment variables.
@@ -578,3 +626,4 @@ or access the database on the user's behalf.
 - [Compose profiles and explicit service startup](https://docs.docker.com/compose/how-tos/profiles/)
 - [Dockerfile-specific build context exclusions](https://docs.docker.com/build/concepts/context/#dockerignore-files)
 - [pnpm Docker and frozen workspace installs](https://pnpm.io/docker)
+- [Base UI combobox composition and async filtering](https://base-ui.com/react/components/combobox)
