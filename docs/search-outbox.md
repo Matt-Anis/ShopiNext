@@ -1,9 +1,10 @@
 **Search outbox and synchronization state**
 
-Phase 3 adds schema definitions and trigger SQL source. These definitions do not
-create database objects until the user generates and applies migrations. The
-processing worker, lease renewal, retries, and reconciliation are Phase 4 work.
-No runtime synchronization code belongs in `packages/db`.
+Phase 3 adds schema definitions and trigger SQL source, now recorded in migrations
+0030 and 0031. Database objects exist only after the user applies those migrations.
+Phase 4 adds processing, lease renewal, retries, reconciliation, and local cron
+under `packages/search-tooling` and `docker/search`. No runtime synchronization
+code belongs in `packages/db`.
 
 **Why three tables**
 
@@ -160,8 +161,10 @@ The source is prepared for the project's PostgreSQL 16 and Drizzle Kit 0.31
 workflow. Migration installation uses the migration superuser described in
 `database.md`; application credentials cannot install these objects.
 
-From the repository root, generate the table migration, then an empty custom
-migration for functions, roles, grants, and triggers:
+The initial table migration `0030_sparkling_pet_avengers.sql` and custom migration
+`0031_search_outbox_triggers.sql` are already committed. Do not regenerate or edit
+them. The following generation commands document how those files were prepared;
+they are not setup commands to repeat:
 
 ```sh
 pnpm db:generate
@@ -189,9 +192,10 @@ ALTER ROLE search_worker WITH PASSWORD '<local-password>';
 ```
 
 Point `.env.search.local`'s `SEARCH_DATABASE_URL` at that login. The Phase 2
-population command continues enforcing a read-only connection; Phase 4 will add
-the worker connection that writes operational state. Trigger installation does
-not start processing jobs. Future changes accumulate until that worker exists.
+population command continues enforcing a read-only connection; the Phase 4 worker
+connection writes operational state. Trigger installation does not start
+processing. Use `pnpm search:sync`, `pnpm search:reconcile`, or explicitly start
+the local scheduler as described in [search.md](./search.md).
 
 PostgreSQL cannot see Next.js's `NODE_ENV`. Applying the trigger migration installs
 capture on whichever database is targeted, including a hosted database if chosen.

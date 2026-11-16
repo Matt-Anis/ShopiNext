@@ -1,4 +1,30 @@
 services:
+  search-scheduler:
+    build:
+      context: .
+      dockerfile: docker/search/Dockerfile
+    profiles:
+      - search-worker
+    restart: unless-stopped
+    depends_on:
+      meilisearch:
+        condition: service_healthy
+      db:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: ./.env.search.docker.local
+        target: /workspace/.env.search.local
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.env.search.generated.local
+        target: /workspace/.env.search.generated.local
+        read_only: true
+        bind:
+          create_host_path: false
+
   meilisearch:
     image: getmeili/meilisearch:v1.57.0
     profiles:

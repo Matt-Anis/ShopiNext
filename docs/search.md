@@ -7,9 +7,8 @@ pricing, checkout validation, or authorization data.
 Phases 1–3 provide contracts, index settings, the persistent local service,
 initialization, projections, population/rebuild commands, and outbox migration
 files. Phase 4 now includes a manual leased outbox worker with task recovery and
-retries and a run-once reconciliation command. Scheduling is still to come,
-followed by app search endpoints and interfaces. These tools do not add a working
-search bar.
+retries, reconciliation, and opt-in local scheduling. App search endpoints and
+interfaces are subsequent phases. These tools do not add a working search bar.
 
 **Why Meilisearch**
 
@@ -235,8 +234,8 @@ pnpm search:up
 ```
 
 `pnpm search:up` starts only Meilisearch and waits for its health check. It does not
-start PostgreSQL or S3. `pnpm search:stop` stops only Meilisearch and preserves its
-named volume. The Compose `search` profile keeps the service out of ordinary
+start PostgreSQL or S3. `pnpm search:stop` stops the scheduler and Meilisearch,
+preserving the named volume. The Compose `search` profile keeps the engine out of ordinary
 `pnpm db:up` startup. The image is pinned to `getmeili/meilisearch:v1.57.0` so clones
 use the same engine; persistence lives at `/meili_data` rather than inside the
 replaceable container filesystem.
@@ -375,8 +374,8 @@ This environment check controls app behavior; it does not revoke an already issu
 key or change Meilisearch's own API permissions.
 
 The apps stay on Vercel. Search has no cloud deployment, hosted scheduler, Redis,
-or worker HTTP endpoint. Later phases add a local scheduler that invokes the worker
-every 15 minutes and reconciliation daily, alongside manual run-once commands.
+or worker HTTP endpoint. An opt-in local scheduler invokes the worker every
+15 minutes and reconciliation daily, alongside manual run-once commands.
 
 **Manual outbox synchronization**
 
@@ -430,7 +429,65 @@ pages and skip orphans. After scanning all seven indexes, the same outbox
 processor performs up to 1000 claims by default; overflow remains queued for the
 next sync. Known tasks settle before conflicting writes. Reads are not a single
 database snapshot, and concurrent app changes or previously accepted remote
-tasks can require another pass. Automatic daily scheduling is the next step.
+tasks can require another pass. The local scheduler below runs this daily.
+
+**Local scheduler**
+
+The schedule lives in `docker/search/crontab`: outbox runs at minutes 0, 15, 30,
+and 45; reconciliation runs daily at 03:07 UTC. A separate `search-scheduler`
+container runs cron. Each invocation creates its own database pool, performs
+bounded work, and exits. There is no persistent database listener or worker pool.
+The shared database lease prevents scheduled/manual workers from overlapping;
+an invocation skips if another owns the lease. Missed cron times while stopped
+are not replayed, but outbox rows remain available for the next run.
+
+First finish the user-run migration/password checkpoint, configure the host env,
+start Meilisearch, run setup, and populate the indexes. Then prepare the scheduler
+configuration:
+
+```sh
+cp .env.search.docker.example .env.search.docker.local
+```
+
+Replace the placeholder password with the same local `search_worker` password
+(URL-encode special characters). Keep `db:5432` and `meilisearch:7700`: these are
+Compose service addresses, unlike localhost URLs in `.env.search.local` used by
+host commands. The scheduler mounts this Docker-specific file at the worker's
+normal input path and mounts `.env.search.generated.local` for the scoped key.
+Both mounts are read-only and must already exist. There is no secret baked into
+the image. Regenerate keys before restarting the scheduler if credentials change.
+
+```sh
+pnpm search:worker:up
+pnpm search:worker:logs
+pnpm search:worker:stop
+```
+
+The explicit start command builds the Node 24 image using the repository's
+pnpm 11.22.0 and frozen lockfile, then starts the scheduler and its database/engine
+dependencies. It never applies migrations or initializes keys. The separate
+`search-worker` profile keeps it out of ordinary `pnpm dev`, `pnpm db:up`, and
+`pnpm search:up`. The Dockerfile-specific ignore file limits the build context
+to needed source/manifests and excludes local env files and host dependencies.
+Cron runs as the container's root user to read restrictive mounted credentials
+and redirect job output; it has no Docker socket or host directory mounts.
+
+Use `pnpm search:sync` or `pnpm search:reconcile` for immediate host runs. To run
+once with the image and its container URLs instead:
+
+```sh
+docker compose --env-file .env.search.local --profile search --profile search-worker run --rm search-scheduler search-job sync
+```
+
+Container logs contain summaries and sanitized errors. Run history and retry
+state live in the three admin search tables; inspect them through your own
+database tooling. A transient failure leaves work queued. After correcting
+credentials/connectivity, run sync again; use reconciliation for missed changes
+and index drift. After an engine reset, rerun setup and initial indexing before
+restarting scheduling. Stop the scheduler before manual population/rebuild,
+because those older read-only tools do not use its lease. Stop both search
+containers with `pnpm search:stop`; it preserves engine data and leaves PostgreSQL
+and S3 alone. The scheduler restarts with Docker until explicitly stopped.
 
 **Implementation phases**
 
@@ -459,3 +516,6 @@ or access the database on the user's behalf.
 - [Indexing task lifecycle](https://www.meilisearch.com/docs/capabilities/indexing/tasks_and_batches/async_operations)
 - [API keys and index/action restrictions](https://www.meilisearch.com/docs/resources/self_hosting/security/master_api_keys)
 - [Plain-text extraction with table-cell boundaries](https://github.com/syntax-tree/hast-util-to-text)
+- [Compose profiles and explicit service startup](https://docs.docker.com/compose/how-tos/profiles/)
+- [Dockerfile-specific build context exclusions](https://docs.docker.com/build/concepts/context/#dockerignore-files)
+- [pnpm Docker and frozen workspace installs](https://pnpm.io/docker)
