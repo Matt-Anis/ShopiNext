@@ -1,4 +1,25 @@
 services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.57.0
+    profiles:
+      - search
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_DB_PATH: /meili_data/data.ms
+    ports:
+      - "127.0.0.1:7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
   db:
     image: postgres:16
     container_name: store_db
@@ -47,5 +68,6 @@ services:
         echo "SeaweedFS ${STORAGE_BUCKET:-store} bucket is ready."
 
 volumes:
+  meilisearch_data:
   postgres_data:
   s3_data:
