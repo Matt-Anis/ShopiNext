@@ -12,6 +12,8 @@
     "search:up": "docker compose --env-file .env.search.local --profile search up -d --wait meilisearch",
     "search:stop": "docker compose --env-file .env.search.local --profile search stop meilisearch",
     "search:setup": "pnpm --filter @repo/search-tooling run setup",
+    "search:index": "pnpm --filter @repo/search-tooling run index",
+    "search:rebuild": "pnpm --filter @repo/search-tooling run index --rebuild",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:up:test": "docker compose -f docker-compose.test.yml up -d",

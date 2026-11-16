@@ -6,7 +6,9 @@
   "scripts": {
     "check": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "setup": "tsx setup/index.ts"
+    "setup": "tsx setup/index.ts",
+    "index": "tsx indexing/index.ts",
+    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts"
   },
   "dependencies": {
     "@repo/db": "workspace:*",

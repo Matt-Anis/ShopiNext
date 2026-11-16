@@ -1,25 +1,10 @@
-import {
-  MeilisearchApiError,
-  type EnqueuedTaskPromise,
-  type Meilisearch,
-} from "meilisearch";
+import { MeilisearchApiError, type Meilisearch } from "meilisearch";
 import {
   SEARCH_INDEX_UIDS,
   type SearchIndexUid,
 } from "@repo/search/server/indexes";
 import { SEARCH_INDEX_SETTINGS } from "@repo/search/server/settings";
-
-async function requireSuccessfulTask(
-  task: EnqueuedTaskPromise,
-  operation: string,
-) {
-  const completed = await task.waitTask({ timeout: 60_000, interval: 250 });
-  if (completed.status !== "succeeded") {
-    throw new Error(
-      `${operation} ${completed.status}: ${completed.error?.message ?? "Indexing task did not succeed."}`,
-    );
-  }
-}
+import { requireSuccessfulTask } from "../meilisearch/tasks";
 
 async function ensureIndex(client: Meilisearch, uid: SearchIndexUid) {
   let index;

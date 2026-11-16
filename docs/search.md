@@ -4,10 +4,11 @@ Search is an English-only navigation feature. Results are small previews that
 open existing pages; they are not catalog pages or a source of live stock,
 pricing, checkout validation, or authorization data.
 
-Phase 1 provides the contracts, index settings, persistent local service, and
-initialization command. Document projection, database triggers, synchronization,
-search endpoints, and the interfaces are subsequent phases. Initializing the
-indexes alone does not populate them or add a working search bar.
+Phases 1 and 2 provide the contracts, index settings, persistent local service,
+initialization, document projections, and population/rebuild commands. Database
+triggers, automatic synchronization, search endpoints, and the interfaces are
+subsequent phases. Initializing indexes alone does not populate them, and these
+tooling commands do not add a working search bar.
 
 **Why Meilisearch**
 
@@ -276,9 +277,82 @@ The generated file contains:
 When the app adapters are implemented, copy the two `NEXT_PUBLIC_` entries into
 `apps/client/.env.local` and the URL/admin key into `apps/admin/.env.local`. Keep
 the worker key in local tooling configuration. Never copy master, setup, admin,
-or worker credentials into a `NEXT_PUBLIC_` variable. The two app consumers and
-the document-population command are not implemented in Phase 1, so empty search
-indexes are expected at this point.
+or worker credentials into a `NEXT_PUBLIC_` variable. The two app consumers are
+implemented in later phases. Empty indexes are expected until population is run.
+
+**Population and rebuild**
+
+Set `SEARCH_DATABASE_URL` in `.env.search.local` to a local database login with
+read access to both schemas, such as the existing `admin_app` login. Use its
+actual local password, not the placeholder in `.env.search.example`. The source
+database needs to be set up through the existing user-run migration workflow.
+The indexer does not create database roles, run migrations, seed, or update rows.
+It opens a dedicated PostgreSQL pool with read-only transactions enforced and
+closes it on success or failure. This pool is created only when the command runs.
+
+After `pnpm search:up` and `pnpm search:setup`, populate all seven indexes:
+
+```sh
+pnpm search:index
+```
+
+This reads `.env.search.local` and `.env.search.generated.local`; explicit shell
+environment variables take precedence. It uses the scoped worker key, not the
+master key. Each source is read with an ID cursor in batches of 100 by default:
+
+```sh
+pnpm search:index --batch-size 50
+```
+
+The queries under `packages/search-tooling/queries` exist only for indexing. They
+select explicit columns and the first image ordered by `order` then ID. Public
+queries apply listing eligibility; pure projection functions apply those rules
+again and build explicit field allowlists. Admin products include drafts/trash,
+active variant SKUs, and their category names. Categories in both indexes exclude
+trash. Orders preserve the checkout email and include archived records. Customer
+and staff sources remain separate, with no account/session/verification joins.
+
+Descriptions use the same remark parsing family as the UI, followed by
+`hast-util-to-text`. This retains readable table and code content and word
+boundaries, without indexing Markdown punctuation or link destinations. A regex
+Markdown stripper would mishandle nested syntax; `strip-markdown` was considered
+but drops tables by default. The standard parser/text utility avoids maintaining
+a custom Markdown parser. Whitespace is normalized for concise excerpts.
+
+Population uses Meilisearch's add-or-replace API, so an existing ID receives a
+complete document replacement rather than retaining fields from an older shape.
+The command waits for every task to succeed before continuing and logs counts,
+not documents or credentials. It does not remove IDs that disappeared from the
+source, so use an explicit rebuild when existing indexes may contain stale rows:
+
+```sh
+pnpm search:rebuild
+```
+
+Both commands first validate all seven indexes' primary keys and read the first
+page of every source. Missing indexes, initial database permission failures, or
+initial projection errors stop execution before existing documents are cleared.
+Rebuild then clears and refills each index, including indexes whose current
+source is empty. It preserves settings and API keys and removes obsolete IDs.
+
+This local rebuild deliberately accepts temporary empty/incomplete search
+results. Building staging indexes and swapping them would preserve availability,
+but requires more indexes, settings, permissions, and cleanup for a feature that
+is disabled in the hosted demo. A failure partway through rebuild can leave an
+index incomplete; rerun the rebuild after correcting the failure. The preflight
+cannot guarantee later reads or network operations will succeed.
+
+Run population/rebuild while local application writes and other indexing commands
+are idle. Pages are not a single database snapshot, and there is no cross-process
+worker lease yet. A record changed behind an ID cursor can require another pass.
+The later transactional outbox and reconciliation phases handle ongoing writes;
+they are not implemented by these manual commands. No database transaction stays
+open while waiting for Meilisearch. `NODE_ENV=production` skips both commands
+without opening connections or requiring search credentials.
+
+Projection and pagination/argument tests are included. They can be run explicitly
+with `pnpm --filter @repo/search-tooling run test:unit`; ordinary `pnpm check`
+type-checks them without executing them. These tests do not connect to services.
 
 The shared search library belongs in `packages/search`; local initialization tools
 belong in `packages/search-tooling`. Only explicitly browser-safe exports may be
@@ -324,3 +398,4 @@ or access the database on the user's behalf.
 - [First-character typo cost](https://github.com/meilisearch/documentation/blob/main/resources/internals/typo_tolerance.mdx)
 - [Indexing task lifecycle](https://www.meilisearch.com/docs/capabilities/indexing/tasks_and_batches/async_operations)
 - [API keys and index/action restrictions](https://www.meilisearch.com/docs/resources/self_hosting/security/master_api_keys)
+- [Plain-text extraction with table-cell boundaries](https://github.com/syntax-tree/hast-util-to-text)
