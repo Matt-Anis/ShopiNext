@@ -148,6 +148,10 @@ tokens, payment-provider identifiers, order notes, and timeline text are exclude
 
 **Synchronization design**
 
+The [outbox and migration guide](./search-outbox.md) defines the Phase 3 tables,
+capture dependencies, database permissions, and user-run migration checkpoint.
+Its trigger SQL is source only until those migrations are prepared and applied.
+
 ```mermaid
 sequenceDiagram
     participant App as Either app / database writer
