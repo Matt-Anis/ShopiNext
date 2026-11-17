@@ -6,11 +6,12 @@ import {
   PRODUCT_SORT_OPTIONS,
   type ProductDiscovery,
 } from "../discovery"
-import { useProductDiscovery } from "../use-product-discovery"
+import type { useProductDiscovery } from "../use-product-discovery"
 
-export function ProductDiscoveryControls({ discovery }: { discovery: ProductDiscovery }) {
-  const controls = useProductDiscovery(discovery)
-
+export function ProductDiscoveryControls({ discovery, controls }: {
+  discovery: ProductDiscovery
+  controls: ReturnType<typeof useProductDiscovery>
+}) {
   return (
     <CatalogControls
       query={controls.query}
@@ -20,7 +21,6 @@ export function ProductDiscoveryControls({ discovery }: { discovery: ProductDisc
       onQueryChange={controls.setQuery}
       onSortChange={controls.changeSort}
       onReset={controls.reset}
-      busy={controls.isUpdating}
       canReset={controls.canReset}
     />
   )

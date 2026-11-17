@@ -18,6 +18,7 @@ type ProductListProps = {
   title?: string | null;
   className?: string;
   emptyState?: ReactNode;
+  isUpdating?: boolean;
 };
 
 export default function ProductList(props: ProductListProps) {
@@ -39,26 +40,33 @@ function ProductListResults({
   title = "Our products",
   className,
   emptyState,
+  isUpdating = false,
 }: ProductListProps) {
   const { products, hasMore, sentinelRef, isPending, error, loadMore } =
-    useProductPagination({ initialProducts, initialCursor, categoryId, query, sortBy });
+    useProductPagination({ initialProducts, initialCursor, categoryId, query, sortBy, enabled: !isUpdating });
 
   return (
-    <section className={className ?? "px-6 py-16 md:px-10"} id="products" aria-busy={isPending}>
+    <section className={className ?? "px-6 py-16 md:px-10"} id="products" aria-busy={isUpdating || isPending}>
       {title && (
         <h2 className="mb-8 text-center text-4xl font-semibold">{title}</h2>
       )}
-      {products.length === 0 ? emptyState : <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-        {isPending &&
-          Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-            <ProductCardSkeleton key={`skeleton-${i}`} />
+      {products.length === 0 && !isUpdating ? emptyState : (
+        <div
+          className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center"
+          data-testid={isUpdating ? "product-list-skeleton" : undefined}
+          aria-hidden={isUpdating || undefined}
+        >
+          {!isUpdating && products.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
-      </div>}
-      {isPending && <p role="status" className="mt-6 text-center text-sm text-muted-foreground">Loading more products…</p>}
-      {error && (
+          {(isUpdating || isPending) &&
+            Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+              <ProductCardSkeleton key={`skeleton-${i}`} />
+            ))}
+        </div>
+      )}
+      {(isUpdating || isPending) && <p role="status" className="sr-only">Loading products…</p>}
+      {error && !isUpdating && (
         <div role="alert" className="mt-6 flex flex-col items-center gap-3 text-center">
           <p className="text-sm text-muted-foreground">{error}</p>
           <Button type="button" variant="outline" onClick={loadMore} disabled={isPending}>
@@ -66,7 +74,7 @@ function ProductListResults({
           </Button>
         </div>
       )}
-      {hasMore && !error && <div ref={sentinelRef} data-testid="product-pagination-sentinel" className="h-1" />}
+      {hasMore && !error && !isUpdating && <div ref={sentinelRef} data-testid="product-pagination-sentinel" className="h-1" />}
     </section>
   );
 }

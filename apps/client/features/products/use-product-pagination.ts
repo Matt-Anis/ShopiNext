@@ -10,6 +10,7 @@ type ProductPaginationOptions = ProductDiscovery & {
   initialProducts: Product[]
   initialCursor: ProductCursor | null
   categoryId?: string
+  enabled?: boolean
 }
 
 export function useProductPagination({
@@ -18,6 +19,7 @@ export function useProductPagination({
   categoryId,
   query,
   sortBy,
+  enabled = true,
 }: ProductPaginationOptions) {
   const [products, setProducts] = useState(initialProducts)
   const [cursor, setCursor] = useState(initialCursor)
@@ -33,7 +35,7 @@ export function useProductPagination({
   }, [])
 
   const loadMore = useCallback(() => {
-    if (!cursor || fetchingRef.current) return
+    if (!enabled || !cursor || fetchingRef.current) return
 
     fetchingRef.current = true
     startTransition(async () => {
@@ -52,11 +54,11 @@ export function useProductPagination({
         fetchingRef.current = false
       }
     })
-  }, [cursor, categoryId, query, sortBy])
+  }, [cursor, categoryId, query, sortBy, enabled])
 
   useEffect(() => {
-    if (inView && !error) loadMore()
-  }, [inView, error, loadMore])
+    if (enabled && inView && !error) loadMore()
+  }, [enabled, inView, error, loadMore])
 
   return { products, hasMore: cursor !== null, sentinelRef, isPending, error, loadMore }
 }

@@ -4,9 +4,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { getCategoryBySlug } from "@/features/categories/queries"
 import { getAllProducts } from "@/features/products/queries"
-import ProductList from "../../_components/ProductList"
+import ProductCatalog from "../../_components/ProductCatalog"
 import { parseProductDiscovery } from "@/features/products/discovery"
-import { ProductDiscoveryControls } from "@/features/products/components/product-discovery-controls"
 import { ProductEmptyState } from "@/features/products/components/product-empty-state"
 
 export async function generateMetadata({
@@ -65,23 +64,19 @@ export default async function CategoryProductsPage({
         )}
       </header>
 
-      <ProductDiscoveryControls discovery={discovery} />
-
-      <ProductList
-          initialProducts={products}
-          initialCursor={nextCursor}
-          {...discovery}
-          categoryId={category.id}
-          title={null}
-          className="p-0"
-          emptyState={
-            <ProductEmptyState
-              discovery={discovery}
-              pathname={`/categories/${category.slug}`}
-              category
-            />
-          }
-        />
+      <ProductCatalog
+        initialProducts={products}
+        initialCursor={nextCursor}
+        discovery={discovery}
+        categoryId={category.id}
+        emptyState={
+          <ProductEmptyState
+            discovery={discovery}
+            pathname={`/categories/${category.slug}`}
+            category
+          />
+        }
+      />
     </div>
   )
 }

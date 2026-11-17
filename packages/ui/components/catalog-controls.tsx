@@ -14,13 +14,12 @@ type CatalogControlsProps = {
   onQueryChange: (query: string) => void
   onSortChange: (sortBy: string) => void
   onReset: () => void
-  busy: boolean
   canReset: boolean
 }
 
 export function CatalogControls({
   query, sortBy, sortOptions, maxQueryLength,
-  onQueryChange, onSortChange, onReset, busy, canReset,
+  onQueryChange, onSortChange, onReset, canReset,
 }: CatalogControlsProps) {
   const id = useId()
 
@@ -57,9 +56,6 @@ export function CatalogControls({
           Reset filters
         </Button>
       </div>
-      <p role="status" className="mt-2 min-h-5 text-sm text-muted-foreground">
-        {busy ? "Updating products…" : ""}
-      </p>
     </div>
   )
 }
