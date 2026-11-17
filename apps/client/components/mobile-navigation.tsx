@@ -49,7 +49,7 @@ export function MobileNavigation() {
       >
         <SheetHeader className="border-b border-border pr-16">
           <SheetTitle className="font-heading text-3xl font-bold tracking-tight">
-            Explore.
+            Menu
           </SheetTitle>
           <SheetDescription className="sr-only">
             Browse products and categories.
