@@ -16,7 +16,7 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
       key={session?.user.id ?? "guest"}
       initialItems={initialCartItems}
     >
-      <NavBar />
+      <NavBar signedIn={Boolean(session)} />
       <main className="flex-1 pt-20">{children}</main>
       <Footer
         {...storefrontFooter}

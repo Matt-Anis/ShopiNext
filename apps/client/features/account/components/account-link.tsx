@@ -1,27 +1,29 @@
 "use client"
 
+import { useSyncExternalStore } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { User } from "lucide-react"
 import { buttonVariants } from "@repo/ui/button"
 import { cn } from "@repo/ui/utils"
-import { Skeleton } from "@repo/ui/skeleton"
 import { authClient } from "@/lib/auth-client"
 
-export function AccountLink() {
+const subscribe = () => () => {}
+const getSnapshot = () => true
+const getServerSnapshot = () => false
+
+export function AccountLink({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname()
+  const hydrated = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const { data: session, isPending } = authClient.useSession()
+  const showAccount = hydrated && !isPending ? Boolean(session) : signedIn
   const isActive =
     pathname === "/profile" ||
     pathname.startsWith("/profile/") ||
     pathname === "/orders" ||
     pathname.startsWith("/orders/")
 
-  if (isPending) {
-    return <Skeleton className="size-11 rounded-md md:w-24" />
-  }
-
-  if (session) {
+  if (showAccount) {
     return (
       <Link
         href="/profile"
