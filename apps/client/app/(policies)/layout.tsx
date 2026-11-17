@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { buttonVariants } from "@repo/ui/button"
 import { Footer } from "@repo/ui/footer"
+import { ThemeToggle } from "@repo/ui/theme-toggle"
 import Logo from "@/components/Logo"
 import { storefrontFooter } from "@/lib/storefront-footer"
 
@@ -24,10 +25,13 @@ export default function PolicyLayout({ children }: { children: ReactNode }) {
               ShopiNext
             </span>
           </Link>
-          <Link href="/" className={buttonVariants({ variant: "outline" })}>
-            <ArrowLeft aria-hidden="true" />
-            Back to shop
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/" className={buttonVariants({ variant: "outline" })}>
+              <ArrowLeft aria-hidden="true" />
+              Back to shop
+            </Link>
+          </div>
         </nav>
       </header>
       {children}

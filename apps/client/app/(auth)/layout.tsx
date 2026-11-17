@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { ThemeToggle } from "@repo/ui/theme-toggle";
 
 import Logo from "@/components/Logo";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Link
           href="/"

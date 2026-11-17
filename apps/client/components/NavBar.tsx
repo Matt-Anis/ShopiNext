@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ThemeToggle } from "@repo/ui/theme-toggle"
 import { AccountLink } from "@/features/account/components/account-link"
 import { CartTrigger } from "./cart-trigger"
 import { StorefrontNavigation } from "./storefront-navigation"
@@ -16,7 +17,7 @@ export default function Navbar() {
           className="flex h-16 shrink-0 items-center gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50 md:justify-self-start"
         >
           <Logo className="size-8 text-foreground" />
-          <span className="font-heading text-lg font-semibold tracking-tight md:hidden lg:inline">
+          <span className="hidden font-heading text-lg font-semibold tracking-tight min-[400px]:inline md:hidden lg:inline">
             ShopiNext
           </span>
         </Link>
@@ -27,6 +28,7 @@ export default function Navbar() {
           <StorefrontGlobalSearch className="min-w-0 md:mr-2 md:max-w-64 md:flex-1" />
           <CartTrigger />
           <AccountLink />
+          <ThemeToggle />
           <MobileNavigation />
         </div>
       </div>

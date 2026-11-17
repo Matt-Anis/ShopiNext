@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@repo/ui/utils";
 import { Toaster } from "@repo/ui/toast";
 import { TooltipProvider } from "@repo/ui/tooltip";
+import { ThemeProvider } from "@repo/ui/theme-provider";
 
 const figtreeHeading = Figtree({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -38,8 +40,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+        <ThemeProvider storageKey="shopinext-client-theme">
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
