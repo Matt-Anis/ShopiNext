@@ -1,27 +1,25 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-};
+}
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        Privacy Policy
-      </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 md:py-20">
+      <h1 className="page-heading">Privacy Policy</h1>
+      <p className="mt-5 text-sm text-muted-foreground">
         Last updated: November 12, 2026
       </p>
 
-      <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground">
+      <div className="mt-12 space-y-10 text-base leading-relaxed text-foreground [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight">
         <section>
           <h2 className="text-lg font-medium">Overview</h2>
           <p className="mt-2">
             ShopiNext (&quot;we&quot;, &quot;us&quot;) is a demonstration
-            e-commerce project. This page explains what personal information
-            we collect from visitors and customers, why we collect it, and
-            how it&apos;s handled.
+            e-commerce project. This page explains what personal information we
+            collect from visitors and customers, why we collect it, and how
+            it&apos;s handled.
           </p>
         </section>
 
@@ -39,17 +37,16 @@ export default function PrivacyPolicyPage() {
               <span className="font-medium text-foreground">
                 Google sign-in —
               </span>{" "}
-              if you sign up or log in with Google, we receive your name,
-              email address, and profile picture from your Google account.
-              We never see or store your Google password.
+              if you sign up or log in with Google, we receive your name, email
+              address, and profile picture from your Google account. We never
+              see or store your Google password.
             </li>
             <li>
               <span className="font-medium text-foreground">
                 Payment information —
               </span>{" "}
-              payments are processed by Stripe. We do not collect or store
-              your card details — Stripe handles that directly, in
-              accordance with{" "}
+              payments are processed by Stripe. We do not collect or store your
+              card details — Stripe handles that directly, in accordance with{" "}
               <a
                 href="https://stripe.com/privacy"
                 className="underline underline-offset-4"
@@ -75,9 +72,9 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-medium">How We Use Your Information</h2>
           <p className="mt-2">
             We use your information solely to operate your account, process
-            orders, and communicate with you about your orders or account
-            (such as verification and password reset emails). We do not
-            sell your personal information to third parties.
+            orders, and communicate with you about your orders or account (such
+            as verification and password reset emails). We do not sell your
+            personal information to third parties.
           </p>
         </section>
 
@@ -93,10 +90,9 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-lg font-medium">Data Sharing</h2>
           <p className="mt-2">
-            We share information only with the service providers needed to
-            run the site — Stripe (payments) and Resend (transactional
-            email) — and only to the extent required for them to provide
-            that service.
+            We share information only with the service providers needed to run
+            the site — Stripe (payments) and Resend (transactional email) — and
+            only to the extent required for them to provide that service.
           </p>
         </section>
 
@@ -113,8 +109,8 @@ export default function PrivacyPolicyPage() {
             accounts, sessions, and saved cart. You lose access to your account
             and its order history. Existing orders are not cancelled or deleted:
             we retain their checkout email, payment reference, items, amounts,
-            statuses, and order notes to handle fulfilment, refunds, and support.
-            These orders are no longer linked to your deleted account.
+            statuses, and order notes to handle fulfilment, refunds, and
+            support. These orders are no longer linked to your deleted account.
           </p>
           <p className="mt-2">
             Deleting your ShopiNext account does not automatically erase payment
@@ -147,5 +143,5 @@ export default function PrivacyPolicyPage() {
         </section>
       </div>
     </main>
-  );
+  )
 }

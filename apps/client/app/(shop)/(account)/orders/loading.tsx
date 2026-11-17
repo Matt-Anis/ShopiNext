@@ -7,7 +7,7 @@ export default function OrdersLoading() {
       <span className="sr-only">Loading your orders</span>
       <div aria-hidden="true">
         <div className="mb-8 space-y-3">
-          <Skeleton className="h-10 w-56" />
+          <Skeleton className="h-12 w-3/4 sm:h-16 lg:h-18" />
           <Skeleton className="h-5 w-full max-w-80" />
         </div>
         <div className="space-y-5">
@@ -23,7 +23,7 @@ export default function OrdersLoading() {
               <CardContent className="space-y-4">
                 <Skeleton className="h-5 w-full max-w-80" />
                 <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-9 w-32 rounded-full" />
+                <Skeleton className="h-11 w-32 rounded-md" />
               </CardContent>
             </Card>
           ))}

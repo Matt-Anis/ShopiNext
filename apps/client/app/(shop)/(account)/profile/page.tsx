@@ -13,12 +13,8 @@ export default async function ProfilePage() {
   return (
     <div>
       <header className="mb-8">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Your profile
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          View your account details.
-        </p>
+        <h1 className="page-heading">Your profile</h1>
+        <p className="mt-5 text-muted-foreground">View your account details.</p>
       </header>
       <ProfileDetails
         name={user.name}

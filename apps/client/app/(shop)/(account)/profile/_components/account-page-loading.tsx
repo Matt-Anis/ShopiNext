@@ -14,7 +14,7 @@ export function AccountPageLoading({
       <span className="sr-only">{label}</span>
       <div aria-hidden="true">
         <div className="mb-8 space-y-3">
-          <Skeleton className="h-10 w-56" />
+          <Skeleton className="h-12 w-3/4 sm:h-16 lg:h-18" />
           <Skeleton className="h-5 w-full max-w-80" />
         </div>
         <Card>

@@ -8,7 +8,7 @@ export default function OrderDetailLoading() {
       <div aria-hidden="true" className="space-y-8">
         <div className="space-y-4">
           <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-12 w-3/4 sm:h-16 lg:h-18" />
           <Skeleton className="h-5 w-44" />
         </div>
         <Card>

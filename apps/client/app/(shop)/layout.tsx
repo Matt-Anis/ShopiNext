@@ -18,7 +18,11 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
     >
       <NavBar />
       <main className="flex-1 pt-20">{children}</main>
-      <Footer {...storefrontFooter} linkComponent={Link} />
+      <Footer
+        {...storefrontFooter}
+        linkComponent={Link}
+        className="[&>div]:max-w-[1440px] md:[&>div]:px-6 lg:[&>div]:px-10"
+      />
     </CartProvider>
   )
 }

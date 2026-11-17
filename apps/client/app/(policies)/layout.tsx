@@ -13,15 +13,15 @@ export default function PolicyLayout({ children }: { children: ReactNode }) {
       <header className="border-b border-border">
         <nav
           aria-label="Policy navigation"
-          className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 md:px-10"
+          className="storefront-container flex min-h-20 items-center justify-between gap-4"
         >
           <Link
             href="/"
             aria-label="ShopiNext home"
             className="flex items-center gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <Logo className="size-7 text-foreground" />
-            <span className="font-heading text-lg font-semibold tracking-tight">
+            <Logo className="size-8 text-foreground" />
+            <span className="hidden font-heading text-2xl font-extrabold tracking-[-0.06em] min-[480px]:inline">
               ShopiNext
             </span>
           </Link>
@@ -35,7 +35,11 @@ export default function PolicyLayout({ children }: { children: ReactNode }) {
         </nav>
       </header>
       {children}
-      <Footer {...storefrontFooter} linkComponent={Link} />
+      <Footer
+        {...storefrontFooter}
+        linkComponent={Link}
+        className="[&>div]:max-w-[1440px] md:[&>div]:px-6 lg:[&>div]:px-10"
+      />
     </div>
   )
 }
