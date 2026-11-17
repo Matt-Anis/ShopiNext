@@ -83,7 +83,7 @@ export function CatalogControls({
               aria-labelledby={`${id}-sort-label`}
               className={
                 storefront
-                  ? "h-12 w-full rounded-md bg-card sm:w-52"
+                  ? "w-full rounded-md bg-card data-[size=default]:h-12 sm:w-52"
                   : "w-full sm:w-52"
               }
             >
