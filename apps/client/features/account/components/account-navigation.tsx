@@ -17,7 +17,7 @@ export function AccountNavigation() {
 
   return (
     <nav aria-label="Account" className="min-w-0 flex-1 md:flex-none">
-      <ul className="grid grid-cols-3 gap-1 rounded-2xl bg-muted/50 p-1 md:flex md:flex-col md:bg-transparent md:p-0">
+      <ul className="grid grid-cols-3 gap-1 rounded-md bg-muted/50 p-1 md:flex md:flex-col md:bg-transparent md:p-0">
         {accountLinks.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href ||
@@ -29,8 +29,8 @@ export function AccountNavigation() {
                 href={href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
-                  "h-10 w-full rounded-xl px-2 md:justify-start md:px-3"
+                  buttonVariants({ variant: isActive ? "default" : "ghost" }),
+                  "h-11 w-full rounded-md px-2 md:justify-start md:px-3"
                 )}
               >
                 <Icon className="hidden md:block" aria-hidden="true" />

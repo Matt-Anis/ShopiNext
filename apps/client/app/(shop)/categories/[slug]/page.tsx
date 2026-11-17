@@ -42,11 +42,11 @@ export default async function CategoryProductsPage({
   })
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-10 md:py-12">
+    <div className="storefront-container py-10 md:py-16">
       <div className="mb-6">
         <Link
           href="/categories"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex min-h-11 items-center gap-2 rounded-md text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring"
         >
           <ArrowLeft className="size-4" />
           All categories
@@ -54,11 +54,9 @@ export default async function CategoryProductsPage({
       </div>
 
       <header className="mb-8 border-b border-border pb-8 sm:mb-12">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-          {category.name}
-        </h1>
+        <h1 className="page-heading wrap-anywhere">{category.name}</h1>
         {category.description && (
-          <p className="mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {category.description}
           </p>
         )}

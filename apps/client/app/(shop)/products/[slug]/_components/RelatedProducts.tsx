@@ -1,16 +1,16 @@
-import { ProductCard } from "@/components/ProductCard";
-import { getRelatedProducts } from "@/features/products/related-products";
+import { ProductCard } from "@/components/ProductCard"
+import { getRelatedProducts } from "@/features/products/related-products"
 
 export default async function RelatedProducts({
   productId,
   categoryIds,
 }: {
-  productId: string;
-  categoryIds: string[];
+  productId: string
+  categoryIds: string[]
 }) {
-  const products = await getRelatedProducts({ productId, categoryIds });
+  const products = await getRelatedProducts({ productId, categoryIds })
 
-  if (products.length === 0) return null;
+  if (products.length === 0) return null
 
   return (
     <section
@@ -29,5 +29,5 @@ export default async function RelatedProducts({
         ))}
       </div>
     </section>
-  );
+  )
 }

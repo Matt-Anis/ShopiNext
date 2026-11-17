@@ -1,24 +1,24 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { Badge } from "@repo/ui/badge";
-import { Markdown } from "@repo/ui/markdown";
-import { Skeleton } from "@repo/ui/skeleton";
-import { fetchProductBySlug } from "@/features/products/actions";
+import { Suspense } from "react"
+import { notFound } from "next/navigation"
+import { Badge } from "@repo/ui/badge"
+import { Markdown } from "@repo/ui/markdown"
+import { Skeleton } from "@repo/ui/skeleton"
+import { fetchProductBySlug } from "@/features/products/actions"
 import {
   VariantAddToCart,
   VariantBuyNow,
   VariantOptionPills,
   VariantPickerProvider,
   VariantPrice,
-} from "./VariantPicker";
-import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery";
-import RelatedProducts from "./RelatedProducts";
+} from "./VariantPicker"
+import ProductGallery, { ProductGallerySkeleton } from "./ProductGallery"
+import RelatedProducts from "./RelatedProducts"
 
 export default async function ProductDetail({ slug }: { slug: string }) {
-  const product = await fetchProductBySlug(slug);
+  const product = await fetchProductBySlug(slug)
 
   if (!product) {
-    notFound();
+    notFound()
   }
 
   const cartProduct = {
@@ -26,7 +26,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
     name: product.name,
     slug: product.slug,
     image: product.images[0] ?? null,
-  };
+  }
 
   return (
     <>
@@ -36,8 +36,11 @@ export default async function ProductDetail({ slug }: { slug: string }) {
         minPrice={product.minPrice}
       >
         <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 md:px-8 lg:flex-row lg:items-start lg:gap-12 lg:py-12">
-          <div className="lg:sticky lg:top-24 lg:w-1/3 lg:shrink-0">
-            <ProductGallery images={product.images} productName={product.name} />
+          <div className="lg:sticky lg:top-28 lg:w-1/3 lg:shrink-0">
+            <ProductGallery
+              images={product.images}
+              productName={product.name}
+            />
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col gap-6">
@@ -58,14 +61,12 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             </div>
 
             {product.options.length > 0 && (
-              <div className="rounded-md border border-border p-6 lg:hidden">
+              <div className="lg:hidden">
                 <VariantOptionPills />
               </div>
             )}
 
-            {product.description && (
-              <Markdown content={product.description} />
-            )}
+            {product.description && <Markdown content={product.description} />}
 
             <div className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-sm lg:hidden">
               <VariantAddToCart
@@ -77,7 +78,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             </div>
           </div>
 
-          <div className="hidden lg:sticky lg:top-24 lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-4 lg:rounded-md lg:border lg:border-border lg:p-6">
+          <div className="hidden lg:sticky lg:top-28 lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-4 lg:rounded-md lg:border lg:border-border lg:p-6">
             <VariantPrice className="text-2xl font-medium" />
             {product.options.length > 0 && <VariantOptionPills />}
             <div className="flex flex-col gap-2">
@@ -98,13 +99,13 @@ export default async function ProductDetail({ slug }: { slug: string }) {
         />
       </Suspense>
     </>
-  );
+  )
 }
 
 export function ProductDetailSkeleton() {
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-8 lg:flex-row lg:items-start lg:gap-12 lg:py-12">
-      <div className="lg:sticky lg:top-24 lg:w-1/3 lg:shrink-0">
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 md:px-8 lg:flex-row lg:items-start lg:gap-12 lg:py-12">
+      <div className="lg:sticky lg:top-28 lg:w-1/3 lg:shrink-0">
         <ProductGallerySkeleton />
       </div>
 
@@ -122,18 +123,18 @@ export function ProductDetailSkeleton() {
         </div>
 
         <div className="flex flex-col gap-2 lg:hidden">
-          <Skeleton className="h-11 w-full" />
-          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-13 w-full" />
+          <Skeleton className="h-13 w-full" />
         </div>
       </div>
 
-      <div className="hidden lg:sticky lg:top-24 lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-4 lg:rounded-md lg:border lg:border-border lg:p-6">
+      <div className="hidden lg:sticky lg:top-28 lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-4 lg:rounded-md lg:border lg:border-border lg:p-6">
         <Skeleton className="h-8 w-24" />
         <div className="flex flex-col gap-2">
-          <Skeleton className="h-11 w-full" />
-          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-13 w-full" />
+          <Skeleton className="h-13 w-full" />
         </div>
       </div>
     </section>
-  );
+  )
 }

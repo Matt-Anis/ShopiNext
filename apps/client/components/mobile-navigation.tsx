@@ -34,7 +34,7 @@ export function MobileNavigation() {
           <Button
             variant="ghost"
             size="icon"
-            className="size-10 md:hidden"
+            className="size-11 md:hidden"
             aria-label="Open navigation"
             data-testid="mobile-nav-trigger"
           />
@@ -48,7 +48,9 @@ export function MobileNavigation() {
         data-testid="mobile-nav-content"
       >
         <SheetHeader className="border-b border-border pr-16">
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle className="font-heading text-3xl font-bold tracking-tight">
+            Menu
+          </SheetTitle>
           <SheetDescription className="sr-only">
             Browse products and categories.
           </SheetDescription>

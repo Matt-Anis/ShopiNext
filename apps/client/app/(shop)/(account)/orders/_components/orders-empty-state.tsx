@@ -13,14 +13,14 @@ import {
 export function OrdersEmptyState() {
   return (
     <Empty
-      className="border border-dashed border-border py-16"
+      className="rounded-lg border border-dashed border-border bg-muted/40 py-20"
       data-testid="orders-empty-state"
     >
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Package />
         </EmptyMedia>
-        <EmptyTitle>
+        <EmptyTitle className="font-heading text-2xl font-bold tracking-tight">
           <h2>No orders yet</h2>
         </EmptyTitle>
         <EmptyDescription>

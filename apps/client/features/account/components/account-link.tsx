@@ -1,27 +1,29 @@
 "use client"
 
+import { useSyncExternalStore } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { User } from "lucide-react"
 import { buttonVariants } from "@repo/ui/button"
 import { cn } from "@repo/ui/utils"
-import { Skeleton } from "@repo/ui/skeleton"
 import { authClient } from "@/lib/auth-client"
 
-export function AccountLink() {
+const subscribe = () => () => {}
+const getSnapshot = () => true
+const getServerSnapshot = () => false
+
+export function AccountLink({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname()
+  const hydrated = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const { data: session, isPending } = authClient.useSession()
+  const showAccount = hydrated && !isPending ? Boolean(session) : signedIn
   const isActive =
     pathname === "/profile" ||
     pathname.startsWith("/profile/") ||
     pathname === "/orders" ||
     pathname.startsWith("/orders/")
 
-  if (isPending) {
-    return <Skeleton className="size-10 rounded-full md:w-24" />
-  }
-
-  if (session) {
+  if (showAccount) {
     return (
       <Link
         href="/profile"
@@ -29,7 +31,7 @@ export function AccountLink() {
         aria-current={isActive ? "location" : undefined}
         className={cn(
           buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
-          "size-10 px-0 md:w-auto md:px-3"
+          "size-11 px-0 md:w-auto md:px-3"
         )}
         data-testid="account-nav-link"
       >
@@ -46,7 +48,7 @@ export function AccountLink() {
         aria-label="Sign in"
         className={cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
-          "size-10 md:hidden"
+          "size-11 md:hidden"
         )}
         data-testid="signin-nav-button-mobile"
       >
@@ -56,7 +58,7 @@ export function AccountLink() {
         href="/login"
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "hidden h-10 md:inline-flex"
+          "hidden h-11 md:inline-flex"
         )}
         data-testid="signin-nav-button"
       >

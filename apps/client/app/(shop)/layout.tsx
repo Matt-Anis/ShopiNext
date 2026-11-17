@@ -16,9 +16,13 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
       key={session?.user.id ?? "guest"}
       initialItems={initialCartItems}
     >
-      <NavBar />
-      <main className="flex-1 pt-16">{children}</main>
-      <Footer {...storefrontFooter} linkComponent={Link} />
+      <NavBar signedIn={Boolean(session)} />
+      <main className="flex-1 pt-20">{children}</main>
+      <Footer
+        {...storefrontFooter}
+        linkComponent={Link}
+        className="[&>div]:max-w-[1440px] md:[&>div]:px-6 lg:[&>div]:px-10"
+      />
     </CartProvider>
   )
 }

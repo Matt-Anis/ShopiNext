@@ -26,10 +26,8 @@ export default async function OrdersPage({
   return (
     <div>
       <header className="mb-8">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Your orders
-        </h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="page-heading">Your orders</h1>
+        <p className="mt-5 text-muted-foreground">
           View your purchases and their latest updates.
         </p>
       </header>

@@ -46,6 +46,8 @@
     "./skeleton": "./components/skeleton.tsx",
     "./table": "./components/table.tsx",
     "./textarea": "./components/textarea.tsx",
+    "./theme-provider": "./components/theme-provider.tsx",
+    "./theme-toggle": "./components/theme-toggle.tsx",
     "./toast": "./components/toast.tsx",
     "./tooltip": "./components/tooltip.tsx",
     "./hooks/use-mobile": "./hooks/use-mobile.ts",
@@ -59,6 +61,7 @@
     "cn": "^0.5.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.31.0",
+    "next-themes": "^0.4.6",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.6.0"

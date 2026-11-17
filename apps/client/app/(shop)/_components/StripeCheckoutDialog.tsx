@@ -50,7 +50,7 @@ export function StripeCheckoutDialog({
         </AlertDialogHeader>
 
         {showQuantityPicker && (
-          <div className="flex items-center justify-between rounded-4xl border border-border p-1">
+          <div className="flex items-center justify-between rounded-md border border-border bg-card p-1">
             <Button
               type="button"
               size="icon"

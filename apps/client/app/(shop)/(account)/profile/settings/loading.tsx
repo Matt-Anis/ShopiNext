@@ -10,19 +10,19 @@ export default function ProfileSettingsLoading() {
             <Skeleton className="h-11 w-full" />
             <Skeleton className="h-4 w-full max-w-80" />
           </div>
-          <Skeleton className="h-9 w-28 rounded-full" />
+          <Skeleton className="h-11 w-28 rounded-md" />
         </div>
         <div className="space-y-6">
           <Skeleton className="h-6 w-24" />
           <Skeleton className="h-4 w-full max-w-80" />
           <Skeleton className="h-4 w-full max-w-96" />
-          <Skeleton className="h-9 w-52 rounded-full" />
+          <Skeleton className="h-11 w-52 max-w-full rounded-md" />
         </div>
         <div className="space-y-6">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-16 w-full" />
           <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-9 w-44 rounded-full" />
+          <Skeleton className="h-11 w-44 rounded-md" />
         </div>
       </div>
     </AccountPageLoading>

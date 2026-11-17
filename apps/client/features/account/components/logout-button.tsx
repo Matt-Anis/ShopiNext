@@ -56,7 +56,7 @@ export function LogoutButton() {
         render={
           <Button
             variant="destructive"
-            className="h-10 rounded-xl px-2 md:w-full md:justify-start md:px-3"
+            className="h-11 rounded-md px-2 md:w-full md:justify-start md:px-3"
             data-testid="logout-button"
           />
         }

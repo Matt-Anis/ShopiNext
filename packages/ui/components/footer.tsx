@@ -1,39 +1,39 @@
-import type { ComponentProps, ComponentType } from "react"
-import { ArrowUpRight } from "lucide-react"
+import type { ComponentProps, ComponentType } from "react";
+import { ArrowUpRight } from "lucide-react";
 
-import { cn } from "../lib/utils"
+import { cn } from "../lib/utils";
 
 type FooterLink = {
-  label: string
-  href: string
-}
+  label: string;
+  href: string;
+};
 
 type FooterLinkGroup = {
-  title: string
-  links: readonly FooterLink[]
-}
+  title: string;
+  links: readonly FooterLink[];
+};
 
-type FooterAnchorProps = ComponentProps<"a"> & { href: string }
+type FooterAnchorProps = ComponentProps<"a"> & { href: string };
 
 type FooterProps = Omit<ComponentProps<"footer">, "children"> & {
-  brandName: string
-  homeHref: string
-  headline: string
-  action: FooterLink
-  groups: readonly FooterLinkGroup[]
-  copyright: string
-  linkComponent?: ComponentType<FooterAnchorProps> | "a"
-}
+  brandName: string;
+  homeHref: string;
+  headline: string;
+  action: FooterLink;
+  groups: readonly FooterLinkGroup[];
+  copyright: string;
+  linkComponent?: ComponentType<FooterAnchorProps> | "a";
+};
 
 const footerLinkClassName =
-  "inline-flex min-h-11 items-center rounded-sm text-sm text-zinc-300 underline-offset-4 hover:text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+  "inline-flex min-h-11 items-center rounded-sm text-sm text-zinc-300 underline-offset-4 hover:text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
 
 function FooterGroup({
   group,
   linkComponent: Link,
 }: {
-  group: FooterLinkGroup
-  linkComponent: ComponentType<FooterAnchorProps> | "a"
+  group: FooterLinkGroup;
+  linkComponent: ComponentType<FooterAnchorProps> | "a";
 }) {
   return (
     <nav aria-label={`Footer ${group.title}`}>
@@ -50,7 +50,7 @@ function FooterGroup({
         ))}
       </ul>
     </nav>
-  )
+  );
 }
 
 function Footer({
@@ -69,7 +69,7 @@ function Footer({
       data-slot="footer"
       className={cn(
         "mt-auto shrink-0 border-t border-zinc-800 bg-zinc-950 text-zinc-50",
-        className
+        className,
       )}
       {...props}
     >
@@ -81,7 +81,7 @@ function Footer({
             </h2>
             <Link
               href={action.href}
-              className="group inline-flex min-h-12 items-center gap-6 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-zinc-950 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="group inline-flex min-h-[var(--button-height-lg,3rem)] items-center gap-6 rounded-[var(--button-radius,9999px)] bg-primary px-[var(--button-padding-x-lg,1.5rem)] py-3 text-sm font-semibold text-zinc-950 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
               {action.label}
               <ArrowUpRight
@@ -110,8 +110,8 @@ function Footer({
         <p className="mt-6 text-xs text-zinc-400">{copyright}</p>
       </div>
     </footer>
-  )
+  );
 }
 
-export { Footer }
-export type { FooterProps }
+export { Footer };
+export type { FooterProps };

@@ -17,10 +17,8 @@ export default async function ProfileSettingsPage() {
   return (
     <div>
       <header className="mb-8">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Account settings
-        </h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="page-heading">Account settings</h1>
+        <p className="mt-5 text-muted-foreground">
           Manage your name and account security.
         </p>
       </header>

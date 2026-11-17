@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { useState } from "react"
+import { Minus, Plus, Trash2 } from "lucide-react"
 
-import { Button } from "@repo/ui/button";
+import { Button } from "@repo/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,11 +14,11 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "@repo/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
-import { useCart } from "@/features/cart/CartProvider";
-import { cn } from "@repo/ui/utils";
-import type { CartItemVariant } from "@/features/cart/actions";
+} from "@repo/ui/alert-dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
+import { useCart } from "@/features/cart/CartProvider"
+import { cn } from "@repo/ui/utils"
+import type { CartItemVariant } from "@/features/cart/actions"
 
 export function CartControl({
   variant,
@@ -26,47 +26,47 @@ export function CartControl({
   className,
   testIdSuffix,
 }: {
-  variant: CartItemVariant;
-  size?: "default" | "lg";
-  className?: string;
-  testIdSuffix?: string;
+  variant: CartItemVariant
+  size?: "default" | "lg"
+  className?: string
+  testIdSuffix?: string
 }) {
   const { items, addItem, updateItemQuantity, removeItem, isPending } =
-    useCart();
-  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+    useCart()
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
   const testId = (base: string) =>
-    testIdSuffix ? `${base}-${testIdSuffix}` : base;
+    testIdSuffix ? `${base}-${testIdSuffix}` : base
 
   const quantity =
-    items.find((item) => item.variant.id === variant.id)?.quantity ?? 0;
+    items.find((item) => item.variant.id === variant.id)?.quantity ?? 0
 
   const handleAdd = () => {
-    addItem(variant, 1);
-  };
+    addItem(variant, 1)
+  }
 
   const handleDecrement = () => {
     if (quantity <= 1) {
-      setRemoveDialogOpen(true);
-      return;
+      setRemoveDialogOpen(true)
+      return
     }
 
-    updateItemQuantity(variant.id, quantity - 1);
-  };
+    updateItemQuantity(variant.id, quantity - 1)
+  }
 
   const handleIncrement = () => {
-    if (atQuantityLimit) return;
-    updateItemQuantity(variant.id, quantity + 1);
-  };
+    if (atQuantityLimit) return
+    updateItemQuantity(variant.id, quantity + 1)
+  }
 
   const handleConfirmRemove = () => {
-    removeItem(variant.id);
-    setRemoveDialogOpen(false);
-  };
+    removeItem(variant.id)
+    setRemoveDialogOpen(false)
+  }
 
-  const buttonSize = size === "lg" ? "lg" : "default";
-  const iconButtonSize = size === "lg" ? "icon-lg" : "icon";
-  const isOutOfStock = variant.maxPerOrder <= 0;
-  const atQuantityLimit = quantity >= variant.maxPerOrder;
+  const buttonSize = size === "lg" ? "lg" : "default"
+  const iconButtonSize = size === "lg" ? "icon-lg" : "icon"
+  const isOutOfStock = variant.maxPerOrder <= 0
+  const atQuantityLimit = quantity >= variant.maxPerOrder
 
   return (
     <>
@@ -82,10 +82,11 @@ export function CartControl({
           {isOutOfStock ? "Sold out" : "Add to Cart"}
         </Button>
       ) : (
-        <div className="flex w-full items-center justify-between rounded-4xl border border-border p-1">
+        <div className="flex w-full items-center justify-between rounded-md border border-border bg-card p-1">
           <Button
             type="button"
             size={iconButtonSize}
+            className={size === "lg" ? "size-12" : undefined}
             variant={quantity === 1 ? "destructive" : "ghost"}
             onClick={handleDecrement}
             disabled={isPending}
@@ -113,20 +114,23 @@ export function CartControl({
                     tabIndex={0}
                     data-testid={testId("cart-control-increment")}
                     className={cn(
-                      "inline-flex shrink-0 cursor-not-allowed items-center justify-center rounded-full text-muted-foreground",
-                      size === "lg" ? "size-10" : "size-9"
+                      "inline-flex shrink-0 cursor-not-allowed items-center justify-center rounded-md text-muted-foreground",
+                      size === "lg" ? "size-12" : "size-11"
                     )}
                   >
                     <Plus className="size-4" />
                   </span>
                 }
               />
-              <TooltipContent>You&apos;ve reached the maximum quantity</TooltipContent>
+              <TooltipContent>
+                You&apos;ve reached the maximum quantity
+              </TooltipContent>
             </Tooltip>
           ) : (
             <Button
               type="button"
               size={iconButtonSize}
+              className={size === "lg" ? "size-12" : undefined}
               variant="ghost"
               onClick={handleIncrement}
               disabled={isPending}
@@ -167,5 +171,5 @@ export function CartControl({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }

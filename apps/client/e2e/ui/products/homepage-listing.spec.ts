@@ -6,26 +6,27 @@ import { products } from "@repo/db/public/schema";
 
 test.describe("Homepage product listing", () => {
   test("a product with no variants is never listed", async ({ page }) => {
-    const noVariantsName = `No Variants Product ${uniqueSuffix()}`;
-
-    await seedProduct({
-      name: "Has Stock Product",
+    const listedProduct = await seedProduct({
+      name: `Has Stock Product ${uniqueSuffix()}`,
       slug: "has-stock-product",
       price: 1500,
     });
-    await testDb.insert(products).values({
-      name: noVariantsName,
-      slug: `no-variants-product-${uniqueSuffix()}`,
-      description: "A product with no variants at all.",
-    });
+    const [productWithoutVariants] = await testDb
+      .insert(products)
+      .values({
+        name: `No Variants Product ${uniqueSuffix()}`,
+        slug: `no-variants-product-${uniqueSuffix()}`,
+        description: "A product with no variants at all.",
+      })
+      .returning({ id: products.id });
 
     await page.goto("/");
 
     await expect(
-      page.getByText("Has Stock Product", { exact: true }),
+      page.getByTestId(`product-card-${listedProduct.id}`),
     ).toBeVisible();
     await expect(
-      page.getByText(noVariantsName, { exact: true }),
-    ).toHaveCount(0);
+      page.getByTestId(`product-card-${productWithoutVariants.id}`),
+    ).toBeHidden();
   });
 });

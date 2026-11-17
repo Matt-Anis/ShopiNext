@@ -54,7 +54,9 @@ export function CartDrawer({ children }: { children: ReactNode }) {
         data-testid="cart-drawer-content"
       >
         <DrawerHeader>
-          <DrawerTitle>Cart</DrawerTitle>
+          <DrawerTitle className="font-heading text-4xl font-bold tracking-tight">
+            Cart
+          </DrawerTitle>
         </DrawerHeader>
 
         {items.length === 0 ? (
@@ -63,7 +65,9 @@ export function CartDrawer({ children }: { children: ReactNode }) {
               <EmptyMedia variant="icon">
                 <ShoppingCart />
               </EmptyMedia>
-              <EmptyTitle>Your cart is empty</EmptyTitle>
+              <EmptyTitle className="font-heading text-2xl font-bold tracking-tight">
+                Your cart is empty
+              </EmptyTitle>
               <EmptyDescription className="max-w-xs text-pretty">
                 Items you add to your cart will appear here.
               </EmptyDescription>
@@ -71,7 +75,7 @@ export function CartDrawer({ children }: { children: ReactNode }) {
           </Empty>
         ) : (
           <ScrollArea className="min-h-0 flex-1 p-4">
-            <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-6 py-4">
               {items.map((item) => (
                 <CartItemCard key={item.variant.id} item={item} />
               ))}
@@ -81,14 +85,15 @@ export function CartDrawer({ children }: { children: ReactNode }) {
 
         {items.length > 0 && (
           <DrawerFooter>
-            <div className="flex items-center justify-between text-sm font-medium">
+            <div className="flex items-center justify-between py-2 font-heading text-xl font-semibold tracking-tight">
               <span>Subtotal</span>
               <span data-testid="cart-subtotal">{formatPrice(subtotal)}</span>
             </div>
             <form ref={checkoutFormRef} action={checkoutCart}>
               <Button
                 type="button"
-                className="w-full"
+                size="lg"
+                className="w-full font-semibold"
                 onClick={() => setCheckoutDialogOpen(true)}
                 data-testid="cart-checkout"
               >

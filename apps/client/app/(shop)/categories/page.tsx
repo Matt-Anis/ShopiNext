@@ -14,20 +14,21 @@ export default async function CategoriesPage() {
   const categories = await getActiveCategories()
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-10 md:py-16">
+    <div className="storefront-container py-12 md:py-20">
       <header className="mb-8 sm:mb-12">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-          Categories
-        </h1>
-        <p className="mt-2 max-w-2xl text-base text-muted-foreground sm:text-lg">
+        <p className="mb-5 font-mono text-xs tracking-wider text-muted-foreground uppercase">
+          Explore the collection
+        </p>
+        <h1 className="page-heading">Categories</h1>
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Explore our collections and browse products by category.
         </p>
       </header>
 
       {categories.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 px-6 py-20 text-center">
           <FolderOpen className="mb-3 size-10 text-muted-foreground" />
-          <h2 className="font-heading text-lg font-medium text-foreground">
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground">
             No categories available
           </h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
@@ -37,14 +38,14 @@ export default async function CategoriesPage() {
             href="/"
             className={buttonVariants({
               variant: "outline",
-              className: "mt-6 rounded-full",
+              className: "mt-6",
             })}
           >
             Return to shop
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="border-t border-border">
           {categories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}

@@ -1,33 +1,33 @@
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/card"
+import { ArrowUpRight } from "lucide-react"
 import type { Category } from "@/features/categories/queries"
 
 export function CategoryCard({ category }: { category: Category }) {
   return (
     <Link
       href={`/categories/${category.slug}`}
-      className="group block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-3xl"
+      className="group block border-b border-border px-4 py-7 transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none sm:px-6 sm:py-10"
     >
-      <Card
+      <div
         data-testid={`category-card-${category.slug}`}
-        className="h-full rounded-3xl border border-border bg-card p-6 shadow-none ring-0 transition-colors group-hover:bg-muted/50 group-hover:border-foreground/20 flex flex-col justify-between"
+        className="flex items-center justify-between gap-6"
       >
-        <CardHeader className="p-0 gap-2">
-          <CardTitle className="font-heading text-xl font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors">
+        <div className="min-w-0">
+          <h2 className="font-heading text-3xl leading-tight font-bold tracking-[-0.04em] wrap-anywhere sm:text-4xl lg:text-5xl">
             {category.name}
-          </CardTitle>
-          <CardDescription className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground group-hover:text-primary-foreground/80 sm:text-base">
             {category.description || "Explore products in this collection."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0 pt-4 mt-auto">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+          </p>
+          <span className="mt-5 inline-block font-mono text-xs tracking-wider uppercase">
             Browse products
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
-        </CardContent>
-      </Card>
+        </div>
+        <ArrowUpRight
+          aria-hidden="true"
+          className="size-8 shrink-0 motion-safe:transition-transform motion-safe:group-hover:translate-x-1 motion-safe:group-hover:-translate-y-1 sm:size-12"
+        />
+      </div>
     </Link>
   )
 }
