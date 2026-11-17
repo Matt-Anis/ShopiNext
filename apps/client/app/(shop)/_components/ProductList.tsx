@@ -5,19 +5,11 @@ import { useInView } from "react-intersection-observer";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 import type { Product, ProductCursor } from "@/features/products/queries";
 import { loadMoreProducts } from "@/features/products/actions";
-import type { ProductSortBy } from "@/features/products/discovery";
+import { productDiscoveryKey, type ProductSortBy } from "@/features/products/discovery";
 
 const SKELETON_COUNT = 8;
 
-export default function ProductList({
-  initialProducts,
-  initialCursor,
-  categoryId,
-  query = "",
-  sortBy = "newest",
-  title = "Our products",
-  className,
-}: {
+type ProductListProps = {
   initialProducts: Product[];
   initialCursor: ProductCursor | null;
   categoryId?: string;
@@ -25,12 +17,38 @@ export default function ProductList({
   sortBy?: ProductSortBy;
   title?: string | null;
   className?: string;
-}) {
+};
+
+export default function ProductList(props: ProductListProps) {
+  const { query = "", sortBy = "newest", categoryId } = props;
+  return (
+    <ProductListResults
+      key={productDiscoveryKey({ query, sortBy }, categoryId)}
+      {...props}
+    />
+  );
+}
+
+function ProductListResults({
+  initialProducts,
+  initialCursor,
+  categoryId,
+  query = "",
+  sortBy = "newest",
+  title = "Our products",
+  className,
+}: ProductListProps) {
   const [products, setProducts] = useState(initialProducts);
   const [cursor, setCursor] = useState(initialCursor);
   const [isPending, startTransition] = useTransition();
   const isFetchingRef = useRef(false);
+  const mountedRef = useRef(true);
   const { ref: sentinelRef, inView } = useInView({ rootMargin: "400px" });
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (!inView || !cursor || isFetchingRef.current) return;
@@ -39,6 +57,7 @@ export default function ProductList({
     startTransition(async () => {
       const { products: nextProducts, nextCursor } =
         await loadMoreProducts(cursor, { categoryId, query, sortBy });
+      if (!mountedRef.current) return;
       setProducts((prev) => [...prev, ...nextProducts]);
       setCursor(nextCursor);
       isFetchingRef.current = false;
