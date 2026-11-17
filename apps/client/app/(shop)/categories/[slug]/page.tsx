@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowLeft, PackageOpen } from "lucide-react"
-import { buttonVariants } from "@repo/ui/button"
+import { ArrowLeft } from "lucide-react"
 import { getCategoryBySlug } from "@/features/categories/queries"
 import { getAllProducts } from "@/features/products/queries"
 import ProductList from "../../_components/ProductList"
 import { parseProductDiscovery } from "@/features/products/discovery"
 import { ProductDiscoveryControls } from "@/features/products/components/product-discovery-controls"
+import { ProductEmptyState } from "@/features/products/components/product-empty-state"
 
 export async function generateMetadata({
   params,
@@ -67,35 +67,21 @@ export default async function CategoryProductsPage({
 
       <ProductDiscoveryControls discovery={discovery} />
 
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center">
-          <PackageOpen className="mb-3 size-10 text-muted-foreground" />
-          <h2 className="font-heading text-lg font-medium text-foreground">
-            No products found
-          </h2>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            There are no products in this category right now. Check back soon!
-          </p>
-          <Link
-            href="/categories"
-            className={buttonVariants({
-              variant: "outline",
-              className: "mt-6 rounded-full",
-            })}
-          >
-            Browse other categories
-          </Link>
-        </div>
-      ) : (
-        <ProductList
+      <ProductList
           initialProducts={products}
           initialCursor={nextCursor}
           {...discovery}
           categoryId={category.id}
           title={null}
           className="p-0"
+          emptyState={
+            <ProductEmptyState
+              discovery={discovery}
+              pathname={`/categories/${category.slug}`}
+              category
+            />
+          }
         />
-      )}
     </div>
   )
 }

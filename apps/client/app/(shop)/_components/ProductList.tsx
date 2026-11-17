@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "@repo/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 import type { Product, ProductCursor } from "@/features/products/queries";
@@ -16,6 +17,7 @@ type ProductListProps = {
   sortBy?: ProductSortBy;
   title?: string | null;
   className?: string;
+  emptyState?: ReactNode;
 };
 
 export default function ProductList(props: ProductListProps) {
@@ -36,6 +38,7 @@ function ProductListResults({
   sortBy = "newest",
   title = "Our products",
   className,
+  emptyState,
 }: ProductListProps) {
   const { products, hasMore, sentinelRef, isPending, error, loadMore } =
     useProductPagination({ initialProducts, initialCursor, categoryId, query, sortBy });
@@ -45,7 +48,7 @@ function ProductListResults({
       {title && (
         <h2 className="mb-8 text-center text-4xl font-semibold">{title}</h2>
       )}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center">
+      {products.length === 0 ? emptyState : <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto justify-center">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -53,7 +56,7 @@ function ProductListResults({
           Array.from({ length: SKELETON_COUNT }).map((_, i) => (
             <ProductCardSkeleton key={`skeleton-${i}`} />
           ))}
-      </div>
+      </div>}
       {isPending && <p role="status" className="mt-6 text-center text-sm text-muted-foreground">Loading more products…</p>}
       {error && (
         <div role="alert" className="mt-6 flex flex-col items-center gap-3 text-center">

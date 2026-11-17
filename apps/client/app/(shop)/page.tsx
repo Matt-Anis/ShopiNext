@@ -3,6 +3,7 @@ import HeroSection from "./_components/HeroSection";
 import ProductList from "./_components/ProductList";
 import { parseProductDiscovery } from "@/features/products/discovery";
 import { ProductDiscoveryControls } from "@/features/products/components/product-discovery-controls";
+import { ProductEmptyState } from "@/features/products/components/product-empty-state";
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const discovery = parseProductDiscovery(await searchParams);
@@ -20,6 +21,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           {...discovery}
           title={null}
           className="p-0"
+          emptyState={<ProductEmptyState discovery={discovery} pathname="/" />}
         />
       </div>
     </>
