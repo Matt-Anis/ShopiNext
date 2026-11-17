@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 import type { Product, ProductCursor } from "@/features/products/queries";
 import { loadMoreProducts } from "@/features/products/actions";
+import type { ProductSortBy } from "@/features/products/discovery";
 
 const SKELETON_COUNT = 8;
 
@@ -12,12 +13,16 @@ export default function ProductList({
   initialProducts,
   initialCursor,
   categoryId,
+  query = "",
+  sortBy = "newest",
   title = "Our products",
   className,
 }: {
   initialProducts: Product[];
   initialCursor: ProductCursor | null;
   categoryId?: string;
+  query?: string;
+  sortBy?: ProductSortBy;
   title?: string | null;
   className?: string;
 }) {
@@ -33,12 +38,12 @@ export default function ProductList({
     isFetchingRef.current = true;
     startTransition(async () => {
       const { products: nextProducts, nextCursor } =
-        await loadMoreProducts(cursor, categoryId);
+        await loadMoreProducts(cursor, { categoryId, query, sortBy });
       setProducts((prev) => [...prev, ...nextProducts]);
       setCursor(nextCursor);
       isFetchingRef.current = false;
     });
-  }, [inView, cursor, categoryId]);
+  }, [inView, cursor, categoryId, query, sortBy]);
 
   return (
     <section className={className ?? "px-6 py-16 md:px-10"} id="products">

@@ -5,12 +5,14 @@ import {
   getProductBySlug,
   type ProductCursor,
 } from "@/features/products/queries";
+import type { ProductDiscovery } from "./discovery";
+import { productPageRequestSchema } from "./pagination";
 
 export async function loadMoreProducts(
   cursor: ProductCursor,
-  categoryId?: string
+  settings: Partial<ProductDiscovery> & { categoryId?: string } = {},
 ) {
-  return getAllProducts({ cursor, categoryId });
+  return getAllProducts(productPageRequestSchema.parse({ ...settings, cursor }));
 }
 
 export async function fetchProductBySlug(slug: string) {
