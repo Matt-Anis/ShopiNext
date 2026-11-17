@@ -27,8 +27,8 @@ export default function Navbar() {
         <div className="col-start-2 row-start-1 flex h-20 min-w-0 items-center justify-end gap-0.5 justify-self-end md:col-auto md:row-auto md:w-full md:gap-1">
           <StorefrontGlobalSearch className="min-w-0 md:mr-2 md:max-w-56 md:flex-1" />
           <CartTrigger />
-          <AccountLink />
           <ThemeToggle />
+          <AccountLink />
           <MobileNavigation />
         </div>
       </div>

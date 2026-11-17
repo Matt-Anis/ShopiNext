@@ -61,7 +61,7 @@ export default async function ProductDetail({ slug }: { slug: string }) {
             </div>
 
             {product.options.length > 0 && (
-              <div className="rounded-md border border-border p-6 lg:hidden">
+              <div className="lg:hidden">
                 <VariantOptionPills />
               </div>
             )}
