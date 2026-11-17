@@ -6,6 +6,8 @@ import { buttonVariants } from "@repo/ui/button"
 import { getCategoryBySlug } from "@/features/categories/queries"
 import { getAllProducts } from "@/features/products/queries"
 import ProductList from "../../_components/ProductList"
+import { parseProductDiscovery } from "@/features/products/discovery"
+import { ProductDiscoveryControls } from "@/features/products/components/product-discovery-controls"
 
 export async function generateMetadata({
   params,
@@ -25,6 +27,7 @@ export async function generateMetadata({
 
 export default async function CategoryProductsPage({
   params,
+  searchParams,
 }: PageProps<"/categories/[slug]">) {
   const { slug } = await params
   const category = await getCategoryBySlug(slug)
@@ -33,7 +36,9 @@ export default async function CategoryProductsPage({
     notFound()
   }
 
+  const discovery = parseProductDiscovery(await searchParams)
   const { products, nextCursor } = await getAllProducts({
+    ...discovery,
     categoryId: category.id,
   })
 
@@ -60,6 +65,8 @@ export default async function CategoryProductsPage({
         )}
       </header>
 
+      <ProductDiscoveryControls discovery={discovery} />
+
       {products.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center">
           <PackageOpen className="mb-3 size-10 text-muted-foreground" />
@@ -83,6 +90,7 @@ export default async function CategoryProductsPage({
         <ProductList
           initialProducts={products}
           initialCursor={nextCursor}
+          {...discovery}
           categoryId={category.id}
           title={null}
           className="p-0"
