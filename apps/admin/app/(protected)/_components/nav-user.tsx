@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronsUpDown, LogOut, ShieldCheck } from "lucide-react"
+import { clearAdminSearchHistory } from "@repo/search/browser"
 
 import { authClient } from "@/lib/auth/client"
 import { toast } from "@repo/ui/toast"
@@ -26,7 +27,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/dropdown-menu"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@repo/ui/sidebar"
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@repo/ui/sidebar"
 
 function getInitials(name: string) {
   return name
@@ -53,6 +58,7 @@ export function NavUser({
         if (res.error) {
           throw new Error(res.error.message ?? "Something went wrong")
         }
+        clearAdminSearchHistory()
       })
 
       await toast
@@ -95,12 +101,20 @@ export function NavUser({
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-56" side="right" align="end" sideOffset={4}>
+            <DropdownMenuContent
+              className="min-w-56"
+              side="right"
+              align="end"
+              sideOffset={4}
+            >
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="size-8">
-                      <AvatarImage src={user.image ?? undefined} alt={user.name} />
+                      <AvatarImage
+                        src={user.image ?? undefined}
+                        alt={user.name}
+                      />
                       <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -118,7 +132,10 @@ export function NavUser({
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={() => setLogoutOpen(true)}>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setLogoutOpen(true)}
+              >
                 <LogOut />
                 Log out
               </DropdownMenuItem>

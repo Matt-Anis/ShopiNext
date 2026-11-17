@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
   "exports": {
     "./alert-dialog": "./components/alert-dialog.tsx",
     "./alert": "./components/alert.tsx",
@@ -25,6 +28,7 @@
     "./field": "./components/field.tsx",
     "./floating-label-input": "./components/floating-label-input.tsx",
     "./footer": "./components/footer.tsx",
+    "./global-search": "./components/global-search.tsx",
     "./input": "./components/input.tsx",
     "./input-group": "./components/input-group.tsx",
     "./label": "./components/label.tsx",
@@ -47,6 +51,7 @@
     "./utils": "./lib/utils.ts"
   },
   "dependencies": {
+    "@repo/search": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

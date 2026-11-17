@@ -1,0 +1,34 @@
+{
+  "name": "@repo/search-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "setup": "tsx setup/index.ts",
+    "index": "tsx indexing/index.ts",
+    "sync": "tsx sync/index.ts",
+    "reconcile": "tsx reconciliation/index.ts",
+    "test:unit": "tsx --test projections/*.test.ts indexing/*.test.ts sync/*.test.ts reconciliation/*.test.ts search/*.test.ts"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/search": "workspace:*",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "0.45.2",
+    "hast-util-to-text": "^4.0.3",
+    "meilisearch": "0.62.0",
+    "pg": "^8.23.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.21.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  }
+}

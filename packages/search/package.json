@@ -1,0 +1,30 @@
+{
+  "name": "@repo/search",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./contracts": "./src/contracts.ts",
+    "./public": "./src/public.ts",
+    "./availability": "./src/availability.ts",
+    "./browser": "./src/browser/index.ts",
+    "./query": "./src/query.ts",
+    "./server/documents": "./src/server/documents.ts",
+    "./server/admin-search": "./src/server/admin-search.ts",
+    "./server/environment": "./src/server/environment.ts",
+    "./server/indexes": "./src/server/indexes.ts",
+    "./server/settings": "./src/server/settings.ts"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "meilisearch": "0.62.0"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

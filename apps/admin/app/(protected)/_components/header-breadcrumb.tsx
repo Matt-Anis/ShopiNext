@@ -21,22 +21,29 @@ export function HeaderBreadcrumb() {
   }
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
+    <Breadcrumb className="min-w-0">
+      <BreadcrumbList className="flex-nowrap overflow-hidden">
         {items.map((item, index) => (
           <Fragment key={item.label}>
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                {!item.href ? (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink render={<Link href={item.href} />}>
-                    {item.label}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          ))}
+            {index > 0 && <BreadcrumbSeparator />}
+            <BreadcrumbItem
+              className={index === items.length - 1 ? "min-w-0" : "shrink-0"}
+            >
+              {!item.href ? (
+                <BreadcrumbPage className="truncate">
+                  {item.label}
+                </BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink
+                  className="truncate"
+                  render={<Link href={item.href} />}
+                >
+                  {item.label}
+                </BreadcrumbLink>
+              )}
+            </BreadcrumbItem>
+          </Fragment>
+        ))}
       </BreadcrumbList>
     </Breadcrumb>
   )

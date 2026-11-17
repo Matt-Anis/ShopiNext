@@ -44,7 +44,7 @@ function getStorageRemotePatterns() {
 }
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@repo/db", "@repo/ui"],
+  transpilePackages: ["@repo/db", "@repo/search", "@repo/ui"],
   images: {
     remotePatterns: getStorageRemotePatterns(),
   },

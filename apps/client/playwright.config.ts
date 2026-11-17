@@ -39,6 +39,8 @@ export default defineConfig({
     env: {
       ...process.env,
       E2E_EMAIL_MOCK: "1",
+      NEXT_PUBLIC_MEILISEARCH_URL: "http://localhost:3000/__search-test",
+      NEXT_PUBLIC_MEILISEARCH_SEARCH_KEY: "playwright-public-search-key",
       DATABASE_URL: process.env.DATABASE_URL_TEST!,
     },
   },
