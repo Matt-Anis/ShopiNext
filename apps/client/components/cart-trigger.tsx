@@ -17,7 +17,7 @@ export function CartTrigger() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative size-10"
+            className="relative size-11"
             aria-label={
               count > 0
                 ? `Open cart, ${count} ${count === 1 ? "item" : "items"}`

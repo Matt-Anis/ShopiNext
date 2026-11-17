@@ -17,7 +17,7 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
       initialItems={initialCartItems}
     >
       <NavBar />
-      <main className="flex-1 pt-16">{children}</main>
+      <main className="flex-1 pt-20">{children}</main>
       <Footer {...storefrontFooter} linkComponent={Link} />
     </CartProvider>
   )

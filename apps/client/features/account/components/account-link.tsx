@@ -18,7 +18,7 @@ export function AccountLink() {
     pathname.startsWith("/orders/")
 
   if (isPending) {
-    return <Skeleton className="size-10 rounded-full md:w-24" />
+    return <Skeleton className="size-11 rounded-md md:w-24" />
   }
 
   if (session) {
@@ -29,7 +29,7 @@ export function AccountLink() {
         aria-current={isActive ? "location" : undefined}
         className={cn(
           buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
-          "size-10 px-0 md:w-auto md:px-3"
+          "size-11 px-0 md:w-auto md:px-3"
         )}
         data-testid="account-nav-link"
       >
@@ -46,7 +46,7 @@ export function AccountLink() {
         aria-label="Sign in"
         className={cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
-          "size-10 md:hidden"
+          "size-11 md:hidden"
         )}
         data-testid="signin-nav-button-mobile"
       >
@@ -56,7 +56,7 @@ export function AccountLink() {
         href="/login"
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "hidden h-10 md:inline-flex"
+          "hidden h-11 md:inline-flex"
         )}
         data-testid="signin-nav-button"
       >
