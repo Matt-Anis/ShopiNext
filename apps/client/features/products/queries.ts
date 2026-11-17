@@ -16,29 +16,13 @@ import {
 import { db } from "@/db"
 import { images, productCategories, productVariants, products } from "@repo/db/public/schema"
 import { normalizeProductQuery, type ProductSortBy } from "./discovery"
+import { shapeVariant } from "./shape-variant"
 
 export type { ProductSortBy } from "./discovery"
 
 export const optionLabelFor = (
   variantOptionValues: { optionValue: { value: string } }[]
 ) => variantOptionValues.map((v) => v.optionValue.value).join(" / ")
-
-const shapeVariant = <
-  T extends {
-    stock: number
-    maxPerOrder: number
-    variantOptionValues: { optionValueId: string }[]
-  },
->(
-  variant: T
-) => {
-  const { variantOptionValues, stock, maxPerOrder, ...rest } = variant
-  return {
-    ...rest,
-    maxPerOrder: Math.min(stock, maxPerOrder),
-    optionValueIds: variantOptionValues.map((v) => v.optionValueId),
-  }
-}
 
 export type Product = Awaited<
   ReturnType<typeof getAllProducts>
