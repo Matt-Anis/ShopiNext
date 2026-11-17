@@ -31,3 +31,9 @@ export async function seedDiscoveryProduct(
   if (categoryId) await linkProductToCategory(product.id, categoryId)
   return { ...product, createdAt, price, status, isActive }
 }
+
+export function seedDiscoveryBatch(prefix: string, count: number, categoryId?: string) {
+  return Promise.all(Array.from({ length: count }, (_, index) =>
+    seedDiscoveryProduct(prefix, { label: `Product ${index}`, categoryId }),
+  ))
+}
