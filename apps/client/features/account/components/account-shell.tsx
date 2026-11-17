@@ -4,7 +4,7 @@ import { LogoutButton } from "./logout-button"
 
 export function AccountShell({ children }: { children: ReactNode }) {
   return (
-    <div className="storefront-container grid min-h-[100vh] content-start gap-10 storefront-panels py-10 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-12 md:py-16">
+    <div className="mx-auto grid min-h-[100vh] max-w-7xl content-start gap-8 px-4 py-8 sm:px-6 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-10 md:px-10 md:py-12">
       <aside className="space-y-4 md:sticky md:top-28 md:self-start">
         <div className="flex items-center gap-2 md:block md:space-y-4">
           <AccountNavigation />
