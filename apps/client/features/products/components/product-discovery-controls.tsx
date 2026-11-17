@@ -8,12 +8,16 @@ import {
 } from "../discovery"
 import type { useProductDiscovery } from "../use-product-discovery"
 
-export function ProductDiscoveryControls({ discovery, controls }: {
+export function ProductDiscoveryControls({
+  discovery,
+  controls,
+}: {
   discovery: ProductDiscovery
   controls: ReturnType<typeof useProductDiscovery>
 }) {
   return (
     <CatalogControls
+      variant="storefront"
       query={controls.query}
       sortBy={discovery.sortBy}
       sortOptions={PRODUCT_SORT_OPTIONS}
