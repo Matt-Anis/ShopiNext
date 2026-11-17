@@ -58,13 +58,14 @@ test("admin search stays centered, skips short input, and supports keyboard navi
     exact: true,
   })
   const header = page.locator("header").filter({ has: input })
+  const field = header.locator('[data-slot="input-group"]').filter({ has: input })
   const headerBox = await header.boundingBox()
-  const inputBox = await input.boundingBox()
+  const fieldBox = await field.boundingBox()
   expect(headerBox).not.toBeNull()
-  expect(inputBox).not.toBeNull()
+  expect(fieldBox).not.toBeNull()
   expect(
     Math.abs(
-      headerBox!.x + headerBox!.width / 2 - inputBox!.x - inputBox!.width / 2
+      headerBox!.x + headerBox!.width / 2 - fieldBox!.x - fieldBox!.width / 2
     )
   ).toBeLessThan(2)
 
