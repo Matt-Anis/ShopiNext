@@ -15,6 +15,7 @@
     "./breadcrumb": "./components/breadcrumb.tsx",
     "./button": "./components/button.tsx",
     "./card": "./components/card.tsx",
+    "./catalog-controls": "./components/catalog-controls.tsx",
     "./carousel": "./components/carousel.tsx",
     "./checkbox": "./components/checkbox.tsx",
     "./collapsible": "./components/collapsible.tsx",
