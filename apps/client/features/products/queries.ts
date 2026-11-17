@@ -5,6 +5,7 @@ import {
   eq,
   exists,
   gt,
+  ilike,
   inArray,
   isNotNull,
   lt,
@@ -14,6 +15,9 @@ import {
 } from "drizzle-orm"
 import { db } from "@/db"
 import { images, productCategories, productVariants, products } from "@repo/db/public/schema"
+import { normalizeProductQuery, type ProductSortBy } from "./discovery"
+
+export type { ProductSortBy } from "./discovery"
 
 export const optionLabelFor = (
   variantOptionValues: { optionValue: { value: string } }[]
@@ -36,8 +40,6 @@ const shapeVariant = <
   }
 }
 
-export type ProductSortBy = "newest" | "price_asc" | "price_desc"
-
 export type Product = Awaited<
   ReturnType<typeof getAllProducts>
 >["products"][number]
@@ -49,6 +51,7 @@ export type ProductCursor = {
 
 type GetAllProductsParams = {
   categoryId?: string
+  query?: string
   cursor?: ProductCursor | null
   limit?: number
   sortBy?: ProductSortBy
@@ -70,6 +73,7 @@ const cursorCompare = <TColumn extends Column>(
 
 export const getAllProducts = async ({
   categoryId,
+  query = "",
   cursor,
   limit = DEFAULT_LIMIT,
   sortBy = "newest",
@@ -125,13 +129,19 @@ export const getAllProducts = async ({
       )
     : undefined
 
+  const normalizedQuery = normalizeProductQuery(query)
+  const searchWhere = normalizedQuery
+    ? ilike(products.name, `%${normalizedQuery.replace(/[\\%_]/g, "\\$&")}%`)
+    : undefined
+
   const rawRows = await db.query.products.findMany({
     where: and(
       isNotNull(products.minPrice),
       eq(products.isActive, true),
       eq(products.status, "active"),
       cursorWhere,
-      categoryWhere
+      categoryWhere,
+      searchWhere
     ),
     orderBy,
     limit,

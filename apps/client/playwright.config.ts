@@ -20,14 +20,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-serial",
-      testMatch: /homepage-listing-ordering\.spec\.ts/,
+      testMatch: /empty-state\.spec\.ts/,
       fullyParallel: false,
       workers: 1,
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "chromium",
-      testIgnore: /homepage-listing-ordering\.spec\.ts/,
+      testIgnore: /empty-state\.spec\.ts/,
       dependencies: ["chromium-serial"],
       use: { ...devices["Desktop Chrome"] },
     },
