@@ -15,7 +15,7 @@ export default async function ProfileSettingsPage() {
   const { user, session } = await requireCustomerSession()
 
   return (
-    <div>
+    <div className="min-h-screen">
       <header className="mb-8">
         <h1 className="page-heading">Account settings</h1>
         <p className="mt-5 text-muted-foreground">
