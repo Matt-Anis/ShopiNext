@@ -14,6 +14,9 @@ import {
 } from "drizzle-orm"
 import { db } from "@/db"
 import { images, productCategories, productVariants, products } from "@repo/db/public/schema"
+import type { ProductSortBy } from "./discovery"
+
+export type { ProductSortBy } from "./discovery"
 
 export const optionLabelFor = (
   variantOptionValues: { optionValue: { value: string } }[]
@@ -35,8 +38,6 @@ const shapeVariant = <
     optionValueIds: variantOptionValues.map((v) => v.optionValueId),
   }
 }
-
-export type ProductSortBy = "newest" | "price_asc" | "price_desc"
 
 export type Product = Awaited<
   ReturnType<typeof getAllProducts>
