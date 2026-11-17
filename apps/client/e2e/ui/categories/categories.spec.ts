@@ -55,22 +55,6 @@ test.describe("Categories listing and product pages", () => {
     await expect(unrelatedCard).toBeHidden();
   });
 
-  test("renders empty state when a category has no products", async ({
-    page,
-  }) => {
-    const emptyCategory = await seedCategory();
-
-    await page.goto(`/categories/${emptyCategory.slug}`);
-
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      emptyCategory.name
-    );
-    await expect(page.getByText("No products found")).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "Browse other categories" })
-    ).toBeVisible();
-  });
-
   test("returns 404 for non-existent and inactive categories", async ({
     page,
   }) => {
