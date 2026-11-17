@@ -12,7 +12,7 @@ test("an empty storefront keeps the discovery controls available", async ({ page
   await page.goto("/")
   await expect(page.locator("#products").getByRole("heading", { name: "No products found", exact: true })).toBeVisible()
   await expect(page.getByRole("searchbox", { name: "Filter products by name", exact: true })).toBeVisible()
-  await expect(page.getByRole("combobox", { name: "Sort products", exact: true })).toHaveText("Newest")
+  await expect(page.getByRole("combobox", { name: "Sort products", exact: true }).locator('[data-slot="select-value"]')).toHaveText("Newest")
   await expect(page.getByRole("button", { name: "Reset filters", exact: true })).toBeDisabled()
 })
 
@@ -33,7 +33,7 @@ for (const listing of ["home", "category"] as const) {
     await page.getByRole("link", { name: "Clear name filter", exact: true }).click()
     await expect(page).toHaveURL((url) => url.pathname === pathname && !url.searchParams.has("q") && url.searchParams.get("sort") === "price_desc")
     await expect(page.getByRole("searchbox", { name: "Filter products by name", exact: true })).toHaveValue("")
-    await expect(page.getByRole("combobox", { name: "Sort products", exact: true })).toHaveText("Price: high to low")
+    await expect(page.getByRole("combobox", { name: "Sort products", exact: true }).locator('[data-slot="select-value"]')).toHaveText("Price: high to low")
     await expect(page.getByTestId(`product-card-${product.id}`)).toBeVisible()
   })
 }

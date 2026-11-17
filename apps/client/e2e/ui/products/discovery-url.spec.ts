@@ -50,7 +50,7 @@ test("invalid or repeated discovery settings fall back safely", async ({ page })
     `q=missing-${uniqueSuffix()}&q=${query}`,
   ]) {
     await page.goto(`${pathname}?${search}`)
-    await expect(page.getByRole("combobox", { name: "Sort products", exact: true })).toHaveText("Newest")
+    await expect(page.getByRole("combobox", { name: "Sort products", exact: true }).locator('[data-slot="select-value"]')).toHaveText("Newest")
     await expectDiscoveryOrder(page, prefix, [newer.id, older.id])
   }
   await expect(page.getByRole("searchbox", { name: "Filter products by name", exact: true })).toHaveValue("")

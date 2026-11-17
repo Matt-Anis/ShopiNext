@@ -6,7 +6,7 @@ export async function chooseProductSort(page: Page, label: string) {
   const option = page.getByRole("option", { name: label, exact: true })
   await clickUntilHydrated(trigger, () => expect(option).toBeVisible())
   await option.click()
-  await expect(trigger).toHaveText(label)
+  await expect(trigger.locator('[data-slot="select-value"]')).toHaveText(label)
 }
 
 export async function expectDiscoveryOrder(page: Page, prefix: string, ids: string[]) {
