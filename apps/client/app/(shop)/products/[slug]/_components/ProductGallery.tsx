@@ -72,7 +72,7 @@ export default function ProductGallery({
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4 lg:flex-row-reverse">
       <Carousel setApi={setApi} className="min-w-0 flex-1">
         <CarouselContent>
           {images.map((image, index) => (
@@ -85,9 +85,9 @@ export default function ProductGallery({
                   src={image.url}
                   alt={image.altText ?? productName}
                   fill
-                  sizes="(min-width: 1440px) 680px, (min-width: 1024px) 52vw, 100vw"
+                  sizes="(min-width: 1024px) 33vw, 100vw"
                   loading={index === 0 ? "eager" : "lazy"}
-                  className="object-contain"
+                  className="object-cover"
                 />
               </AspectRatio>
             </CarouselItem>
@@ -110,8 +110,8 @@ export default function ProductGallery({
       </Carousel>
 
       {images.length > 1 && (
-        <div className="min-w-0">
-          <div className="scrollbar-hide flex gap-3 overflow-x-auto p-1">
+        <div className="relative shrink-0 lg:w-20">
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto p-1 lg:h-full lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto">
             {images.map((image, index) => (
               <button
                 key={image.id}
@@ -123,7 +123,7 @@ export default function ProductGallery({
                 aria-label={`Show image ${index + 1}`}
                 aria-current={index === selectedIndex}
                 className={cn(
-                  "relative aspect-square w-16 shrink-0 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-background transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring sm:w-20",
+                  "relative aspect-square w-16 shrink-0 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-background transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring lg:w-full",
                   index === selectedIndex
                     ? "ring-2 ring-foreground"
                     : "ring-2 ring-border hover:ring-foreground/30"
@@ -139,6 +139,7 @@ export default function ProductGallery({
               </button>
             ))}
           </div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-8 bg-gradient-to-t from-background to-transparent lg:block" />
         </div>
       )}
 
@@ -155,7 +156,7 @@ export default function ProductGallery({
 
 export function ProductGallerySkeleton() {
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4 lg:flex-row-reverse">
       <AspectRatio
         ratio={1 / 1}
         className="min-w-0 flex-1 overflow-hidden rounded-md"
@@ -163,12 +164,12 @@ export function ProductGallerySkeleton() {
         <Skeleton className="h-full w-full rounded-md" />
       </AspectRatio>
 
-      <div className="min-w-0">
-        <div className="flex gap-3 overflow-x-auto p-1">
+      <div className="relative shrink-0 lg:w-20">
+        <div className="flex gap-2 overflow-x-auto p-1 lg:h-full lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto">
           {Array.from({ length: SKELETON_THUMB_COUNT }).map((_, index) => (
             <Skeleton
               key={`gallery-skeleton-thumb-${index}`}
-              className="aspect-square w-16 shrink-0 rounded-md sm:w-20"
+              className="aspect-square w-16 shrink-0 rounded-md lg:w-full"
             />
           ))}
         </div>
