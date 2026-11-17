@@ -24,15 +24,13 @@ test("history saves committed keywords, persists, reruns fresh searches, and can
     })
   })
   await page.goto("/")
-  const trigger = page.getByRole("button", {
-    name: "Search products and categories",
-    exact: true,
-  })
   const input = page.getByRole("combobox", {
     name: "Search products and categories",
     exact: true,
   })
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await input.fill(keyword)
   await expect(
     page.getByText(`No results for “${keyword}”.`, { exact: true })
@@ -53,7 +51,9 @@ test("history saves committed keywords, persists, reruns fresh searches, and can
     )
     .toEqual([keyword])
   await page.reload()
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   const recent = page.getByRole("region", {
     name: "Recent searches",
     exact: true,
@@ -64,7 +64,9 @@ test("history saves committed keywords, persists, reruns fresh searches, and can
     .poll(() => requests.filter((query) => query === keyword).length)
     .toBe(2)
   await input.press("Escape")
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await recent
     .getByRole("button", {
       name: `Remove ${keyword} from recent searches`,
@@ -78,7 +80,9 @@ test("history saves committed keywords, persists, reruns fresh searches, and can
   await input.fill(secondKeyword)
   await input.press("Enter")
   await input.press("Escape")
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await recent.getByRole("button", { name: "Clear all", exact: true }).click()
   await expect(recent).toBeHidden()
   expect(

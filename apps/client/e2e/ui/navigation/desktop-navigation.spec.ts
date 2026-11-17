@@ -86,6 +86,15 @@ test("supports keyboard navigation and restores focus after closing the cart", a
   await expect(products).toBeFocused()
   await page.keyboard.press("Tab")
   await expect(categories).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(
+    header.getByRole("combobox", {
+      name: "Search products and categories",
+      exact: true,
+    })
+  ).toBeFocused()
+  await page.keyboard.press("Shift+Tab")
+  await expect(categories).toBeFocused()
   await page.keyboard.press("Enter")
   await expect(page).toHaveURL("/categories")
 

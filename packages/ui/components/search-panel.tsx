@@ -1,38 +1,25 @@
 "use client";
 
 import type { RefObject } from "react";
-import { LoaderCircle, SearchIcon } from "lucide-react";
+import { Autocomplete } from "@base-ui/react/autocomplete";
+import { SearchIcon } from "lucide-react";
 import type { SearchPreview } from "@repo/search/contracts";
 import { SEARCH_LIMITS } from "@repo/search/public";
 import type { SearchState } from "../hooks/use-search";
-import { Button } from "./button";
-import {
-  Combobox,
-  ComboboxGroup,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxLabel,
-  ComboboxList,
-} from "./combobox";
-import { InputGroupAddon } from "./input-group";
-import { SearchResult } from "./search-result";
-import { SearchHistory } from "./search-history";
-
-const groupLabels = {
-  product: "Products",
-  category: "Categories",
-  order: "Orders",
-  customer: "Customers",
-  staff: "Staff",
-};
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./input-group";
+import { SearchSuggestions } from "./search-suggestions";
+import { SearchUnavailable } from "./search-unavailable";
 
 type SearchPanelProps = {
   state: SearchState;
   label: string;
+  available: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
+  open: boolean;
+  inline: boolean;
+  onOpenChange: (open: boolean) => void;
   onQueryChange: (query: string) => void;
   onSelect: (result: SearchPreview) => void;
-  onClose: () => void;
   recentQueries: string[];
   onQueryCommit: () => void;
   onRecentSelect: (query: string) => void;
@@ -43,129 +30,83 @@ type SearchPanelProps = {
 export function SearchPanel({
   state,
   label,
+  available,
   inputRef,
+  open,
+  inline,
+  onOpenChange,
   onQueryChange,
-  onSelect,
-  onClose,
-  recentQueries,
   onQueryCommit,
-  onRecentSelect,
-  onRecentRemove,
-  onHistoryClear,
+  ...suggestions
 }: SearchPanelProps) {
-  const groups = state.groups.filter((group) => group.results.length > 0);
-  const results = groups.flatMap((group) => group.results);
+  const results = state.groups.flatMap((group) => group.results);
+  const content = available ? (
+    <SearchSuggestions
+      state={state}
+      onQueryChange={onQueryChange}
+      {...suggestions}
+    />
+  ) : (
+    <SearchUnavailable />
+  );
+
   return (
-    <Combobox<SearchPreview>
-      inline
-      open
+    <Autocomplete.Root<SearchPreview>
+      inline={inline}
+      open={inline || open}
+      openOnInputClick
       items={results}
       filter={null}
-      value={null}
-      inputValue={state.query}
-      itemToStringLabel={(item) => item.title}
-      isItemEqualToValue={(item, value) =>
-        item.type === value.type && item.id === value.id
-      }
-      onInputValueChange={(value, details) => {
+      value={state.query}
+      itemToStringValue={(item) => item.title}
+      onValueChange={(value, details) => {
         if (
           details.reason === "input-change" ||
           details.reason === "clear-press"
         )
           onQueryChange(value);
       }}
-      onValueChange={(item) => {
-        if (item) onSelect(item);
+      onOpenChange={(next) => {
+        if (!inline || !next) onOpenChange(next);
       }}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-      autoComplete="off"
     >
-      <ComboboxInput
-        ref={inputRef}
-        aria-label={label}
-        placeholder={label}
-        maxLength={SEARCH_LIMITS.maxQueryLength}
-        showTrigger={false}
-        showClear
-        className="w-full"
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.nativeEvent.isComposing)
-            onQueryCommit();
-        }}
-      >
+      <InputGroup className="h-9 w-full min-w-0 rounded-lg bg-muted/40">
+        <Autocomplete.Input
+          render={<InputGroupInput />}
+          ref={inputRef}
+          aria-label={label}
+          placeholder={available ? "Search…" : "Search · Local demo"}
+          autoComplete="off"
+          readOnly={!available}
+          maxLength={SEARCH_LIMITS.maxQueryLength}
+          onFocus={() => {
+            if (!inline) onOpenChange(true);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.nativeEvent.isComposing)
+              onQueryCommit();
+          }}
+        />
         <InputGroupAddon align="inline-start">
           <SearchIcon aria-hidden="true" />
         </InputGroupAddon>
-      </ComboboxInput>
-      {!state.query.trim() && recentQueries.length > 0 && (
-        <SearchHistory
-          queries={recentQueries}
-          onSelect={onRecentSelect}
-          onRemove={onRecentRemove}
-          onClear={onHistoryClear}
-        />
-      )}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="text-sm text-muted-foreground"
-      >
-        {state.status === "idle" &&
-          (state.query.trim() || recentQueries.length === 0) && (
-            <p className="px-3 py-5">
-              Type at least {SEARCH_LIMITS.minQueryLength} characters to search.
-            </p>
-          )}
-        {state.status === "loading" && (
-          <p className="flex items-center gap-2 px-3 py-5">
-            <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-            Searching…
-          </p>
-        )}
-        {state.status === "ready" && (
-          <p className={results.length ? "sr-only" : "px-3 py-5"}>
-            {results.length
-              ? `${results.length} results available.`
-              : `No results for “${state.query.trim()}”.`}
-          </p>
-        )}
-        {state.status === "error" && (
-          <div className="px-3 py-4">
-            <p>{state.error}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={() => onQueryChange(state.query)}
+      </InputGroup>
+      {inline ? (
+        <div className="mt-3">{content}</div>
+      ) : (
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner sideOffset={8} align="end" className="z-50">
+            <Autocomplete.Popup
+              data-slot="search-popup"
+              initialFocus={false}
+              finalFocus={false}
+              className="max-h-(--available-height) w-[min(30rem,calc(100vw-2rem))] max-w-(--available-width) overflow-y-auto rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg outline-none"
             >
-              Try again
-            </Button>
-          </div>
-        )}
-      </div>
-      <ComboboxList
-        aria-label="Search results"
-        aria-busy={state.status === "loading"}
-        className="max-h-[min(55dvh,28rem)]"
-      >
-        {groups.map((group) => (
-          <ComboboxGroup key={group.type}>
-            <ComboboxLabel>{groupLabels[group.type]}</ComboboxLabel>
-            {group.results.map((result) => (
-              <ComboboxItem
-                key={`${result.type}:${result.id}`}
-                value={result}
-                className="items-start py-3 pr-3"
-              >
-                <SearchResult result={result} />
-              </ComboboxItem>
-            ))}
-          </ComboboxGroup>
-        ))}
-      </ComboboxList>
-    </Combobox>
+              {content}
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      )}
+    </Autocomplete.Root>
   );
 }

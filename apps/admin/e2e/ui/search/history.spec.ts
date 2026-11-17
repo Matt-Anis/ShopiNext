@@ -51,15 +51,13 @@ test("admin selection saves only its account's keyword and successful logout cle
       ),
     ADMIN_RECENT_SEARCH_PREFIX
   )
-  const trigger = page.getByRole("button", {
-    name: "Search admin",
-    exact: true,
-  })
   const input = page.getByRole("combobox", {
     name: "Search admin",
     exact: true,
   })
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await expect(
     page.getByRole("button", { name: "other account query", exact: true })
   ).toBeHidden()
@@ -80,7 +78,9 @@ test("admin selection saves only its account's keyword and successful logout cle
   expect(
     await page.evaluate((key) => localStorage.getItem(key), ownKey)
   ).toBeNull()
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await expect(
     page
       .getByRole("region", { name: "Recent searches", exact: true })

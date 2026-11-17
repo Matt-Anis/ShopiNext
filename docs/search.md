@@ -140,10 +140,10 @@ tokens, payment-provider identifiers, order notes, and timeline text are exclude
 - Start at two trimmed characters, cap queries at 200 characters, debounce for
   250 ms, and request at most five previews per group. Do not issue empty-query
   searches that browse an entire index.
-- The admin bar is centered in the content header. The client bar is left-aligned
-  on desktop and centered on mobile, with space for existing navigation controls.
-  Use a desktop dropdown and mobile overlay, with keyboard navigation, Escape,
-  focus restoration, and loading/empty/error states through shared UI primitives.
+- The admin input is centered in the content header. The client desktop input
+  sits to the right of navigation; client mobile uses a ghost search icon that
+  opens a drawer. Results appear below the one input in each view, with keyboard
+  navigation, Escape, focus restoration, and loading/empty/error states.
 - Recent searches store only the latest ten unique keywords, saved on Enter or
   result selection. Trim them, deduplicate case-insensitively, and provide chips
   with individual removal and a clear-all action. Clicking one runs a fresh query.
@@ -350,10 +350,11 @@ roles can inspect it without receiving editing controls.
 
 **Search panels and navigation**
 
-Both apps use `@repo/ui/global-search`. Its header control opens an anchored
-desktop dropdown or a mobile dialog containing an inline Base UI combobox.
-The existing popover/dialog primitives manage dismissal and focus restoration;
-the combobox manages arrows, selection, grouping, and active options. Search
+Both apps use `@repo/ui/global-search`. Desktop search and admin mobile search
+use a real header input with an anchored results dropdown. Client mobile uses
+a ghost icon that opens the existing sheet primitive, with one input and inline
+results below it. Base UI autocomplete manages arrows, selection, grouping,
+active options, and dropdown dismissal; the sheet restores focus to its icon. Search
 navigation uses the approved preview href, while normal page queries remain
 unchanged. Results show thumbnail/icon, title, metadata, and escaped match
 segments. Matched text renders as React text inside `mark`, never indexed HTML.
@@ -370,14 +371,13 @@ remain in UI state. UI package checking is now part of
 Admin search is centered with equal side columns; breadcrumbs stay within the
 left column and are hidden on smaller screens. The wrapper uses the existing
 permission-aware HTTP endpoint, and role changes remount it to discard old
-preview state. The storefront has one search component: beside the logo on the
-desktop left, in a centered second row on mobile. Mobile main-content padding
-matches the 112 px header; desktop keeps 64 px. Cart/account/menu controls retain
-their own space.
+preview state. The storefront has one search component on the right, before
+the cart/account/menu controls. It becomes an icon on mobile, keeping the header
+in one row. Main-content padding matches the 64 px header at every width.
 
-With `NODE_ENV=production`, the control opens only the local-demo message and a
-repository setup-guide link. There is no query input or request. No search
-credentials are required to render this explanation.
+With `NODE_ENV=production`, the input is read-only and its results area shows
+only the local-demo message and a repository setup-guide link. No search request
+is sent, and no search credentials are required to render this explanation.
 
 `/categories?categoryId=...` derives the drawer selection from the URL and the
 page's already-loaded, active categories. Missing/trashed records show an

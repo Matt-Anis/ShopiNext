@@ -53,29 +53,24 @@ test("admin search stays centered, skips short input, and supports keyboard navi
     await route.fulfill({ json: productResponse(query, title) })
   })
   await signIn(page, staff)
-  const trigger = page.getByRole("button", {
-    name: "Search admin",
-    exact: true,
-  })
-  const header = page.locator("header").filter({ has: trigger })
-  const headerBox = await header.boundingBox()
-  const triggerBox = await trigger.boundingBox()
-  expect(headerBox).not.toBeNull()
-  expect(triggerBox).not.toBeNull()
-  expect(
-    Math.abs(
-      headerBox!.x +
-        headerBox!.width / 2 -
-        triggerBox!.x -
-        triggerBox!.width / 2
-    )
-  ).toBeLessThan(2)
-
   const input = page.getByRole("combobox", {
     name: "Search admin",
     exact: true,
   })
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  const header = page.locator("header").filter({ has: input })
+  const headerBox = await header.boundingBox()
+  const inputBox = await input.boundingBox()
+  expect(headerBox).not.toBeNull()
+  expect(inputBox).not.toBeNull()
+  expect(
+    Math.abs(
+      headerBox!.x + headerBox!.width / 2 - inputBox!.x - inputBox!.width / 2
+    )
+  ).toBeLessThan(2)
+
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await input.fill("s")
   await input.fill("shirt")
   const option = page.getByRole("option").filter({ hasText: title })
@@ -84,20 +79,23 @@ test("admin search stays centered, skips short input, and supports keyboard navi
   await expect(option.getByText("<svg onload=alert(1)>")).toBeVisible()
   await expect(option.locator("svg[onload]")).toBeHidden()
   await input.press("Escape")
-  await expect(input).toBeHidden()
-  await expect(trigger).toBeFocused()
+  await expect(input).toHaveAttribute("aria-expanded", "false")
+  await expect(input).toBeFocused()
 
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await input.fill("shirt")
   await expect(option).toBeVisible()
   await input.press("ArrowDown")
   await expect(option).toHaveAttribute("data-highlighted", "")
   await input.press("Enter")
   await expect(page).toHaveURL("/products")
-  await expect(input).toBeHidden()
+  await expect(input).toBeVisible()
+  await expect(input).toHaveAttribute("aria-expanded", "false")
 })
 
-test("mobile search uses a dialog and recovers from a search failure", async ({
+test("mobile search shows results below one input and recovers from failure", async ({
   page,
 }) => {
   test.slow()
@@ -118,23 +116,29 @@ test("mobile search uses a dialog and recovers from a search failure", async ({
     )
   })
   await signIn(page, staff)
-  const trigger = page.getByRole("button", {
+  const input = page.getByRole("combobox", {
     name: "Search admin",
     exact: true,
   })
-  const dialog = page.getByRole("dialog", { name: "Search", exact: true })
-  await clickUntilHydrated(trigger, () => expect(dialog).toBeVisible())
-  await dialog
-    .getByRole("combobox", { name: "Search admin", exact: true })
-    .fill("shirt")
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
+  await input.fill("shirt")
   await expect(
-    dialog.getByText("Search is unavailable. Please try again.")
+    page.getByText("Search is unavailable. Please try again.")
   ).toBeVisible()
-  await dialog.getByRole("button", { name: "Try again", exact: true }).click()
+  await page.getByRole("button", { name: "Try again", exact: true }).click()
+  const option = page.getByRole("option").filter({ hasText: title })
+  await expect(option).toBeVisible()
+  const inputBox = await input.boundingBox()
+  const resultBox = await option.boundingBox()
+  expect(inputBox).not.toBeNull()
+  expect(resultBox).not.toBeNull()
+  expect(resultBox!.y).toBeGreaterThanOrEqual(inputBox!.y + inputBox!.height)
   await expect(
-    dialog.getByRole("option").filter({ hasText: title })
-  ).toBeVisible()
-  await dialog.getByRole("button", { name: "Close", exact: true }).click()
-  await expect(dialog).toBeHidden()
-  await expect(trigger).toBeFocused()
+    page.getByRole("dialog", { name: "Search", exact: true })
+  ).toBeHidden()
+  await input.press("Escape")
+  await expect(input).toHaveAttribute("aria-expanded", "false")
+  await expect(input).toBeFocused()
 })

@@ -1,9 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { clickUntilHydrated } from "../../utils/interaction"
-import {
-  expectCenteredInViewport,
-  expectHorizontalOrder,
-} from "../../utils/layout"
+import { expectHorizontalOrder } from "../../utils/layout"
 import { uniqueSuffix } from "../../utils/unique"
 
 test("superseded requests are canceled and cannot replace the newer results", async ({
@@ -55,15 +52,13 @@ test("superseded requests are canceled and cannot replace the newer results", as
   })
   try {
     await page.goto("/")
-    const trigger = page.getByRole("button", {
-      name: "Search products and categories",
-      exact: true,
-    })
     const input = page.getByRole("combobox", {
       name: "Search products and categories",
       exact: true,
     })
-    await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+    await clickUntilHydrated(input, () =>
+      expect(input).toHaveAttribute("aria-expanded", "true")
+    )
     await input.fill(olderQuery)
     await expect.poll(() => firstStarted).toBe(true)
     const canceled = page.waitForEvent(
@@ -88,7 +83,7 @@ test("superseded requests are canceled and cannot replace the newer results", as
   }
 })
 
-test("desktop search sits left of navigation and queries only public indexes", async ({
+test("desktop search sits right of navigation and shows results below its input", async ({
   page,
 }) => {
   const title = `Public search preview ${uniqueSuffix()}`
@@ -119,25 +114,33 @@ test("desktop search sits left of navigation and queries only public indexes", a
     })
   })
   await page.goto("/")
-  const trigger = page.getByRole("button", {
+  const header = page.getByRole("banner")
+  const input = header.getByRole("combobox", {
     name: "Search products and categories",
     exact: true,
   })
   await expectHorizontalOrder([
-    page.getByRole("link", { name: "ShopiNext home", exact: true }),
-    trigger,
-    page.getByRole("navigation", { name: "Store", exact: true }),
+    header.getByRole("link", { name: "ShopiNext home", exact: true }),
+    header.getByRole("navigation", { name: "Store", exact: true }),
+    input,
+    header.getByRole("button", { name: "Open cart", exact: true }),
   ])
-  const input = page.getByRole("combobox", {
-    name: "Search products and categories",
-    exact: true,
-  })
-  await clickUntilHydrated(trigger, () => expect(input).toBeVisible())
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
   await input.fill("s")
   await input.fill("shirt")
+  const option = page.getByRole("option").filter({ hasText: title })
+  await expect(option).toBeVisible()
+  await expect(input).toBeFocused()
   await expect(
-    page.getByRole("option").filter({ hasText: title })
-  ).toBeVisible()
+    page.locator('[data-slot="search-popup"]').locator("input")
+  ).toBeHidden()
+  const inputBox = await input.boundingBox()
+  const resultBox = await option.boundingBox()
+  expect(inputBox).not.toBeNull()
+  expect(resultBox).not.toBeNull()
+  expect(resultBox!.y).toBeGreaterThanOrEqual(inputBox!.y + inputBox!.height)
   expect(requests).toEqual([
     {
       queries: [
@@ -155,11 +158,11 @@ test("desktop search sits left of navigation and queries only public indexes", a
     },
   ])
   await input.press("Escape")
-  await expect(input).toBeHidden()
-  await expect(trigger).toBeFocused()
+  await expect(input).toHaveAttribute("aria-expanded", "false")
+  await expect(input).toBeFocused()
 })
 
-test("mobile search is centered, leaves content below the header, and opens an overlay", async ({
+test("mobile search uses a ghost icon and shows results below one drawer input", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -189,8 +192,14 @@ test("mobile search is centered, leaves content below the header, and opens an o
     name: "Search products and categories",
     exact: true,
   })
-  await expectCenteredInViewport(trigger)
-  const header = page.locator("header").filter({ has: trigger })
+  await expect(trigger).toHaveText("")
+  const header = page.getByRole("banner")
+  await expectHorizontalOrder([
+    header.getByRole("link", { name: "ShopiNext home", exact: true }),
+    trigger,
+    header.getByRole("button", { name: "Open cart", exact: true }),
+  ])
+  await expect(header.getByRole("combobox")).toBeHidden()
   const bounds = await header.boundingBox()
   expect(bounds).not.toBeNull()
   const contentTop = await page
@@ -206,15 +215,16 @@ test("mobile search is centered, leaves content below the header, and opens an o
   ).toBeVisible()
   const dialog = page.getByRole("dialog", { name: "Search", exact: true })
   await clickUntilHydrated(trigger, () => expect(dialog).toBeVisible())
-  await dialog
-    .getByRole("combobox", {
-      name: "Search products and categories",
-      exact: true,
-    })
-    .fill("clothes")
+  const input = dialog.getByRole("combobox", {
+    name: "Search products and categories",
+    exact: true,
+  })
+  await expect(input).toBeFocused()
+  await input.fill("clothes")
   await expect(
     dialog.getByRole("option").filter({ hasText: title })
   ).toBeVisible()
+  await expect(dialog.locator('[data-slot="search-popup"]')).toBeHidden()
   await dialog.getByRole("button", { name: "Close", exact: true }).click()
   await expect(dialog).toBeHidden()
   await expect(trigger).toBeFocused()
