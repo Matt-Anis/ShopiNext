@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useInView } from "react-intersection-observer";
+import { Button } from "@repo/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 import type { Product, ProductCursor } from "@/features/products/queries";
-import { loadMoreProducts } from "@/features/products/actions";
+import { useProductPagination } from "@/features/products/use-product-pagination";
 import { productDiscoveryKey, type ProductSortBy } from "@/features/products/discovery";
 
 const SKELETON_COUNT = 8;
@@ -38,34 +37,11 @@ function ProductListResults({
   title = "Our products",
   className,
 }: ProductListProps) {
-  const [products, setProducts] = useState(initialProducts);
-  const [cursor, setCursor] = useState(initialCursor);
-  const [isPending, startTransition] = useTransition();
-  const isFetchingRef = useRef(false);
-  const mountedRef = useRef(true);
-  const { ref: sentinelRef, inView } = useInView({ rootMargin: "400px" });
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!inView || !cursor || isFetchingRef.current) return;
-
-    isFetchingRef.current = true;
-    startTransition(async () => {
-      const { products: nextProducts, nextCursor } =
-        await loadMoreProducts(cursor, { categoryId, query, sortBy });
-      if (!mountedRef.current) return;
-      setProducts((prev) => [...prev, ...nextProducts]);
-      setCursor(nextCursor);
-      isFetchingRef.current = false;
-    });
-  }, [inView, cursor, categoryId, query, sortBy]);
+  const { products, hasMore, sentinelRef, isPending, error, loadMore } =
+    useProductPagination({ initialProducts, initialCursor, categoryId, query, sortBy });
 
   return (
-    <section className={className ?? "px-6 py-16 md:px-10"} id="products">
+    <section className={className ?? "px-6 py-16 md:px-10"} id="products" aria-busy={isPending}>
       {title && (
         <h2 className="mb-8 text-center text-4xl font-semibold">{title}</h2>
       )}
@@ -78,7 +54,16 @@ function ProductListResults({
             <ProductCardSkeleton key={`skeleton-${i}`} />
           ))}
       </div>
-      {cursor && <div ref={sentinelRef} className="h-1" />}
+      {isPending && <p role="status" className="mt-6 text-center text-sm text-muted-foreground">Loading more products…</p>}
+      {error && (
+        <div role="alert" className="mt-6 flex flex-col items-center gap-3 text-center">
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <Button type="button" variant="outline" onClick={loadMore} disabled={isPending}>
+            Retry
+          </Button>
+        </div>
+      )}
+      {hasMore && !error && <div ref={sentinelRef} data-testid="product-pagination-sentinel" className="h-1" />}
     </section>
   );
 }
