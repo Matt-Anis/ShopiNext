@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm"
 import { products, productVariants } from "@repo/db/public/schema"
 import { testDb } from "./db"
 import { linkProductToCategory } from "./seed-category"
-import { seedProduct } from "./seed-product"
+import { seedProduct, seedProductWithVariants } from "./seed-product"
 import { uniqueSuffix } from "./unique"
 
 type RelatedProductOptions = {
@@ -57,4 +57,22 @@ export async function seedRelatedProduct({
   )
 
   return { ...product, createdAt }
+}
+
+type RelatedVariantOptions = Pick<
+  Parameters<typeof seedProductWithVariants>[0],
+  "options" | "variants"
+> & { categoryId: string }
+
+export async function seedRelatedProductWithVariants({
+  categoryId,
+  ...variantOptions
+}: RelatedVariantOptions) {
+  const product = await seedProductWithVariants({
+    ...variantOptions,
+    name: `Related variants ${uniqueSuffix()}`,
+    description: `Related variants fixture ${uniqueSuffix()}`,
+  })
+  await linkProductToCategory(product.id, categoryId)
+  return product
 }
