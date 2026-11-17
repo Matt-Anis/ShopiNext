@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 
 import { cn } from "@repo/ui/utils"
-import { Button } from "@repo/ui/button"
+import { Button, buttonVariants } from "@repo/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip"
 import { formatPrice } from "@/lib/utils"
 import { CartControl } from "@/features/cart/CartControl"
@@ -90,8 +90,7 @@ export function VariantPickerProvider({
 
     const selectedIds = Object.values(selection)
     return (
-      variants.find((variant) => variantContains(variant, selectedIds)) ??
-      null
+      variants.find((variant) => variantContains(variant, selectedIds)) ?? null
     )
   }, [selection, variants, options.length])
 
@@ -145,26 +144,27 @@ export function VariantOptionPills() {
               const isDisabled = status !== "available" && !isSelected
 
               const pillClassName = cn(
-                "rounded-full border px-3 py-1 text-xs transition-colors",
+                "h-auto min-h-11 max-w-full py-2 whitespace-normal",
                 isSelected
-                  ? "border-foreground bg-foreground text-background"
+                  ? "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background"
                   : "border-border bg-background text-foreground hover:border-foreground",
                 isDisabled &&
-                  "cursor-not-allowed text-muted-foreground line-through hover:border-border"
+                  "cursor-not-allowed text-muted-foreground line-through hover:border-border hover:bg-background hover:text-muted-foreground"
               )
 
               if (!isDisabled) {
                 return (
-                  <button
+                  <Button
                     key={value.id}
                     type="button"
+                    variant="outline"
                     onClick={() => select(option.id, value.id)}
                     aria-pressed={isSelected}
                     data-testid={pillTestId(option, value)}
                     className={pillClassName}
                   >
                     {value.value}
-                  </button>
+                  </Button>
                 )
               }
 
@@ -177,13 +177,18 @@ export function VariantOptionPills() {
                         aria-disabled="true"
                         tabIndex={0}
                         data-testid={pillTestId(option, value)}
-                        className={pillClassName}
+                        className={cn(
+                          buttonVariants({ variant: "outline" }),
+                          pillClassName
+                        )}
                       >
                         {value.value}
                       </span>
                     }
                   />
-                  <TooltipContent data-testid={`${pillTestId(option, value)}-tooltip`}>
+                  <TooltipContent
+                    data-testid={`${pillTestId(option, value)}-tooltip`}
+                  >
                     {status === "out-of-stock" ? "Sold out" : "Not available"}
                   </TooltipContent>
                 </Tooltip>
@@ -237,7 +242,12 @@ export function VariantAddToCart({
 
   if (!matchedVariant) {
     return (
-      <Button type="button" size={buttonSize} className={cn("w-full", className)} disabled>
+      <Button
+        type="button"
+        size={buttonSize}
+        className={cn("w-full", className)}
+        disabled
+      >
         {options.length > 0 ? "Select options" : "Sold out"}
       </Button>
     )
@@ -264,7 +274,12 @@ export function VariantBuyNow({ className }: { className?: string }) {
 
   if (!matchedVariant || matchedVariant.maxPerOrder <= 0) {
     return (
-      <Button type="button" size="lg" className={cn("w-full", className)} disabled>
+      <Button
+        type="button"
+        size="lg"
+        className={cn("w-full", className)}
+        disabled
+      >
         {!matchedVariant && options.length > 0 ? "Select options" : "Sold out"}
       </Button>
     )

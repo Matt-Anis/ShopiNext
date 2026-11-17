@@ -31,7 +31,7 @@ export default function HeroSection({ product }: { product?: Product }) {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button
               size="lg"
-              className="gap-6 px-6 font-semibold"
+              className="gap-6 font-semibold"
               nativeButton={false}
               render={<a href="#products" />}
             >
@@ -41,7 +41,6 @@ export default function HeroSection({ product }: { product?: Product }) {
             <Button
               size="lg"
               variant="outline"
-              className="px-6"
               nativeButton={false}
               render={<Link href="/categories" />}
             >
