@@ -48,7 +48,7 @@ export function AppSidebar({
   user: { name: string; email: string; image?: string | null }
 }) {
   const pathname = usePathname()
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { isMobile, setOpen, setOpenMobile, setPreviewOpen } = useSidebar()
   const canViewOverview = usePermission("analytics", "read")
   const canViewStaff = usePermission("user", "list")
   const canCreateStaff = usePermission("user", "create")
@@ -95,29 +95,49 @@ export function AppSidebar({
     if (isMobile) setOpenMobile(false)
   }
 
+  function closeNavigation() {
+    if (isMobile) {
+      closeMobileNavigation()
+      return
+    }
+    setPreviewOpen(false)
+    setOpen(false)
+    document.getElementById("admin-sidebar-trigger")?.focus()
+  }
+
   return (
-    <Sidebar>
-      <SidebarHeader className="h-16 shrink-0 flex-row items-center justify-between border-b border-sidebar-border px-4">
+    <Sidebar
+      collapsible="icon"
+      expandOnHover
+      className="border-sidebar-border"
+      onKeyDown={(event) => {
+        if (!isMobile && event.key === "Escape" && !event.defaultPrevented && event.currentTarget.contains(event.target as Node)) {
+          event.preventDefault()
+          closeNavigation()
+        }
+      }}
+    >
+      <SidebarHeader className="h-16 shrink-0 flex-row items-center justify-between border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-2">
         <div className="flex items-center gap-2.5">
-          <span className="grid size-8 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <ShopiNextLogo className="size-5" />
           </span>
-          <span className="font-semibold tracking-tight">ShopiNext</span>
+          <span className="font-semibold tracking-tight whitespace-nowrap group-data-[collapsible=icon]:sr-only">ShopiNext</span>
         </div>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="size-11 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:hidden"
+          className="size-11 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden"
           aria-label="Close navigation"
-          onClick={closeMobileNavigation}
+          onClick={closeNavigation}
         >
           <X aria-hidden="true" />
         </Button>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="group-data-[collapsible=icon]:overflow-y-auto">
         <nav aria-label="Admin navigation">
-          <SidebarGroup className="p-3">
+          <SidebarGroup className="p-3 group-data-[collapsible=icon]:px-2">
             <SidebarMenu className="gap-1">
               {sections.map(({ href, label, icon: Icon, links }) => {
                 const isCurrent = pathname === href
@@ -135,7 +155,7 @@ export function AppSidebar({
                         className={buttonClassName}
                       >
                         <Icon aria-hidden="true" />
-                        <span>{label}</span>
+                        <span className="group-data-[collapsible=icon]:sr-only">{label}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )
@@ -148,8 +168,8 @@ export function AppSidebar({
                         render={<SidebarMenuButton isActive={isActive} className={`group/collapsible ${buttonClassName}`} />}
                       >
                         <Icon aria-hidden="true" />
-                        <span>{label}</span>
-                        <ChevronRight aria-hidden="true" className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90" />
+                        <span className="group-data-[collapsible=icon]:sr-only">{label}</span>
+                        <ChevronRight aria-hidden="true" className="ml-auto transition-transform group-data-[panel-open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
