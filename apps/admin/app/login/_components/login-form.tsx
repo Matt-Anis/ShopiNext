@@ -7,13 +7,6 @@ import { cn } from "@repo/ui/utils"
 import { authClient } from "@/lib/auth/client"
 import { toast } from "@repo/ui/toast"
 import { Button } from "@repo/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
 import { PasswordInput } from "@repo/ui/password-input"
@@ -59,52 +52,48 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Sign in</CardTitle>
-          <CardDescription>
-            Enter your credentials to access the dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} data-testid="login-form">
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  data-testid="login-email-input"
-                  className="border-border bg-transparent"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  required
-                  data-testid="login-password-input"
-                  className="border-border bg-transparent"
-                />
-              </Field>
-              <Field>
-                <Button
-                  type="submit"
-                  disabled={isPending}
-                  data-testid="login-submit-button"
-                >
-                  Login
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
+    <div className={cn("space-y-7", className)} {...props}>
+      <h1 className="text-3xl leading-none font-semibold tracking-tight sm:text-4xl">
+        Sign in
+      </h1>
+      <form onSubmit={handleSubmit} data-testid="login-form">
+        <FieldGroup className="gap-5">
+          <Field className="gap-2">
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              required
+              placeholder="you@example.com"
+              data-testid="login-email-input"
+              className="h-11 border-input bg-card"
+            />
+          </Field>
+          <Field className="gap-2">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <PasswordInput
+              id="password"
+              name="password"
+              autoComplete="current-password"
+              required
+              data-testid="login-password-input"
+              className="h-11 border-input bg-card"
+            />
+          </Field>
+          <Field>
+            <Button
+              type="submit"
+              className="mt-1 h-11 w-full font-semibold"
+              disabled={isPending}
+              data-testid="login-submit-button"
+            >
+              {isPending ? "Signing in…" : "Sign in"}
+            </Button>
+          </Field>
+        </FieldGroup>
+      </form>
     </div>
   )
 }
