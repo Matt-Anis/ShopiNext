@@ -173,7 +173,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
   expandOnHover?: boolean
 }) {
-  const { isMobile, state, openMobile, setOpenMobile, setPreviewOpen } = useSidebar()
+  const { isMobile, open, state, openMobile, setOpenMobile, setPreviewOpen } = useSidebar()
   const previewEnabled = expandOnHover && collapsible === "icon" && variant === "sidebar"
   const pointerWithin = React.useRef(false)
 
@@ -247,7 +247,8 @@ function Sidebar({
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
-          previewEnabled && "w-(--sidebar-width-icon) transition-none"
+          previewEnabled && "motion-reduce:transition-none",
+          previewEnabled && !open && "w-(--sidebar-width-icon)"
         )}
       />
       <div
@@ -260,7 +261,8 @@ function Sidebar({
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
-          previewEnabled && "z-30 group-data-[state=expanded]:shadow-xl motion-reduce:transition-none",
+          previewEnabled && "z-30 motion-reduce:transition-none",
+          previewEnabled && !open && "group-data-[state=expanded]:shadow-xl",
           className
         )}
         {...props}
@@ -302,6 +304,7 @@ function Sidebar({
 }
 
 function SidebarTrigger({
+  children,
   className,
   onClick,
   ...props
@@ -322,8 +325,12 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      {children ?? (
+        <>
+          <PanelLeftIcon />
+          <span className="sr-only">Toggle Sidebar</span>
+        </>
+      )}
     </Button>
   )
 }

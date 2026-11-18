@@ -12,7 +12,6 @@ import {
   ShoppingBag,
   UserCheck,
   Users,
-  X,
   type LucideIcon,
 } from "lucide-react"
 
@@ -50,8 +49,9 @@ export function AppSidebar({
   user: { name: string; email: string; image?: string | null }
 }) {
   const pathname = usePathname()
-  const { isMobile, setOpen, setOpenMobile, setPreviewOpen, state } = useSidebar()
+  const { isMobile, open, setOpen, setOpenMobile, setPreviewOpen, state } = useSidebar()
   const panelRef = useRef<HTMLDivElement>(null)
+  const brandButtonRef = useRef<HTMLButtonElement>(null)
   useSidebarProximityGlow(panelRef, !isMobile && state === "collapsed")
   const canViewOverview = usePermission("analytics", "read")
   const canViewStaff = usePermission("user", "list")
@@ -99,14 +99,13 @@ export function AppSidebar({
     if (isMobile) setOpenMobile(false)
   }
 
-  function closeNavigation() {
+  function toggleBrandNavigation() {
     if (isMobile) {
       closeMobileNavigation()
       return
     }
     setPreviewOpen(false)
-    setOpen(false)
-    document.getElementById("admin-sidebar-trigger")?.focus()
+    setOpen(!open)
   }
 
   return (
@@ -118,26 +117,27 @@ export function AppSidebar({
       onKeyDown={(event) => {
         if (!isMobile && event.key === "Escape" && !event.defaultPrevented && event.currentTarget.contains(event.target as Node)) {
           event.preventDefault()
-          closeNavigation()
+          brandButtonRef.current?.focus()
+          setPreviewOpen(false)
+          setOpen(false)
         }
       }}
     >
-      <SidebarHeader className="h-16 shrink-0 flex-row items-center justify-between border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-2">
-        <div className="flex items-center gap-2.5">
+      <SidebarHeader className="h-16 shrink-0 flex-row items-center border-b border-sidebar-border group-data-[collapsible=icon]:px-0">
+        <Button
+          ref={brandButtonRef}
+          type="button"
+          variant="ghost"
+          className="h-11 w-full min-w-0 justify-start gap-2.5 px-2 text-base font-semibold tracking-tight text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground aria-pressed:bg-sidebar-accent focus-visible:ring-sidebar-ring/60 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+          aria-label={isMobile ? "Close ShopiNext navigation" : "Pin ShopiNext sidebar"}
+          aria-pressed={isMobile ? undefined : open}
+          title={isMobile ? undefined : open ? "Unpin sidebar" : "Pin sidebar"}
+          onClick={toggleBrandNavigation}
+        >
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <ShopiNextLogo className="size-5" />
           </span>
-          <span className="font-semibold tracking-tight whitespace-nowrap group-data-[collapsible=icon]:sr-only">ShopiNext</span>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-11 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden"
-          aria-label="Close navigation"
-          onClick={closeNavigation}
-        >
-          <X aria-hidden="true" />
+          <span className="group-data-[collapsible=icon]:sr-only">ShopiNext</span>
         </Button>
       </SidebarHeader>
       <SidebarContent className="group-data-[collapsible=icon]:overflow-y-auto">
