@@ -70,7 +70,7 @@ export function SearchPanel({
         if (!inline || !next) onOpenChange(next);
       }}
     >
-      <InputGroup className="h-9 w-full min-w-0 rounded-lg bg-muted/40">
+      <InputGroup className="h-9 w-full min-w-0 rounded-[var(--control-radius,var(--radius-lg))] bg-muted/40">
         <Autocomplete.Input
           render={<InputGroupInput />}
           ref={inputRef}

@@ -75,7 +75,8 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.5rem;
-  --button-radius: var(--radius-lg);
+  --control-radius: 0.75rem;
+  --button-radius: var(--control-radius);
   --button-primary: var(--brand);
   --button-primary-foreground: #1b1c19;
   --sidebar: #22231f;
