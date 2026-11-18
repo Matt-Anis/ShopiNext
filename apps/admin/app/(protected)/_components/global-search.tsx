@@ -15,6 +15,7 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
   const router = useRouter()
   const role = useCurrentRole()
   const inputRef = useRef<HTMLInputElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const inputContainerId = useId()
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const history = useMemo(
@@ -26,9 +27,16 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
     if (mobileSearchOpen) inputRef.current?.focus()
   }, [mobileSearchOpen])
 
+  function dismissMobileSearch() {
+    if (!mobileSearchOpen) return
+    setMobileSearchOpen(false)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
+
   return (
     <div className="min-w-0">
       <Button
+        ref={triggerRef}
         variant="ghost"
         size="icon"
         type="button"
@@ -36,7 +44,7 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
         aria-label={mobileSearchOpen ? "Close search" : "Search admin"}
         aria-expanded={mobileSearchOpen}
         aria-controls={inputContainerId}
-        onClick={() => setMobileSearchOpen((open) => !open)}
+        onClick={mobileSearchOpen ? dismissMobileSearch : () => setMobileSearchOpen(true)}
       >
         {mobileSearchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
       </Button>
@@ -54,6 +62,7 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
           search={searchAdminCatalog}
           history={history}
           inputRef={inputRef}
+          onDismiss={dismissMobileSearch}
           onNavigate={(href) => {
             setMobileSearchOpen(false)
             router.push(href)

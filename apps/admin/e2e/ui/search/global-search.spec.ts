@@ -145,4 +145,11 @@ test("mobile search shows results below one input and recovers from failure", as
   await input.press("Escape")
   await expect(input).toHaveAttribute("aria-expanded", "false")
   await expect(input).toBeFocused()
+
+  await clickUntilHydrated(input, () =>
+    expect(input).toHaveAttribute("aria-expanded", "true")
+  )
+  await page.getByRole("button", { name: "Dismiss", exact: true }).first().dispatchEvent("click")
+  await expect(input).toBeHidden()
+  await expect(searchButton).toBeFocused()
 })

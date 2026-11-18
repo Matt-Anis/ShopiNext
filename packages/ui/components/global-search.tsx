@@ -20,6 +20,7 @@ type GlobalSearchProps = {
   search: SearchExecutor;
   available: boolean;
   onNavigate: (href: string) => void;
+  onDismiss?: () => void;
   label: string;
   className?: string;
   history?: RecentSearchHistory;
@@ -31,6 +32,7 @@ export function GlobalSearch({
   search,
   available,
   onNavigate,
+  onDismiss,
   label,
   className,
   history,
@@ -58,6 +60,7 @@ export function GlobalSearch({
       open={open}
       inline={presentation === "drawer"}
       onOpenChange={changeOpen}
+      onDismiss={onDismiss}
       onQueryChange={setQuery}
       recentQueries={recent.queries}
       onQueryCommit={() => recent.remember(state.query)}
