@@ -1,4 +1,4 @@
-import { and, asc, eq, lt } from "drizzle-orm"
+import { and, asc, count, eq, lt } from "drizzle-orm"
 
 import { db } from "@/db"
 import { products, categories, productVariants } from "@repo/db/public/schema"
@@ -32,6 +32,14 @@ export async function getLowStockVariants() {
 }
 
 export type LowStockVariant = Awaited<ReturnType<typeof getLowStockVariants>>[number]
+
+export async function getLowStockVariantCount() {
+  const [result] = await db
+    .select({ total: count() })
+    .from(lowStockVariantsQuery().as("low_stock_variants"))
+
+  return result.total
+}
 
 export async function getProductForWizard(id: string) {
   return db.query.products.findFirst({

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt } from "drizzle-orm"
+import { and, asc, count, desc, eq, gte, inArray, isNotNull, isNull, lt, sum } from "drizzle-orm"
 
 import { db } from "@/db"
 import { orders, type OrderStatus } from "@repo/db/public/schema"
@@ -73,6 +73,40 @@ export async function getOrdersList(
     archivedAt: order.archivedAt,
   }))
 }
+
+export async function getOrdersOverview(now: Date) {
+  const [today, awaitingFulfillment, recent] = await Promise.all([
+    db
+      .select({ status: orders.status, orders: count(), total: sum(orders.totalAmount) })
+      .from(orders)
+      .where(getOrdersViewCondition("today", now))
+      .groupBy(orders.status),
+    db.$count(orders, getOrdersViewCondition("to-fulfill", now)),
+    db
+      .select({
+        id: orders.id,
+        customerEmail: orders.checkoutEmail,
+        status: orders.status,
+        totalAmount: orders.totalAmount,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(isNull(orders.archivedAt))
+      .orderBy(desc(orders.createdAt), desc(orders.id))
+      .limit(5),
+  ])
+
+  return {
+    ordersToday: today.reduce((total, row) => total + row.orders, 0),
+    salesToday: today
+      .filter((row) => paidOrderStatuses.includes(row.status))
+      .reduce((total, row) => total + Number(row.total), 0),
+    awaitingFulfillment,
+    recent,
+  }
+}
+
+export type OrdersOverview = Awaited<ReturnType<typeof getOrdersOverview>>
 
 export async function getOrderById(id: string) {
   return db.query.orders.findFirst({

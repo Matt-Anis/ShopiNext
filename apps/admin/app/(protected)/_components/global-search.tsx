@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { Search, X } from "lucide-react"
@@ -10,6 +11,27 @@ import { GlobalSearch } from "@repo/ui/global-search"
 import { cn } from "@repo/ui/utils"
 import { searchAdminCatalog } from "@/lib/search/client"
 import { useCurrentRole } from "./role-provider"
+
+const searchAvailable = isSearchAvailable(process.env.NODE_ENV)
+const openSearchEvent = "shopinext:open-admin-search"
+
+export function FindCustomerShortcut() {
+  if (!searchAvailable) {
+    return (
+      <Button variant="outline" className="h-11" nativeButton={false} render={<Link href="/customers" />}>
+        <Search aria-hidden="true" />
+        Find customer
+      </Button>
+    )
+  }
+
+  return (
+    <Button variant="outline" className="h-11" onClick={() => window.dispatchEvent(new Event(openSearchEvent))}>
+      <Search aria-hidden="true" />
+      Find customer
+    </Button>
+  )
+}
 
 export function AdminGlobalSearch({ accountId }: { accountId: string }) {
   const router = useRouter()
@@ -26,6 +48,20 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
   useEffect(() => {
     if (mobileSearchOpen) inputRef.current?.focus()
   }, [mobileSearchOpen])
+
+  useEffect(() => {
+    function openSearch() {
+      const input = inputRef.current
+      if (input?.getClientRects().length) {
+        input.focus()
+      } else {
+        setMobileSearchOpen(true)
+      }
+    }
+
+    window.addEventListener(openSearchEvent, openSearch)
+    return () => window.removeEventListener(openSearchEvent, openSearch)
+  }, [])
 
   function dismissMobileSearch() {
     if (!mobileSearchOpen) return
@@ -58,7 +94,7 @@ export function AdminGlobalSearch({ accountId }: { accountId: string }) {
         <GlobalSearch
           key={`${accountId}:${role}`}
           label="Search admin"
-          available={isSearchAvailable(process.env.NODE_ENV)}
+          available={searchAvailable}
           search={searchAdminCatalog}
           history={history}
           inputRef={inputRef}
