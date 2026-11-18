@@ -9,6 +9,7 @@ import { HeaderBreadcrumb } from "./_components/header-breadcrumb"
 import { AdminGlobalSearch } from "./_components/global-search"
 import { RoleProvider } from "./_components/role-provider"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@repo/ui/sidebar"
+import { ThemeToggle } from "@repo/ui/theme-toggle"
 
 export default async function ProtectedLayout({
   children,
@@ -39,7 +40,9 @@ export default async function ProtectedLayout({
                 </div>
               </div>
               <AdminGlobalSearch accountId={session.user.id} />
-              <div aria-hidden="true" />
+              <div className="flex justify-end">
+                <ThemeToggle className="hidden md:inline-flex" />
+              </div>
             </header>
             {session.user.role === "demo" && (
               <div className="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2 text-xs text-muted-foreground">

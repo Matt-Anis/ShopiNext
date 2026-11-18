@@ -27,9 +27,6 @@ export default async function Page() {
           <p>We&apos;ve already added the button component for you.</p>
           <Button className="mt-2">Button</Button>
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
       </div>
     </div>
   )

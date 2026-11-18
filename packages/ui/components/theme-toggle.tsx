@@ -2,8 +2,8 @@
 
 import { useSyncExternalStore } from "react"
 import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
 import { Button } from "./button"
+import { useTheme } from "./theme-provider"
 import { cn } from "../lib/utils"
 
 const subscribe = () => () => {}
