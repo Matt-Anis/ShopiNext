@@ -35,7 +35,7 @@ export default async function CustomerDetailPage({
           <CustomerKpis metrics={customer.metrics} />
           <CustomerOrdersCard orders={customer.orders} />
         </div>
-        <div className="flex flex-col gap-6 lg:sticky lg:top-9 lg:self-start">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-(--admin-header-offset) lg:self-start">
           <CustomerAuthCard
             providers={customer.providers}
             emailVerified={customer.emailVerified}

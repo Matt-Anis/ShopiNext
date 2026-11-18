@@ -30,22 +30,18 @@ export default async function ProtectedLayout({
     <RoleProvider role={session.user.role as RoleName}>
       <SidebarProvider>
         <AppSidebar user={session.user} />
-        <SidebarInset>
+        <SidebarInset className="min-w-0 [--admin-header-height:4rem] [--admin-header-offset:calc(var(--admin-header-height)_+_1.5rem)]">
           <BreadcrumbProvider>
-            <header className="grid h-14 shrink-0 grid-cols-[minmax(2rem,1fr)_minmax(0,28rem)_minmax(2rem,1fr)] items-center gap-2 border-b border-border px-4">
-              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-                <SidebarTrigger className="-ml-1 shrink-0" />
-                <div className="hidden min-w-0 overflow-hidden lg:block">
-                  <HeaderBreadcrumb />
-                </div>
+            <header className="sticky top-0 z-20 grid h-(--admin-header-height) shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,40%)] items-center gap-2 border-b border-border bg-background px-4 sm:gap-4 sm:px-6 md:grid-cols-[minmax(2.75rem,1fr)_minmax(0,45%)_minmax(2.75rem,1fr)] xl:grid-cols-[minmax(2.75rem,1fr)_minmax(0,28rem)_minmax(2.75rem,1fr)]">
+              <div className="flex min-w-0 items-center gap-2">
+                <SidebarTrigger className="-ml-1 size-11 shrink-0 text-muted-foreground" />
+                <HeaderBreadcrumb />
               </div>
               <AdminGlobalSearch accountId={session.user.id} />
-              <div className="flex justify-end">
-                <ThemeToggle className="hidden md:inline-flex" />
-              </div>
+              <ThemeToggle className="hidden justify-self-end md:inline-flex" />
             </header>
             {session.user.role === "demo" && (
-              <div className="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
+              <div className="border-b border-border bg-muted/50 px-4 py-2.5 text-xs leading-relaxed text-muted-foreground sm:px-6">
                 <span>
                   Demo mode active: read-only access. Mutations are disabled and
                   customer data is masked.

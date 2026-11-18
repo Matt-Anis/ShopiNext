@@ -61,7 +61,7 @@ export function ProductWizardSteps({
   ])
 
   return (
-    <div className="sticky top-9 flex w-fit flex-col self-start">
+    <div className="sticky top-(--admin-header-offset) flex w-fit flex-col self-start">
       {STEPS.map((s, index) => {
         const stepNumber = index + 1
         const isComplete = stepNumber < step

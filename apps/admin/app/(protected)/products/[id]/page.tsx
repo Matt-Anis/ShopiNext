@@ -42,7 +42,7 @@ export default async function ProductViewPage({
           </div>
         </div>
 
-        <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-9">
+        <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-(--admin-header-offset)">
           <div className="p-6">
             <ProductAtAGlance variants={product.variants} />
           </div>
