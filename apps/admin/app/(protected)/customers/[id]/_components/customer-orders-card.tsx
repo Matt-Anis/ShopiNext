@@ -2,16 +2,7 @@ import Link from "next/link"
 import { ExternalLink, ShoppingBag } from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
-import { Button } from "@repo/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/table"
+import { Card, CardContent, CardHeader } from "@repo/ui/card"
 import { formatPrice } from "@/lib/utils"
 import type { CustomerOrderSummary } from "@/features/customers/queries"
 import type { OrderStatus } from "@repo/db/public/schema"
@@ -34,93 +25,54 @@ const statusVariantMap: Record<
 
 export function CustomerOrdersCard({ orders }: CustomerOrdersCardProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ShoppingBag className="size-4 text-muted-foreground" />
-          <CardTitle className="text-sm font-semibold">Order History</CardTitle>
-        </div>
-        <Badge variant="outline" className="text-xs">
-          {orders.length} {orders.length === 1 ? "order" : "orders"}
-        </Badge>
+    <Card size="sm" className="@container/order-history min-w-0 gap-0 self-start rounded-xl border border-border pb-0 shadow-none ring-0 dark:ring-0">
+      <CardHeader className="flex items-center gap-2 border-b border-border">
+        <ShoppingBag aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+        <h2 className="text-sm font-semibold">Order history</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         {orders.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <ShoppingBag className="mb-2 size-8 text-muted-foreground/50" />
+          <div className="space-y-1 px-4 py-8 text-center">
             <p className="text-sm font-medium text-foreground">
               No orders yet
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Orders placed by this customer will appear here.
             </p>
           </div>
         ) : (
-          <div className="rounded-md border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Order</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="w-[44px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => {
-                  const statusLabel =
-                    order.status.charAt(0).toUpperCase() +
-                    order.status.slice(1)
-                  const variant =
-                    statusVariantMap[order.status] ?? "secondary"
-
-                  return (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-mono text-xs font-medium">
-                        {order.id.slice(0, 8)}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {order.createdAt.toLocaleDateString(undefined, {
-                          dateStyle: "medium",
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          <Badge variant={variant} className="text-xs">
-                            {statusLabel}
-                          </Badge>
-                          {order.archivedAt && (
-                            <Badge variant="outline" className="text-xs">
-                              Archived
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {order.itemCount}
-                      </TableCell>
-                      <TableCell className="text-right text-xs font-medium">
-                        {formatPrice(order.totalAmount)}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          nativeButton={false}
-                          render={<Link href={`/orders/${order.id}`} />}
-                        >
-                          <ExternalLink className="size-3.5" />
-                          <span className="sr-only">Open order</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
+          <ul className="divide-y divide-border">
+            {orders.map((order) => (
+              <li key={order.id}>
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 px-4 py-3 hover:bg-muted/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring @min-[34rem]/order-history:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] @min-[34rem]/order-history:items-center"
+                >
+                  <div className="min-w-0 space-y-1">
+                    <span className="block text-sm font-semibold">
+                      Order <span className="font-mono text-xs">#{order.id.slice(0, 8)}</span>
+                    </span>
+                    <time dateTime={order.createdAt.toISOString()} className="block text-xs text-muted-foreground">
+                      {order.createdAt.toLocaleDateString(undefined, { dateStyle: "medium" })}
+                    </time>
+                  </div>
+                  <div className="col-span-full flex min-w-0 flex-wrap items-center gap-1.5 @min-[34rem]/order-history:col-span-1">
+                    <Badge variant={statusVariantMap[order.status] ?? "secondary"} className="capitalize">
+                      {order.status}
+                    </Badge>
+                    {order.archivedAt && <Badge variant="outline">Archived</Badge>}
+                    <span className="text-xs text-muted-foreground">
+                      {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+                    </span>
+                  </div>
+                  <div className="col-start-2 row-start-1 flex items-center gap-2 self-center justify-self-end @min-[34rem]/order-history:col-start-auto @min-[34rem]/order-history:row-start-auto">
+                    <span className="text-sm font-semibold tabular-nums">{formatPrice(order.totalAmount)}</span>
+                    <ExternalLink aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
       </CardContent>
     </Card>

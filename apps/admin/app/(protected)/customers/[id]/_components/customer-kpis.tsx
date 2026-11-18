@@ -1,6 +1,3 @@
-import { DollarSign, ShoppingBag, TrendingUp } from "lucide-react"
-
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
 import { formatPrice } from "@/lib/utils"
 
 interface CustomerKpisProps {
@@ -12,47 +9,25 @@ interface CustomerKpisProps {
 }
 
 export function CustomerKpis({ metrics }: CustomerKpisProps) {
+  const totals = [
+    { label: "Lifetime spend", value: formatPrice(metrics.totalSpent) },
+    { label: "Total orders", value: metrics.totalOrders },
+    { label: "Average order value", value: formatPrice(metrics.averageOrderValue) },
+  ]
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-muted-foreground">
-            Lifetime Spend
-          </CardTitle>
-          <DollarSign className="size-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatPrice(metrics.totalSpent)}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-muted-foreground">
-            Total Orders
-          </CardTitle>
-          <ShoppingBag className="size-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{metrics.totalOrders}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-muted-foreground">
-            Average Order Value
-          </CardTitle>
-          <TrendingUp className="size-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatPrice(metrics.averageOrderValue)}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <dl className="grid divide-y divide-border rounded-xl border border-border bg-card @min-[32rem]/customer:grid-cols-3 @min-[32rem]/customer:divide-x @min-[32rem]/customer:divide-y-0">
+      {totals.map(({ label, value }) => (
+        <div
+          key={label}
+          className="flex min-w-0 items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 @min-[32rem]/customer:flex-col @min-[32rem]/customer:px-5 @min-[32rem]/customer:py-4"
+        >
+          <dt className="text-sm text-muted-foreground">{label}</dt>
+          <dd className="min-w-0 text-xl font-semibold tracking-tight wrap-anywhere tabular-nums @min-[32rem]/customer:text-2xl">
+            {value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   )
 }

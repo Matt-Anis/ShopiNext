@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Key, Mail } from "lucide-react"
+import { Calendar, Mail } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 import { Badge } from "@repo/ui/badge"
@@ -12,54 +12,52 @@ interface CustomerHeaderProps {
 }
 
 export function CustomerHeader({ customer }: CustomerHeaderProps) {
+  const displayName = customer.name || customer.email
   useBreadcrumb([
     { label: "Customers", href: "/customers" },
-    { label: customer.name || customer.email },
+    { label: displayName },
   ])
 
-  const initial = customer.name
-    ? customer.name.charAt(0).toUpperCase()
-    : "C"
-
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex items-start gap-4">
-        <Avatar size="lg" className="size-14 text-lg">
-          {customer.image && (
-            <AvatarImage src={customer.image} alt={customer.name} />
-          )}
-          <AvatarFallback>{initial}</AvatarFallback>
-        </Avatar>
+    <header className="flex min-w-0 items-start gap-3 rounded-xl border border-border bg-card p-4 sm:items-center sm:gap-4 sm:p-6">
+      <Avatar size="lg" aria-hidden="true" className="size-11 shrink-0 sm:size-14">
+        {customer.image && <AvatarImage src={customer.image} alt="" />}
+        <AvatarFallback className="bg-brand/15 text-base font-semibold text-primary sm:text-lg">
+          {customer.name.charAt(0).toUpperCase() || "C"}
+        </AvatarFallback>
+      </Avatar>
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {customer.name || customer.email}
-            </h1>
-            <Badge variant={customer.emailVerified ? "secondary" : "outline"}>
-              {customer.emailVerified ? "Verified" : "Unverified"}
-            </Badge>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Mail className="size-3.5" />
-              {customer.email}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Calendar className="size-3.5" />
-              Joined{" "}
-              {customer.createdAt.toLocaleDateString(undefined, {
-                dateStyle: "medium",
-              })}
-            </span>
-            <span className="flex items-center gap-1.5 font-mono text-[11px]">
-              <Key className="size-3" />
-              ID: {customer.id}
-            </span>
-          </div>
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <h1 className="min-w-0 text-2xl font-semibold tracking-tight wrap-anywhere sm:text-3xl">
+            {displayName}
+          </h1>
+          <Badge variant={customer.emailVerified ? "secondary" : "outline"}>
+            {customer.emailVerified ? "Email verified" : "Email unverified"}
+          </Badge>
         </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          {displayName !== customer.email && (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <Mail aria-hidden="true" className="size-3.5 shrink-0" />
+              <span className="wrap-anywhere">{customer.email}</span>
+            </span>
+          )}
+          <span className="flex items-center gap-1.5">
+            <Calendar aria-hidden="true" className="size-3.5 shrink-0" />
+            <span>
+              Joined{" "}
+              <time dateTime={customer.createdAt.toISOString()} suppressHydrationWarning>
+                {customer.createdAt.toLocaleDateString(undefined, { dateStyle: "medium" })}
+              </time>
+            </span>
+          </span>
+        </div>
+        <p className="text-xs wrap-anywhere text-muted-foreground">
+          Customer ID <span className="font-mono">{customer.id}</span>
+        </p>
       </div>
-    </div>
+    </header>
   )
 }

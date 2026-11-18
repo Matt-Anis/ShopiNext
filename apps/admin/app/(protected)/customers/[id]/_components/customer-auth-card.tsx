@@ -1,78 +1,44 @@
-import { KeyRound, ShieldAlert, ShieldCheck } from "lucide-react"
+import { KeyRound } from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
+import { Card, CardContent, CardHeader } from "@repo/ui/card"
 import { formatProvider } from "@/features/customers/utils"
 import type { CustomerAccountItem } from "@/features/customers/queries"
 
 interface CustomerAuthCardProps {
   providers: CustomerAccountItem[]
-  emailVerified: boolean
 }
 
-export function CustomerAuthCard({
-  providers,
-  emailVerified,
-}: CustomerAuthCardProps) {
+export function CustomerAuthCard({ providers }: CustomerAuthCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <KeyRound className="size-4 text-muted-foreground" />
-          <CardTitle className="text-xs font-semibold tracking-wide uppercase">
-            Authentication
-          </CardTitle>
-        </div>
+    <Card size="sm" className="min-w-0 rounded-xl border border-border shadow-none ring-0 dark:ring-0">
+      <CardHeader className="flex items-center gap-2">
+        <KeyRound aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+        <h2 className="text-sm font-semibold">Sign-in methods</h2>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 text-sm">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs text-muted-foreground">
-            Email Verification
-          </span>
-          <div className="flex items-center gap-2">
-            {emailVerified ? (
-              <>
-                <ShieldCheck className="size-4 text-emerald-500" />
-                <span className="font-medium text-foreground">Verified</span>
-              </>
-            ) : (
-              <>
-                <ShieldAlert className="size-4 text-amber-500" />
-                <span className="font-medium text-muted-foreground">
-                  Pending Verification
+      <CardContent>
+        {providers.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No linked sign-in methods.</p>
+        ) : (
+          <ul className="divide-y divide-border text-xs">
+            {providers.map((provider) => (
+              <li
+                key={provider.id}
+                className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2.5 first:pt-0 last:pb-0"
+              >
+                <Badge variant="outline" className="max-w-full whitespace-normal wrap-anywhere">
+                  {formatProvider(provider.providerId)}
+                </Badge>
+                <span className="text-muted-foreground">
+                  Connected{" "}
+                  <time dateTime={provider.createdAt.toISOString()}>
+                    {provider.createdAt.toLocaleDateString(undefined, { dateStyle: "short" })}
+                  </time>
                 </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5 border-t border-border pt-3">
-          <span className="text-xs text-muted-foreground">
-            Sign-in Methods
-          </span>
-          {providers.length === 0 ? (
-            <span className="text-xs text-muted-foreground">
-              No linked providers found
-            </span>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {providers.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between text-xs"
-                >
-                  <Badge variant="outline">{formatProvider(p.providerId)}</Badge>
-                  <span className="text-muted-foreground">
-                    Connected{" "}
-                    {p.createdAt.toLocaleDateString(undefined, {
-                      dateStyle: "short",
-                    })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   )
