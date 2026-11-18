@@ -121,9 +121,12 @@ test("mobile search shows results below one input and recovers from failure", as
     name: "Search admin",
     exact: true,
   })
-  await clickUntilHydrated(input, () =>
+  const searchButton = page.getByRole("button", { name: "Search admin", exact: true })
+  await expect(input).toBeHidden()
+  await clickUntilHydrated(searchButton, () =>
     expect(input).toHaveAttribute("aria-expanded", "true")
   )
+  await expect(input).toBeFocused()
   await input.fill("shirt")
   await expect(
     page.getByText("Search is unavailable. Please try again.")

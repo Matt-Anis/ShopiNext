@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type RefObject } from "react";
 import { SearchIcon } from "lucide-react";
 import type { RecentSearchHistory } from "@repo/search/browser";
 import { useSearch, type SearchExecutor } from "../hooks/use-search";
@@ -23,6 +23,7 @@ type GlobalSearchProps = {
   label: string;
   className?: string;
   history?: RecentSearchHistory;
+  inputRef?: RefObject<HTMLInputElement | null>;
   presentation?: "input" | "drawer";
 };
 
@@ -33,10 +34,12 @@ export function GlobalSearch({
   label,
   className,
   history,
+  inputRef: providedInputRef,
   presentation = "input",
 }: GlobalSearchProps) {
   const [open, setOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const localInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = providedInputRef ?? localInputRef;
   const { state, setQuery, reset } = useSearch(search, available);
   const recent = useRecentSearches(history);
 
