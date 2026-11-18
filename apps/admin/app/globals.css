@@ -134,12 +134,12 @@
 }
 
 [data-slot="scroll-area-thumb"] {
-  background-color: var(--brand);
+  background-color: var(--input);
 }
 
 @supports not (scrollbar-color: red blue) {
   ::-webkit-scrollbar-thumb {
-    background-color: var(--brand);
+    background-color: var(--input);
   }
 
   ::-webkit-scrollbar-track {
@@ -184,7 +184,7 @@
   }
   html {
     @apply font-sans;
-    scrollbar-color: var(--brand) var(--muted);
+    scrollbar-color: var(--input) var(--muted);
   }
 }
 
