@@ -1,49 +1,39 @@
-.wordmark {
-  font-size: clamp(2.75rem, 12vw, 5rem);
+.glow::before,
+.glow::after {
+  position: absolute;
+  z-index: -1;
+  width: clamp(25rem, 66vw, 58rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+  content: "";
 }
 
-@media (width >= 64rem) {
-  .wordmark {
-    font-size: min(18vw, 44svh);
-  }
-
-  .formPanel::before,
-  .formPanel::after {
-    position: absolute;
-    z-index: -1;
-    width: min(85%, 45rem);
-    aspect-ratio: 1;
-    pointer-events: none;
-    content: "";
-  }
-
-  .formPanel::before {
-    top: -16%;
-    right: -22%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--brand) 36%, transparent),
-      transparent 70%
-    );
-  }
-
-  .formPanel::after {
-    bottom: -27%;
-    left: -24%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--brand) 24%, transparent),
-      transparent 68%
-    );
-  }
+.glow::before {
+  top: -24%;
+  right: -16%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--brand) 36%, transparent),
+    transparent 70%
+  );
 }
 
-@media (width >= 64rem) and (prefers-reduced-motion: no-preference) {
-  .formPanel::before {
+.glow::after {
+  bottom: -32%;
+  left: -16%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--brand) 24%, transparent),
+    transparent 68%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow::before {
     animation: sweepDown 8s ease-in-out infinite alternate;
   }
 
-  .formPanel::after {
+  .glow::after {
     animation: sweepUp 10s ease-in-out -3s infinite alternate;
   }
 }
