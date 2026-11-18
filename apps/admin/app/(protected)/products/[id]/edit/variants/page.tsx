@@ -17,7 +17,7 @@ export default async function ProductVariantsPage({
   }
 
   return (
-    <div className="admin-product-editor">
+    <div className="admin-product-editor [--admin-editor-width:72rem]">
       <ProductWizardSteps step={3} productId={id} productName={product.name} />
       <div className="w-full min-w-0 max-w-5xl">
         <h1 className="text-2xl font-semibold tracking-tight wrap-anywhere sm:text-3xl">

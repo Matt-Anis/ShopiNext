@@ -154,7 +154,8 @@
 }
 
 @utility admin-product-editor {
-  @apply flex min-w-0 flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8 lg:px-8 lg:pt-9 lg:pb-16;
+  @apply mx-auto flex w-full min-w-0 flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:justify-center lg:gap-8 lg:px-8 lg:pt-9 lg:pb-16;
+  max-width: var(--admin-editor-width, 56rem);
 
   @media (width < 40rem) {
     --button-height: 2.75rem;
