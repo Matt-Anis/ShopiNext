@@ -47,7 +47,7 @@ export function Step2Form({
 
       <OptionsSection productId={productId} options={options} />
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
           onClick={() => router.push(`/products/${productId}/edit/variants`)}

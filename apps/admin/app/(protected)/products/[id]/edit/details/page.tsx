@@ -17,10 +17,10 @@ export default async function ProductDetailsPage({
   }
 
   return (
-    <div className="flex gap-10 px-8 pt-9 pb-16">
+    <div className="admin-product-editor">
       <ProductWizardSteps step={1} productId={id} productName={product.name} />
-      <div className="w-full max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="w-full min-w-0 max-w-2xl">
+        <h1 className="text-2xl font-semibold tracking-tight wrap-anywhere sm:text-3xl">
           {product.name}
         </h1>
         <EditProductForm

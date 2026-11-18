@@ -151,3 +151,32 @@
     @apply font-sans;
   }
 }
+
+@utility admin-product-editor {
+  @apply flex min-w-0 flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8 lg:px-8 lg:pt-9 lg:pb-16;
+
+  @media (width < 40rem) {
+    --button-height: 2.75rem;
+  }
+}
+
+@utility admin-stacked-table {
+  display: block;
+
+  & > tbody {
+    display: block;
+  }
+
+  & > tbody > tr {
+    @apply grid grid-cols-2 gap-3 p-3;
+  }
+
+  & > tbody > tr > td {
+    @apply min-w-0 p-0 whitespace-normal;
+  }
+
+  & > tbody > tr > td:first-child,
+  & > tbody > tr > td:last-child {
+    @apply col-span-2;
+  }
+}

@@ -24,6 +24,7 @@ const DUMMY_PNG_BUFFER = Buffer.from(
 
 test.describe("Product Media Step", () => {
   test("displays step 4 as active in wizard navigation", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 })
     const product = await seedProduct()
     await seedProductVariant(product.id)
     await signIn(page, admin)
@@ -31,7 +32,9 @@ test.describe("Product Media Step", () => {
     await page.goto(`/products/${product.id}/edit/media`)
 
     await expect(page.getByRole("heading", { name: product.name })).toBeVisible()
-    await expect(page.locator("span.border-primary", { hasText: "4" })).toBeVisible()
+    const steps = page.getByRole("navigation", { name: "Product editor steps" })
+    await expect(steps.locator('[aria-current="step"]')).toContainText("Media")
+    await expect(steps.getByRole("link", { name: "Variants" })).toBeVisible()
     await expect(page.getByText("Upload and organize images for this product.")).toBeVisible()
   })
 

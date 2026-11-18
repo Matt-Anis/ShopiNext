@@ -193,7 +193,7 @@ export function Step3Form({
   return (
     <div className="mt-8 flex flex-col gap-6">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-semibold">Variants</span>
             <span className="text-xs text-muted-foreground">
@@ -202,8 +202,8 @@ export function Step3Form({
           </div>
           <span className="text-xs text-muted-foreground">Prices in USD</span>
         </div>
-        <Table>
-          <TableHeader>
+        <Table role="table" aria-label="Product variants" className="max-lg:admin-stacked-table">
+          <TableHeader className="max-lg:sr-only">
             <TableRow>
               <TableHead>Combination</TableHead>
               <TableHead>SKU</TableHead>
@@ -213,7 +213,7 @@ export function Step3Form({
               <TableHead />
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody role="rowgroup">
             {rows.map((row) => (
               <VariantRow
                 key={row.id}
@@ -238,7 +238,7 @@ export function Step3Form({
         </Table>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {(() => {
           const isBusy = isCreating || savingId !== null
           const hasDirtyRows = rows.some(isRowDirty)

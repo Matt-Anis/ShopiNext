@@ -17,10 +17,10 @@ export default async function ProductMediaPage({
   }
 
   return (
-    <div className="flex gap-10 px-8 pt-9 pb-16">
+    <div className="admin-product-editor">
       <ProductWizardSteps step={4} productId={id} productName={product.name} />
-      <div className="w-full max-w-5xl">
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="w-full min-w-0 max-w-5xl">
+        <h1 className="text-2xl font-semibold tracking-tight wrap-anywhere sm:text-3xl">
           {product.name}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
