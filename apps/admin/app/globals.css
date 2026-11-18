@@ -50,7 +50,7 @@
 }
 
 :root {
-  --brand: #f4d433;
+  --brand: #d0b34f;
   --background: #f6f4ee;
   --foreground: #1b1c19;
   --card: #fffefb;
@@ -86,7 +86,7 @@
   --sidebar-accent: #36372e;
   --sidebar-accent-foreground: #fffefb;
   --sidebar-border: #3d3e34;
-  --sidebar-ring: #e8c848;
+  --sidebar-ring: var(--brand);
 }
 
 .dark {
@@ -107,7 +107,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: #3f4237;
   --input: #777a6a;
-  --ring: #d9c64a;
+  --ring: var(--brand);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
