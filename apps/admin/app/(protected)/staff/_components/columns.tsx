@@ -2,17 +2,11 @@
 
 import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
-import { ExternalLink, Eye, MoreHorizontal } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@repo/ui/dropdown-menu"
 import type { StaffListItem } from "@/features/staff/queries"
 
 export type StaffMember = StaffListItem
@@ -34,13 +28,7 @@ function getInitials(name: string) {
     .toUpperCase()
 }
 
-interface GetColumnsOptions {
-  onView: (staff: StaffMember) => void
-}
-
-export function getColumns({
-  onView,
-}: GetColumnsOptions): ColumnDef<StaffMember>[] {
+export function getColumns(): ColumnDef<StaffMember>[] {
   return [
     {
       id: "open",
@@ -127,38 +115,6 @@ export function getColumns({
           })}
         </span>
       ),
-    },
-    {
-      id: "actions",
-      header: "",
-      enableSorting: false,
-      enableHiding: false,
-      meta: {
-        headerClassName: "sticky right-0 bg-background",
-        cellClassName: "sticky right-0 border-l bg-background",
-      },
-      cell: ({ row }) => {
-        const staff = row.original
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm">
-                  <MoreHorizontal />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(staff)}>
-                <Eye />
-                View details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
     },
   ]
 }

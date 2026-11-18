@@ -2,28 +2,16 @@
 
 import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
-import { ExternalLink, Eye, MoreHorizontal } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@repo/ui/dropdown-menu"
 import { formatPrice } from "@/lib/utils"
 import { formatProvider } from "@/features/customers/utils"
 import type { CustomerListItem } from "@/features/customers/queries"
 
-interface GetColumnsOptions {
-  onView: (customer: CustomerListItem) => void
-}
-
-export function getColumns({
-  onView,
-}: GetColumnsOptions): ColumnDef<CustomerListItem>[] {
+export function getColumns(): ColumnDef<CustomerListItem>[] {
   return [
     {
       id: "open",
@@ -137,38 +125,6 @@ export function getColumns({
           })}
         </span>
       ),
-    },
-    {
-      id: "actions",
-      header: "",
-      enableSorting: false,
-      enableHiding: false,
-      meta: {
-        headerClassName: "sticky right-0 bg-background",
-        cellClassName: "sticky right-0 border-l bg-background",
-      },
-      cell: ({ row }) => {
-        const customer = row.original
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm">
-                  <MoreHorizontal />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(customer)}>
-                <Eye />
-                View details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
     },
   ]
 }

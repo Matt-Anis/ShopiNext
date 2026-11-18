@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { Users } from "lucide-react"
 
 import { DataTable } from "@repo/ui/data-table"
@@ -15,11 +14,8 @@ interface CustomersClientProps {
 export function CustomersClient({ customers }: CustomersClientProps) {
   useBreadcrumb([{ label: "Customers" }])
 
-  const router = useRouter()
 
-  const columns = getColumns({
-    onView: (customer) => router.push(`/customers/${customer.id}`),
-  })
+  const columns = getColumns()
 
   return (
     <DataTable

@@ -20,7 +20,7 @@ interface GetColumnsOptions {
   onView: (order: OrderListItem) => void
   onArchive: (order: OrderListItem) => void
   onUnarchive: (order: OrderListItem) => void
-  canUpdate?: boolean
+  canUpdate: boolean
 }
 
 const statusStyles: Record<OrderStatus, string> = {
@@ -42,7 +42,7 @@ function renderOrderStatus(status: OrderStatus) {
 
 function renderOrderActions(
   order: OrderListItem,
-  { onView, onArchive, onUnarchive, canUpdate = true }: GetColumnsOptions,
+  { onView, onArchive, onUnarchive }: GetColumnsOptions,
   compact = false
 ) {
   return (
@@ -60,18 +60,16 @@ function renderOrderActions(
           <Eye />
           View details
         </DropdownMenuItem>
-        {canUpdate && (
-          order.archivedAt ? (
-            <DropdownMenuItem onClick={() => onUnarchive(order)}>
-              <ArchiveRestore />
-              Unarchive
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem variant="destructive" onClick={() => onArchive(order)}>
-              <Archive />
-              Archive
-            </DropdownMenuItem>
-          )
+        {order.archivedAt ? (
+          <DropdownMenuItem onClick={() => onUnarchive(order)}>
+            <ArchiveRestore />
+            Unarchive
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem variant="destructive" onClick={() => onArchive(order)}>
+            <Archive />
+            Archive
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -86,29 +84,36 @@ export function renderOrderCompactRow(order: OrderListItem, actions: GetColumnsO
       <Link
         href={`/orders/${order.id}`}
         aria-label={`Open order ${orderNumber}`}
-        className="min-w-0 flex-1 rounded-md px-1 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-sm font-semibold" title={order.id}>Order {orderNumber}</span>
-          {renderOrderStatus(order.status)}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-sm font-semibold" title={order.id}>Order {orderNumber}</span>
+            {renderOrderStatus(order.status)}
+          </div>
+          <p className="mt-1 truncate text-xs text-muted-foreground" title={order.customerEmail}>
+            {order.customerEmail}
+          </p>
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-sm font-medium tabular-nums">{formatPrice(order.totalAmount)}</span>
+            <time dateTime={order.createdAt.toISOString()} className="text-xs text-muted-foreground" suppressHydrationWarning>
+              {order.createdAt.toLocaleDateString(undefined, { dateStyle: "medium" })}
+            </time>
+          </div>
         </div>
-        <p className="mt-1 truncate text-xs text-muted-foreground" title={order.customerEmail}>
-          {order.customerEmail}
-        </p>
-        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-          <span className="text-sm font-medium tabular-nums">{formatPrice(order.totalAmount)}</span>
-          <time dateTime={order.createdAt.toISOString()} className="text-xs text-muted-foreground" suppressHydrationWarning>
-            {order.createdAt.toLocaleDateString(undefined, { dateStyle: "medium" })}
-          </time>
-        </div>
+        {!actions.canUpdate && (
+          <span className="grid size-11 shrink-0 place-items-center text-muted-foreground">
+            <ExternalLink aria-hidden="true" className="size-4" />
+          </span>
+        )}
       </Link>
-      {renderOrderActions(order, actions, true)}
+      {actions.canUpdate && renderOrderActions(order, actions, true)}
     </div>
   )
 }
 
 export function getColumns(actions: GetColumnsOptions): ColumnDef<OrderListItem>[] {
-  return [
+  const columns: ColumnDef<OrderListItem>[] = [
     {
       id: "open",
       header: "",
@@ -184,7 +189,10 @@ export function getColumns(actions: GetColumnsOptions): ColumnDef<OrderListItem>
         </span>
       ),
     },
-    {
+  ]
+
+  if (actions.canUpdate) {
+    columns.push({
       id: "actions",
       header: "",
       enableSorting: false,
@@ -194,6 +202,8 @@ export function getColumns(actions: GetColumnsOptions): ColumnDef<OrderListItem>
         cellClassName: "sticky right-0 border-l bg-card",
       },
       cell: ({ row }) => renderOrderActions(row.original, actions),
-    },
-  ]
+    })
+  }
+
+  return columns
 }

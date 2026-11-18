@@ -6,6 +6,7 @@ import {
   Archive,
   CircleCheck,
   CircleOff,
+  ExternalLink,
   Eye,
   MoreHorizontal,
   Package,
@@ -42,7 +43,7 @@ interface GetColumnsOptions {
   onDeactivate: (product: Product) => void
   onActivate: (product: Product) => void
   onTogglePublish: (product: Product) => void
-  canUpdate?: boolean
+  canUpdate: boolean
 }
 
 function renderProductThumbnail(product: Product, compact = false) {
@@ -81,7 +82,7 @@ function renderProductStatus({ isActive, status }: Product) {
 
 function renderProductActions(
   product: Product,
-  { onView, onEdit, onDeactivate, onActivate, onTogglePublish, canUpdate = true }: GetColumnsOptions,
+  { onView, onEdit, onDeactivate, onActivate, onTogglePublish }: GetColumnsOptions,
   compact = false
 ) {
   return (
@@ -99,41 +100,37 @@ function renderProductActions(
           <Eye />
           View
         </DropdownMenuItem>
-        {canUpdate && (
-          <>
-            <DropdownMenuItem onClick={() => onEdit(product)}>
-              <Pencil />
-              Edit
-            </DropdownMenuItem>
-            {product.status === "active" ? (
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => onTogglePublish(product)}
-              >
-                <Archive />
-                Move to draft
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => onTogglePublish(product)}>
-                <Rocket />
-                Publish
-              </DropdownMenuItem>
-            )}
-            {product.isActive ? (
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => onDeactivate(product)}
-              >
-                <CircleOff />
-                Deactivate
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => onActivate(product)}>
-                <CircleCheck />
-                Activate
-              </DropdownMenuItem>
-            )}
-          </>
+        <DropdownMenuItem onClick={() => onEdit(product)}>
+          <Pencil />
+          Edit
+        </DropdownMenuItem>
+        {product.status === "active" ? (
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => onTogglePublish(product)}
+          >
+            <Archive />
+            Move to draft
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={() => onTogglePublish(product)}>
+            <Rocket />
+            Publish
+          </DropdownMenuItem>
+        )}
+        {product.isActive ? (
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => onDeactivate(product)}
+          >
+            <CircleOff />
+            Deactivate
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={() => onActivate(product)}>
+            <CircleCheck />
+            Activate
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -149,14 +146,19 @@ export function renderProductCompactRow(product: Product, actions: GetColumnsOpt
         className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-1 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {renderProductThumbnail(product, true)}
-        <div className="min-w-0 space-y-1">
+        <div className="min-w-0 flex-1 space-y-1">
           <p className="line-clamp-2 text-sm font-semibold wrap-anywhere" title={product.name}>
             {product.name}
           </p>
           {renderProductStatus(product)}
         </div>
+        {!actions.canUpdate && (
+          <span className="grid size-11 shrink-0 place-items-center text-muted-foreground">
+            <ExternalLink aria-hidden="true" className="size-4" />
+          </span>
+        )}
       </Link>
-      {renderProductActions(product, actions, true)}
+      {actions.canUpdate && renderProductActions(product, actions, true)}
     </div>
   )
 }
@@ -231,7 +233,20 @@ export function getColumns(actions: GetColumnsOptions): ColumnDef<Product>[] {
         headerClassName: "sticky right-0 bg-card",
         cellClassName: "sticky right-0 border-l bg-card",
       },
-      cell: ({ row }) => renderProductActions(row.original, actions),
+      cell: ({ row }) =>
+        actions.canUpdate ? (
+          renderProductActions(row.original, actions)
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            nativeButton={false}
+            render={<Link href={`/products/${row.original.id}`} />}
+          >
+            <ExternalLink aria-hidden="true" />
+            <span className="sr-only">Open product</span>
+          </Button>
+        ),
     },
   ]
 }
