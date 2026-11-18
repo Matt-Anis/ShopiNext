@@ -42,6 +42,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       ...process.env,
+      SHOPINEXT_ADMIN_E2E: "1",
       DATABASE_URL: process.env.DATABASE_URL_TEST!,
       SESSION_COOKIE_CACHE_MAX_AGE: String(TEST_COOKIE_CACHE_MAX_AGE_SECONDS),
     },

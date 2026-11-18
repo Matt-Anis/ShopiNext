@@ -44,6 +44,7 @@ function getStorageRemotePatterns() {
 }
 
 const nextConfig: NextConfig = {
+  devIndicators: process.env.SHOPINEXT_ADMIN_E2E === "1" ? false : undefined,
   transpilePackages: ["@repo/db", "@repo/search", "@repo/ui"],
   images: {
     remotePatterns: getStorageRemotePatterns(),
