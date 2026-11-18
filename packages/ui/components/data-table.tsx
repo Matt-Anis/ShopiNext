@@ -67,6 +67,7 @@ interface DataTableProps<TData, TValue> {
   searchColumn?: string;
   searchPlaceholder?: string;
   actions?: React.ReactNode;
+  renderCompactRow?: (item: TData) => React.ReactNode;
   emptyTitle: string;
   emptyDescription: string;
   emptyIcon: React.ReactNode;
@@ -82,6 +83,7 @@ export function DataTable<TData, TValue>({
   searchColumn,
   searchPlaceholder = "Search...",
   actions,
+  renderCompactRow,
   emptyTitle,
   emptyDescription,
   emptyIcon,
@@ -239,14 +241,19 @@ export function DataTable<TData, TValue>({
             </div>
           )}
 
-          <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          <div
+            className={cn(
+              "ml-auto flex flex-wrap items-center justify-end gap-2",
+              renderCompactRow && !actions && "hidden lg:flex"
+            )}
+          >
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
                   <Button
                     variant="outline"
                     size="sm"
-                    className="max-sm:h-11"
+                    className={cn("max-sm:h-11", renderCompactRow && "hidden lg:inline-flex")}
                     data-testid="data-table-columns-button"
                   >
                     <Columns3 />
@@ -332,81 +339,96 @@ export function DataTable<TData, TValue>({
           ) : null}
         </Empty>
       ) : (
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const canSort = header.column.getCanSort();
-                  const sortDirection = header.column.getIsSorted();
+        <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card">
+          {renderCompactRow && (
+            <ul data-slot="data-table-compact-list" className="divide-y divide-border lg:hidden">
+              {rows.length > 0 ? rows.map((row) => (
+                <li key={row.id}>{renderCompactRow(row.original)}</li>
+              )) : (
+                <li className="grid min-h-24 place-items-center px-4 text-sm text-muted-foreground">
+                  No results.
+                </li>
+              )}
+            </ul>
+          )}
+          <div className={renderCompactRow ? "hidden lg:block" : undefined}>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      const canSort = header.column.getCanSort();
+                      const sortDirection = header.column.getIsSorted();
 
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className={header.column.columnDef.meta?.headerClassName}
-                    >
-                      {header.isPlaceholder ? null : canSort ? (
-                        <button
-                          type="button"
-                          className={cn(
-                            "flex items-center gap-1.5 font-medium",
-                            "hover:text-foreground",
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={header.column.columnDef.meta?.headerClassName}
+                        >
+                          {header.isPlaceholder ? null : canSort ? (
+                            <button
+                              type="button"
+                              className={cn(
+                                "flex items-center gap-1.5 font-medium",
+                                "hover:text-foreground",
+                              )}
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                              {sortDirection === "asc" ? (
+                                <ArrowUp className="size-3.5" />
+                              ) : sortDirection === "desc" ? (
+                                <ArrowDown className="size-3.5" />
+                              ) : (
+                                <ChevronsUpDown className="size-3.5 text-muted-foreground/50" />
+                              )}
+                            </button>
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )
                           )}
-                          onClick={header.column.getToggleSortingHandler()}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={cell.column.columnDef.meta?.cellClassName}
                         >
                           {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
                           )}
-                          {sortDirection === "asc" ? (
-                            <ArrowUp className="size-3.5" />
-                          ) : sortDirection === "desc" ? (
-                            <ArrowDown className="size-3.5" />
-                          ) : (
-                            <ChevronsUpDown className="size-3.5 text-muted-foreground/50" />
-                          )}
-                        </button>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={cell.column.columnDef.meta?.cellClassName}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       )}
     </div>
   );

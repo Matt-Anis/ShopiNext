@@ -23,24 +23,91 @@ interface GetColumnsOptions {
   canUpdate?: boolean
 }
 
-const statusVariantMap: Record<
-  OrderStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  paid: "secondary",
-  processing: "secondary",
-  shipped: "default",
-  delivered: "default",
-  cancelled: "destructive",
-  refunded: "outline",
+const statusStyles: Record<OrderStatus, string> = {
+  paid: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200",
+  processing: "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-200",
+  shipped: "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950 dark:text-teal-200",
+  delivered: "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
+  cancelled: "",
+  refunded: "bg-muted text-muted-foreground",
 }
 
-export function getColumns({
-  onView,
-  onArchive,
-  onUnarchive,
-  canUpdate = true,
-}: GetColumnsOptions): ColumnDef<OrderListItem>[] {
+function renderOrderStatus(status: OrderStatus) {
+  return (
+    <Badge variant={status === "cancelled" ? "destructive" : "outline"} className={statusStyles[status]}>
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </Badge>
+  )
+}
+
+function renderOrderActions(
+  order: OrderListItem,
+  { onView, onArchive, onUnarchive, canUpdate = true }: GetColumnsOptions,
+  compact = false
+) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon-sm" className={compact ? "size-11" : undefined}>
+            <MoreHorizontal aria-hidden="true" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onView(order)}>
+          <Eye />
+          View details
+        </DropdownMenuItem>
+        {canUpdate && (
+          order.archivedAt ? (
+            <DropdownMenuItem onClick={() => onUnarchive(order)}>
+              <ArchiveRestore />
+              Unarchive
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem variant="destructive" onClick={() => onArchive(order)}>
+              <Archive />
+              Archive
+            </DropdownMenuItem>
+          )
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+export function renderOrderCompactRow(order: OrderListItem, actions: GetColumnsOptions) {
+  const orderNumber = order.id.slice(0, 8)
+
+  return (
+    <div className="flex min-w-0 items-center gap-1 px-3 py-1">
+      <Link
+        href={`/orders/${order.id}`}
+        aria-label={`Open order ${orderNumber}`}
+        className="min-w-0 flex-1 rounded-md px-1 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-sm font-semibold" title={order.id}>Order {orderNumber}</span>
+          {renderOrderStatus(order.status)}
+        </div>
+        <p className="mt-1 truncate text-xs text-muted-foreground" title={order.customerEmail}>
+          {order.customerEmail}
+        </p>
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <span className="text-sm font-medium tabular-nums">{formatPrice(order.totalAmount)}</span>
+          <time dateTime={order.createdAt.toISOString()} className="text-xs text-muted-foreground" suppressHydrationWarning>
+            {order.createdAt.toLocaleDateString(undefined, { dateStyle: "medium" })}
+          </time>
+        </div>
+      </Link>
+      {renderOrderActions(order, actions, true)}
+    </div>
+  )
+}
+
+export function getColumns(actions: GetColumnsOptions): ColumnDef<OrderListItem>[] {
   return [
     {
       id: "open",
@@ -48,8 +115,8 @@ export function getColumns({
       enableSorting: false,
       enableHiding: false,
       meta: {
-        headerClassName: "sticky left-0 bg-background z-10 w-[44px]",
-        cellClassName: "sticky left-0 border-r bg-background z-10 w-[44px] text-center",
+        headerClassName: "sticky left-0 bg-card z-10 w-[44px]",
+        cellClassName: "sticky left-0 border-r bg-card z-10 w-[44px] text-center",
       },
       cell: ({ row }) => (
         <Button
@@ -99,13 +166,7 @@ export function getColumns({
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status
-        const label = status.charAt(0).toUpperCase() + status.slice(1)
-        const variant = statusVariantMap[status] ?? "secondary"
-
-        return <Badge variant={variant}>{label}</Badge>
-      },
+      cell: ({ row }) => renderOrderStatus(row.original.status),
     },
     {
       accessorKey: "itemCount",
@@ -129,48 +190,10 @@ export function getColumns({
       enableSorting: false,
       enableHiding: false,
       meta: {
-        headerClassName: "sticky right-0 bg-background",
-        cellClassName: "sticky right-0 border-l bg-background",
+        headerClassName: "sticky right-0 bg-card",
+        cellClassName: "sticky right-0 border-l bg-card",
       },
-      cell: ({ row }) => {
-        const order = row.original
-        const isArchived = Boolean(order.archivedAt)
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm">
-                  <MoreHorizontal />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(order)}>
-                <Eye />
-                View details
-              </DropdownMenuItem>
-              {canUpdate && (
-                isArchived ? (
-                  <DropdownMenuItem onClick={() => onUnarchive(order)}>
-                    <ArchiveRestore />
-                    Unarchive
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onArchive(order)}
-                  >
-                    <Archive />
-                    Archive
-                  </DropdownMenuItem>
-                )
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
+      cell: ({ row }) => renderOrderActions(row.original, actions),
     },
   ]
 }

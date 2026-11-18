@@ -11,7 +11,7 @@ import { useBreadcrumb } from "../../_components/breadcrumb-provider"
 import { usePermission } from "@/hooks/use-permission"
 import { archiveOrder, unarchiveOrder } from "@/features/orders/actions"
 import type { OrderListItem } from "@/features/orders/queries"
-import { getColumns } from "./columns"
+import { getColumns, renderOrderCompactRow } from "./columns"
 
 interface OrdersClientProps {
   orders: OrderListItem[]
@@ -30,10 +30,10 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
   const [archiveTarget, setArchiveTarget] = useState<OrderListItem | null>(null)
   const canUpdate = usePermission("orders", "update")
 
-  const columns = getColumns({
-    onView: (order) => router.push(`/orders/${order.id}`),
-    onArchive: (order) => setArchiveTarget(order),
-    onUnarchive: (order) => {
+  const rowActions = {
+    onView: (order: OrderListItem) => router.push(`/orders/${order.id}`),
+    onArchive: setArchiveTarget,
+    onUnarchive: (order: OrderListItem) => {
       startTransition(async () => {
         await toast
           .promise(unarchiveOrder(order.id), {
@@ -48,7 +48,7 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
       })
     },
     canUpdate,
-  })
+  }
 
   function handleArchive() {
     if (!archiveTarget) return
@@ -73,8 +73,9 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
   return (
     <>
       <DataTable
-        columns={columns}
+        columns={getColumns(rowActions)}
         data={orders}
+        renderCompactRow={(order) => renderOrderCompactRow(order, rowActions)}
         searchColumn="customerEmail"
         searchPlaceholder="Search orders by customer email..."
         emptyIcon={isArchived ? <Archive /> : <ShoppingBag />}
