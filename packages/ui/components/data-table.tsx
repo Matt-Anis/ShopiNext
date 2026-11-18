@@ -215,13 +215,14 @@ export function DataTable<TData, TValue>({
     emptyAction !== undefined ? emptyAction : actions;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       {data.length > 0 && (
-        <div className="flex items-center justify-between gap-4 pb-4">
-          {searchColumn ? (
-            <div className="relative max-w-sm flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-wrap items-center gap-3 pb-2 sm:gap-4">
+          {searchColumn && (
+            <div className="relative min-w-0 basis-full sm:max-w-sm sm:flex-1">
+              <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
+                aria-label={searchPlaceholder}
                 placeholder={searchPlaceholder}
                 value={
                   (table.getColumn(searchColumn)?.getFilterValue() as string) ??
@@ -232,21 +233,20 @@ export function DataTable<TData, TValue>({
                     .getColumn(searchColumn)
                     ?.setFilterValue(event.target.value)
                 }
-                className="pl-9"
+                className="pl-9 max-sm:h-11"
                 data-testid="data-table-search-input"
               />
             </div>
-          ) : (
-            <div />
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
                   <Button
                     variant="outline"
                     size="sm"
+                    className="max-sm:h-11"
                     data-testid="data-table-columns-button"
                   >
                     <Columns3 />
