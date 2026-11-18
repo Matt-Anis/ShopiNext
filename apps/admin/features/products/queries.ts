@@ -1,7 +1,37 @@
-import { eq } from "drizzle-orm"
+import { and, asc, eq, lt } from "drizzle-orm"
 
 import { db } from "@/db"
-import { products, categories } from "@repo/db/public/schema"
+import { products, categories, productVariants } from "@repo/db/public/schema"
+import { lowStockThreshold } from "./inventory"
+
+function lowStockVariantsQuery() {
+  return db
+    .select({
+      id: productVariants.id,
+      productId: products.id,
+      productName: products.name,
+      sku: productVariants.sku,
+      stock: productVariants.stock,
+    })
+    .from(productVariants)
+    .innerJoin(products, eq(productVariants.productId, products.id))
+    .where(and(
+      eq(products.isActive, true),
+      eq(products.status, "active"),
+      eq(productVariants.isActive, true),
+      lt(productVariants.stock, lowStockThreshold)
+    ))
+}
+
+export async function getLowStockVariants() {
+  return lowStockVariantsQuery().orderBy(
+    asc(productVariants.stock),
+    asc(products.name),
+    asc(productVariants.sku)
+  )
+}
+
+export type LowStockVariant = Awaited<ReturnType<typeof getLowStockVariants>>[number]
 
 export async function getProductForWizard(id: string) {
   return db.query.products.findFirst({

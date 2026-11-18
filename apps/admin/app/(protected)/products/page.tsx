@@ -1,9 +1,15 @@
 import { requirePermission } from "@/lib/auth/guards"
-import { getProductsList } from "@/features/products/queries"
+import { getLowStockVariants, getProductsList } from "@/features/products/queries"
+import { LowStockVariants } from "./_components/low-stock-variants"
 import { ProductsClient } from "./_components/products-client"
 
-export default async function ProductsPage() {
+export default async function ProductsPage({ searchParams }: PageProps<"/products">) {
   await requirePermission("products", "read")
+
+  if ((await searchParams).view === "low-stock") {
+    return <LowStockVariants variants={await getLowStockVariants()} />
+  }
+
   const products = await getProductsList()
 
   return (

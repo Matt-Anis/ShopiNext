@@ -1,12 +1,14 @@
-import { and, asc, desc, eq, isNotNull, isNull } from "drizzle-orm"
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt } from "drizzle-orm"
 
 import { db } from "@/db"
 import { orders, type OrderStatus } from "@repo/db/public/schema"
 import { adminOrderNotes } from "@repo/db/admin/schema"
+import { awaitingFulfillmentStatuses, paidOrderStatuses, type OrderView } from "./views"
 
 export type GetOrdersListParams = {
   isArchived?: boolean
   status?: OrderStatus
+  view?: OrderView
 }
 
 export type OrderListItem = {
@@ -19,13 +21,32 @@ export type OrderListItem = {
   archivedAt: Date | null
 }
 
+function getOrdersViewCondition(view: OrderView, now = new Date()) {
+  if (view === "to-fulfill") {
+    return and(isNull(orders.archivedAt), inArray(orders.status, awaitingFulfillmentStatuses))
+  }
+
+  const start = new Date(now)
+  start.setUTCHours(0, 0, 0, 0)
+  const end = new Date(start)
+  end.setUTCDate(end.getUTCDate() + 1)
+
+  return and(
+    gte(orders.createdAt, start),
+    lt(orders.createdAt, end),
+    view === "paid-today" ? inArray(orders.status, paidOrderStatuses) : undefined
+  )
+}
+
 export async function getOrdersList(
   params: GetOrdersListParams = {}
 ): Promise<OrderListItem[]> {
-  const { isArchived = false, status } = params
+  const { isArchived = false, status, view } = params
 
   const conditions = [
-    isArchived ? isNotNull(orders.archivedAt) : isNull(orders.archivedAt),
+    view
+      ? getOrdersViewCondition(view)
+      : isArchived ? isNotNull(orders.archivedAt) : isNull(orders.archivedAt),
   ]
 
   if (status) {
