@@ -10,7 +10,7 @@ import {
   setProductStatus,
 } from "@/features/products/actions"
 import type { Product } from "./columns"
-import { getColumns } from "./columns"
+import { getColumns, renderProductCompactRow } from "./columns"
 import { DataTable } from "@repo/ui/data-table"
 import { Button } from "@repo/ui/button"
 import { ConfirmDialog } from "@repo/ui/confirm-dialog"
@@ -35,11 +35,11 @@ export function ProductsClient({ products }: ProductsClientProps) {
   const canCreate = usePermission("products", "create")
   const canUpdate = usePermission("products", "update")
 
-  const columns = getColumns({
-    onView: (product) => router.push(`/products/${product.id}`),
-    onEdit: (product) => router.push(`/products/${product.id}/edit/details`),
-    onDeactivate: (product) => setDeactivateTarget(product),
-    onActivate: (product) => {
+  const rowActions = {
+    onView: (product: Product) => router.push(`/products/${product.id}`),
+    onEdit: (product: Product) => router.push(`/products/${product.id}/edit/details`),
+    onDeactivate: setDeactivateTarget,
+    onActivate: (product: Product) => {
       startTransition(async () => {
         await toast
           .promise(activateProduct(product.id), {
@@ -53,9 +53,9 @@ export function ProductsClient({ products }: ProductsClientProps) {
           .catch(() => {})
       })
     },
-    onTogglePublish: (product) => setPublishTarget(product),
+    onTogglePublish: setPublishTarget,
     canUpdate,
-  })
+  }
 
   function handleDeactivate() {
     if (!deactivateTarget) return
@@ -115,13 +115,15 @@ export function ProductsClient({ products }: ProductsClientProps) {
   return (
     <>
       <DataTable
-        columns={columns}
+        columns={getColumns(rowActions)}
         data={products}
+        renderCompactRow={(product) => renderProductCompactRow(product, rowActions)}
         searchColumn="name"
         searchPlaceholder="Search products..."
         actions={
           canCreate ? (
             <Button
+              className="max-lg:h-11"
               onClick={() => router.push("/products/new")}
               data-testid="new-product-button"
             >
