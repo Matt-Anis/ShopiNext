@@ -1,0 +1,37 @@
+.brandPanel::before {
+  position: absolute;
+  z-index: -1;
+  inset: -30% -22%;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 32% 48%,
+      color-mix(in srgb, var(--brand) 28%, transparent),
+      transparent 51%
+    ),
+    radial-gradient(
+      ellipse at 73% 72%,
+      color-mix(in srgb, var(--brand) 13%, transparent),
+      transparent 47%
+    );
+  opacity: 0.75;
+  content: "";
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .brandPanel::before {
+    animation: drift 16s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-9%, 3%, 0) scale(0.95);
+    opacity: 0.6;
+  }
+
+  to {
+    transform: translate3d(10%, -6%, 0) scale(1.08);
+    opacity: 0.9;
+  }
+}
