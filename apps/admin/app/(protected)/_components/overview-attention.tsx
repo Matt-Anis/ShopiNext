@@ -47,7 +47,7 @@ export function OverviewAttention({
   return (
     <section
       aria-labelledby="overview-attention"
-      className={cn("min-w-0", awaitingFulfillment !== null && "lg:col-start-2 lg:row-span-2 lg:row-start-1")}
+      className={cn("min-w-0", awaitingFulfillment !== null && "lg:col-start-2 lg:row-start-2")}
     >
       <Card className="gap-0 rounded-2xl border border-brand/30 bg-linear-to-br from-brand/12 via-card to-card py-0 shadow-none ring-0">
         <CardHeader className="px-4 pt-4 pb-3 sm:px-5 sm:pt-5">

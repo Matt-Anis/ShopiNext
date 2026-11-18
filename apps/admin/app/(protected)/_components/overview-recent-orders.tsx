@@ -14,7 +14,7 @@ const orderDateFormatter = new Intl.DateTimeFormat("en-US", {
 
 export function OverviewRecentOrders({ orders }: { orders: OrdersOverview["recent"] }) {
   return (
-    <section aria-labelledby="overview-recent-orders" className="min-w-0 lg:col-start-1 lg:row-start-2">
+    <section aria-labelledby="overview-recent-orders" className="min-w-0 lg:col-span-full">
       <Card className="gap-0 rounded-2xl border border-border py-0 shadow-none ring-0">
         <CardHeader className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-2.5 sm:px-5">
           <h2 id="overview-recent-orders" className="text-lg font-semibold tracking-tight">Recent orders</h2>

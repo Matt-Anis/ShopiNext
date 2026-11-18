@@ -14,6 +14,7 @@ import { FindCustomerShortcut } from "./_components/global-search"
 import { OverviewAttention } from "./_components/overview-attention"
 import { OverviewMetrics } from "./_components/overview-metrics"
 import { OverviewRecentOrders } from "./_components/overview-recent-orders"
+import { OverviewTrends } from "./_components/overview-trends"
 
 const overviewDateFormatter = new Intl.DateTimeFormat("en-US", {
   dateStyle: "full",
@@ -77,6 +78,7 @@ export default async function Page() {
         {orders && (
           <>
             <OverviewMetrics orders={orders} />
+            <OverviewTrends daily={orders.daily} />
             <OverviewRecentOrders
               orders={role === "demo"
                 ? orders.recent.map((order) => ({ ...order, customerEmail: maskEmail(order.customerEmail) }))

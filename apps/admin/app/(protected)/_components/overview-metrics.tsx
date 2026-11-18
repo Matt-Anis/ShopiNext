@@ -12,7 +12,7 @@ export function OverviewMetrics({ orders }: { orders: OrdersOverview }) {
   ]
 
   return (
-    <section aria-labelledby="overview-today" className="min-w-0 lg:col-start-1 lg:row-start-1">
+    <section aria-labelledby="overview-today" className="min-w-0 lg:col-span-full lg:row-start-1">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 id="overview-today" className="text-lg font-semibold tracking-tight">Today</h2>
         <span className="text-xs text-muted-foreground">UTC</span>
