@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@repo/ui/table"
 import { cn } from "@repo/ui/utils"
+import { lowStockThreshold } from "@/features/products/inventory"
 import { formatPrice } from "@/lib/utils"
 
 interface OptionValue {
@@ -37,7 +38,7 @@ interface ProductVariantsProps {
 
 export function ProductVariants({ options, variants }: ProductVariantsProps) {
   return (
-    <section>
+    <section id="product-variants" className="scroll-mt-(--admin-header-offset)">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
         <h2 className="text-xs font-medium tracking-wide text-foreground uppercase">
           Variants
@@ -100,7 +101,7 @@ export function ProductVariants({ options, variants }: ProductVariantsProps) {
                       "text-right",
                       variant.stock === 0
                         ? "text-destructive"
-                        : variant.stock < 5
+                        : variant.stock < lowStockThreshold
                           ? "text-amber-600 dark:text-amber-400"
                           : undefined
                     )}

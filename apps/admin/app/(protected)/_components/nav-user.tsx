@@ -8,6 +8,7 @@ import { clearAdminSearchHistory } from "@repo/search/browser"
 import { authClient } from "@/lib/auth/client"
 import { toast } from "@repo/ui/toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
+import { useTheme } from "@repo/ui/theme-provider"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +21,7 @@ import {
 } from "@repo/ui/alert-dialog"
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -31,6 +33,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@repo/ui/sidebar"
 
 function getInitials(name: string) {
@@ -49,6 +52,8 @@ export function NavUser({
   user: { name: string; email: string; image?: string | null }
 }) {
   const router = useRouter()
+  const { isMobile } = useSidebar()
+  const { resolvedTheme, setTheme } = useTheme()
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -95,15 +100,15 @@ export function NavUser({
                 <AvatarImage src={user.image ?? undefined} alt={user.name} />
                 <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:sr-only">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="min-w-56"
-              side="right"
+              side={isMobile ? "top" : "right"}
               align="end"
               sideOffset={4}
             >
@@ -126,6 +131,14 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                {isMobile && (
+                  <DropdownMenuCheckboxItem
+                    checked={resolvedTheme === "dark"}
+                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                  >
+                    Dark theme
+                  </DropdownMenuCheckboxItem>
+                )}
                 <DropdownMenuItem disabled>
                   <ShieldCheck />
                   Authorizations

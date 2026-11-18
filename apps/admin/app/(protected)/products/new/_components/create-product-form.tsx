@@ -60,7 +60,7 @@ export function CreateProductForm() {
         onSlugChange={() => setSlugEdited(true)}
       />
 
-      <div className="mt-7 flex items-center gap-3 pt-4">
+      <div className="mt-7 flex flex-wrap items-center gap-3 pt-4">
         <Tooltip>
           <TooltipTrigger
             render={

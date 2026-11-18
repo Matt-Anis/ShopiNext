@@ -52,7 +52,7 @@ export default async function StaffDetailPage({
             currentSessionId={session.session.id}
           />
         </div>
-        <div className="flex flex-col gap-6 lg:sticky lg:top-9 lg:self-start">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-(--admin-header-offset) lg:self-start">
           <StaffAuthCard
             providers={staff.providers}
             emailVerified={staff.emailVerified}

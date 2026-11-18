@@ -33,6 +33,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-brand: var(--brand);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -49,72 +50,129 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --brand: #d0b34f;
+  --background: #f6f4ee;
+  --foreground: #1b1c19;
+  --card: #fffefb;
+  --card-foreground: var(--foreground);
+  --popover: #fffefb;
+  --popover-foreground: var(--foreground);
+  --primary: #705700;
+  --primary-foreground: #fffefb;
+  --secondary: #eeece4;
+  --secondary-foreground: var(--foreground);
+  --muted: #eeece4;
+  --muted-foreground: #606157;
+  --accent: #ebe8db;
+  --accent-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
+  --border: #dedbd0;
+  --input: #a8a599;
+  --ring: #8b6d16;
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.25rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --radius: 0.5rem;
+  --control-radius: 0.75rem;
+  --button-radius: var(--control-radius);
+  --button-primary: var(--brand);
+  --button-primary-foreground: #1b1c19;
+  --sidebar: #22231f;
+  --sidebar-foreground: #f5f3e9;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #1b1c19;
+  --sidebar-accent: #36372e;
+  --sidebar-accent-foreground: #fffefb;
+  --sidebar-border: #3d3e34;
+  --sidebar-ring: var(--brand);
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #181916;
+  --foreground: #f5f3e9;
+  --card: #23251f;
+  --card-foreground: var(--foreground);
+  --popover: #292b24;
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand);
+  --primary-foreground: #1b1c19;
+  --secondary: #34362e;
+  --secondary-foreground: var(--foreground);
+  --muted: #2c2e26;
+  --muted-foreground: #b9b9ab;
+  --accent: #383a30;
+  --accent-foreground: var(--foreground);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --border: #3f4237;
+  --input: #777a6a;
+  --ring: var(--brand);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar: #141511;
+  --sidebar-accent: #2b2d24;
+  --sidebar-border: #303228;
+}
+
+.admin-search-open {
+  background-color: var(--popover);
+}
+
+@media (width >= 48rem) {
+  .admin-search-open {
+    background-color: transparent;
+  }
+}
+
+.admin-frosted,
+[data-slot="search-popup"] {
+  background-color: var(--popover);
+}
+
+[data-slot="scroll-area-thumb"] {
+  background-color: var(--input);
+}
+
+@supports not (scrollbar-color: red blue) {
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--input);
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--muted);
+  }
+}
+
+.admin-sidebar-panel::after {
+  position: absolute;
+  inset: 0 -0.75rem 0 auto;
+  width: 1.5rem;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 4rem at center var(--sidebar-glow-y, 50%),
+    color-mix(in srgb, var(--brand) 78%, transparent),
+    transparent
+  );
+  opacity: var(--sidebar-glow-opacity, 0);
+  content: "";
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .admin-sidebar-panel::after {
+    transition: opacity 160ms ease-out;
+  }
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .admin-frosted,
+  [data-slot="search-popup"] {
+    background-color: color-mix(in srgb, var(--popover) 90%, transparent);
+    backdrop-filter: blur(12px) saturate(1.15);
+  }
 }
 
 @layer base {
@@ -126,5 +184,36 @@
   }
   html {
     @apply font-sans;
+    scrollbar-color: var(--input) var(--muted);
+  }
+}
+
+@utility admin-product-editor {
+  @apply mx-auto flex w-full min-w-0 flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:justify-center lg:gap-8 lg:px-8 lg:pt-9 lg:pb-16;
+  max-width: var(--admin-editor-width, 56rem);
+
+  @media (width < 40rem) {
+    --button-height: 2.75rem;
+  }
+}
+
+@utility admin-stacked-table {
+  display: block;
+
+  & > tbody {
+    display: block;
+  }
+
+  & > tbody > tr {
+    @apply grid grid-cols-2 gap-3 p-3;
+  }
+
+  & > tbody > tr > td {
+    @apply min-w-0 p-0 whitespace-normal;
+  }
+
+  & > tbody > tr > td:first-child,
+  & > tbody > tr > td:last-child {
+    @apply col-span-2;
   }
 }

@@ -26,6 +26,29 @@ async function openRowMenu(page: Page, rowText: string) {
 }
 
 test.describe("Orders list", () => {
+  test("opens an order from the compact list on a phone", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 })
+    const order = await seedOrder({
+      checkoutEmail: `mobile.${uniqueSuffix()}@example.com`,
+      totalAmount: 7500,
+      status: "processing",
+    })
+
+    await signIn(page, admin)
+    await page.goto("/orders")
+    await page.getByTestId("data-table-search-input").fill(order.checkoutEmail)
+
+    const row = page.getByRole("listitem").filter({ hasText: order.checkoutEmail })
+    await expect(row).toContainText("Processing")
+    await expect(row).toContainText("$75.00")
+    await expect.poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth)
+    ).toBe(320)
+
+    await row.getByRole("link", { name: `Open order ${order.id.slice(0, 8)}` }).click()
+    await expect(page).toHaveURL(`/orders/${order.id}`)
+  })
+
   test("shows active orders and hides archived orders", async ({ page }) => {
     const activeOrder = await seedOrder({
       checkoutEmail: `active.${uniqueSuffix()}@example.com`,

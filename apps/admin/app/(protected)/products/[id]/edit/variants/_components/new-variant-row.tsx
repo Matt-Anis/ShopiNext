@@ -112,8 +112,8 @@ export function NewVariantRow({
   }
 
   return (
-    <TableRow>
-      <TableCell className="align-top">
+    <TableRow role="row">
+      <TableCell role="cell" className="align-top max-lg:empty:hidden">
         {options.length > 0 && (
           <div className="flex flex-col gap-1.5">
             {options.map((option) =>
@@ -133,7 +133,7 @@ export function NewVariantRow({
                   <ComboboxInput
                     showClear
                     placeholder={option.name}
-                    className="h-8 w-32"
+                    className="h-8 w-32 max-lg:h-11 max-lg:w-full"
                   />
                   <ComboboxContent>
                     <ComboboxEmpty>No values found.</ComboboxEmpty>
@@ -151,14 +151,16 @@ export function NewVariantRow({
           </div>
         )}
       </TableCell>
-      <TableCell className="align-top">
+      <TableCell role="cell" className="align-top">
+        <span aria-hidden="true" className="mb-1 block text-xs font-medium text-muted-foreground lg:hidden">SKU</span>
         <Input
+          aria-label="SKU"
           value={draftSku}
           onChange={(event) => {
             setSkuTouched(true)
             setDraftSku(event.target.value)
           }}
-          className="h-8 w-40 border-border bg-transparent font-mono text-xs"
+          className="h-8 w-40 border-border bg-transparent font-mono text-xs max-lg:h-11 max-lg:w-full"
         />
         {!skuTouched && draftSku && (
           <p className="mt-1 text-[11px] text-muted-foreground italic">
@@ -166,8 +168,9 @@ export function NewVariantRow({
           </p>
         )}
       </TableCell>
-      <TableCell className="align-top">
-        <InputGroup className="h-8 w-28">
+      <TableCell role="cell" className="align-top">
+        <span aria-hidden="true" className="mb-1 block text-xs font-medium text-muted-foreground lg:hidden">Price</span>
+        <InputGroup className="h-8 w-28 max-lg:h-11 max-lg:w-full">
           <InputGroupAddon>
             <InputGroupText>$</InputGroupText>
           </InputGroupAddon>
@@ -175,34 +178,40 @@ export function NewVariantRow({
             type="number"
             min={0}
             step="0.01"
+            aria-label="Price"
             value={draftPrice}
             onChange={(event) => setDraftPrice(event.target.value)}
           />
         </InputGroup>
       </TableCell>
-      <TableCell className="align-top">
+      <TableCell role="cell" className="align-top">
+        <span aria-hidden="true" className="mb-1 block text-xs font-medium text-muted-foreground lg:hidden">Stock</span>
         <Input
+          aria-label="Stock"
           type="number"
           min={0}
           value={draftStock}
           onChange={(event) => setDraftStock(event.target.value)}
-          className="h-8 w-20 border-border bg-transparent"
+          className="h-8 w-20 border-border bg-transparent max-lg:h-11 max-lg:w-full"
         />
       </TableCell>
-      <TableCell className="align-top">
+      <TableCell role="cell" className="align-top">
+        <span aria-hidden="true" className="mb-1 block text-xs font-medium text-muted-foreground lg:hidden">Max per order</span>
         <Input
+          aria-label="Max per order"
           type="number"
           min={1}
           value={draftMaxPerOrder}
           onChange={(event) => setDraftMaxPerOrder(event.target.value)}
-          className="h-8 w-20 border-border bg-transparent"
+          className="h-8 w-20 border-border bg-transparent max-lg:h-11 max-lg:w-full"
         />
       </TableCell>
-      <TableCell className="align-top">
+      <TableCell role="cell" className="align-top">
         <Button
           type="button"
           variant="outline"
           size="sm"
+          className="max-lg:h-11"
           disabled={isCreating}
           onClick={handleAddClick}
         >

@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test"
 import { seedAdmin } from "../../utils/seed-user"
 import { seedOrder } from "../../utils/seed-order"
+import { seedProduct } from "../../utils/seed-product"
+import { uniqueSuffix } from "../../utils/unique"
 import { signIn } from "../../utils/auth"
 
 test.describe("Role-Based Access Control (RBAC)", () => {
@@ -54,6 +56,9 @@ test.describe("Role-Based Access Control (RBAC)", () => {
     await page.goto("/staff")
     await expect(page).toHaveURL("/staff")
     await expect(page.getByTestId("new-staff-button")).toBeHidden()
+    const managerRow = page.locator("tr", { hasText: manager.email })
+    await expect(managerRow.getByRole("button", { name: "Open staff member" })).toBeVisible()
+    await expect(managerRow.getByRole("button", { name: "Open menu" })).toBeHidden()
 
     await page.goto("/staff/new")
     await expect(page).toHaveURL("/unauthorized")
@@ -63,6 +68,7 @@ test.describe("Role-Based Access Control (RBAC)", () => {
     page,
   }) => {
     const demo = await seedAdmin({ role: "demo" })
+    const product = await seedProduct({ name: `View-only product ${uniqueSuffix()}` })
     await signIn(page, demo)
 
     await expect(
@@ -74,6 +80,17 @@ test.describe("Role-Based Access Control (RBAC)", () => {
 
     await page.goto("/products")
     await expect(page.getByTestId("new-product-button")).toBeHidden()
+    const productRow = page.locator("tr", { hasText: product.name })
+    await expect(productRow.getByRole("button", { name: "Open product" })).toBeVisible()
+    await expect(productRow.getByRole("button", { name: "Open menu" })).toBeHidden()
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const compactRow = page.getByRole("listitem").filter({ hasText: product.name })
+    await expect(compactRow.getByRole("link", { name: product.name, exact: true })).toHaveAttribute(
+      "href",
+      `/products/${product.id}`
+    )
+    await expect(compactRow.getByRole("button", { name: "Open menu" })).toBeHidden()
   })
 
   test("demo role has customer email PII masked on orders", async ({
@@ -90,7 +107,10 @@ test.describe("Role-Based Access Control (RBAC)", () => {
 
     const [name, domain] = order.checkoutEmail.split("@")
     const masked = `${name[0]}***${name[name.length - 1]}@${domain}`
-    await expect(page.getByText(masked)).toBeVisible()
+    const orderRow = page.locator("tr", { hasText: order.id })
+    await expect(orderRow.getByText(masked)).toBeVisible()
+    await expect(orderRow.getByRole("button", { name: "Open order" })).toBeVisible()
+    await expect(orderRow.getByRole("button", { name: "Open menu" })).toBeHidden()
   })
 
   test("user with unassigned or invalid role is redirected to /unauthorized", async ({

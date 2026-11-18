@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Plus, Users } from "lucide-react"
 
 import type { StaffMember } from "./columns"
@@ -20,11 +19,8 @@ const breadcrumbItems = [{ label: "Staff" }]
 export function StaffClient({ users }: StaffClientProps) {
   useBreadcrumb(breadcrumbItems)
 
-  const router = useRouter()
   const canCreate = usePermission("user", "create")
-  const columns = getColumns({
-    onView: (staff) => router.push(`/staff/${staff.id}`),
-  })
+  const columns = getColumns()
 
   return (
     <>

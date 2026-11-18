@@ -18,6 +18,7 @@ type SearchPanelProps = {
   open: boolean;
   inline: boolean;
   onOpenChange: (open: boolean) => void;
+  onDismiss?: () => void;
   onQueryChange: (query: string) => void;
   onSelect: (result: SearchPreview) => void;
   recentQueries: string[];
@@ -35,6 +36,7 @@ export function SearchPanel({
   open,
   inline,
   onOpenChange,
+  onDismiss,
   onQueryChange,
   onQueryCommit,
   ...suggestions
@@ -66,11 +68,12 @@ export function SearchPanel({
         )
           onQueryChange(value);
       }}
-      onOpenChange={(next) => {
+      onOpenChange={(next, details) => {
         if (!inline || !next) onOpenChange(next);
+        if (!next && details.reason === "close-press") onDismiss?.();
       }}
     >
-      <InputGroup className="h-9 w-full min-w-0 rounded-lg bg-muted/40">
+      <InputGroup className="h-9 w-full min-w-0 rounded-[var(--control-radius,var(--radius-lg))] bg-muted/40">
         <Autocomplete.Input
           render={<InputGroupInput />}
           ref={inputRef}

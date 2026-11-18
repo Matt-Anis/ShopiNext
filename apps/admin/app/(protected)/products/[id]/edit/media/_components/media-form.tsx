@@ -193,7 +193,7 @@ export function MediaForm({
 
       {/* Gallery Section */}
       <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-baseline gap-2">
             <h2 className="text-sm font-semibold">Image Gallery</h2>
             <span className="text-xs text-muted-foreground">
@@ -216,7 +216,7 @@ export function MediaForm({
       </section>
 
       {/* Navigation Footer */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
           variant="outline"

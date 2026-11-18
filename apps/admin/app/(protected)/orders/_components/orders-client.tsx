@@ -11,18 +11,22 @@ import { useBreadcrumb } from "../../_components/breadcrumb-provider"
 import { usePermission } from "@/hooks/use-permission"
 import { archiveOrder, unarchiveOrder } from "@/features/orders/actions"
 import type { OrderListItem } from "@/features/orders/queries"
-import { getColumns } from "./columns"
+import { orderViewLabels, type OrderView } from "@/features/orders/views"
+import { getColumns, renderOrderCompactRow } from "./columns"
 
 interface OrdersClientProps {
   orders: OrderListItem[]
   isArchived?: boolean
+  view?: OrderView
 }
 
-export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) {
+export function OrdersClient({ orders, isArchived = false, view }: OrdersClientProps) {
   useBreadcrumb(
     isArchived
       ? [{ label: "Orders", href: "/orders" }, { label: "Archived" }]
-      : [{ label: "Orders" }]
+      : view
+        ? [{ label: "Orders", href: "/orders" }, { label: orderViewLabels[view] }]
+        : [{ label: "Orders" }]
   )
 
   const router = useRouter()
@@ -30,10 +34,10 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
   const [archiveTarget, setArchiveTarget] = useState<OrderListItem | null>(null)
   const canUpdate = usePermission("orders", "update")
 
-  const columns = getColumns({
-    onView: (order) => router.push(`/orders/${order.id}`),
-    onArchive: (order) => setArchiveTarget(order),
-    onUnarchive: (order) => {
+  const rowActions = {
+    onView: (order: OrderListItem) => router.push(`/orders/${order.id}`),
+    onArchive: setArchiveTarget,
+    onUnarchive: (order: OrderListItem) => {
       startTransition(async () => {
         await toast
           .promise(unarchiveOrder(order.id), {
@@ -48,7 +52,7 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
       })
     },
     canUpdate,
-  })
+  }
 
   function handleArchive() {
     if (!archiveTarget) return
@@ -73,16 +77,21 @@ export function OrdersClient({ orders, isArchived = false }: OrdersClientProps) 
   return (
     <>
       <DataTable
-        columns={columns}
+        columns={getColumns(rowActions)}
         data={orders}
+        renderCompactRow={(order) => renderOrderCompactRow(order, rowActions)}
         searchColumn="customerEmail"
         searchPlaceholder="Search orders by customer email..."
         emptyIcon={isArchived ? <Archive /> : <ShoppingBag />}
-        emptyTitle={isArchived ? "No archived orders" : "No orders yet"}
+        emptyTitle={
+          view ? "No matching orders" : isArchived ? "No archived orders" : "No orders yet"
+        }
         emptyDescription={
-          isArchived
-            ? "Archived orders will appear here."
-            : "Orders placed by customers will appear here."
+          view
+            ? "Orders that match this view will appear here."
+            : isArchived
+              ? "Archived orders will appear here."
+              : "Orders placed by customers will appear here."
         }
         emptyTestId={isArchived ? "archived-orders-empty-state" : "orders-empty-state"}
         tableId={isArchived ? "archived-orders" : "orders"}

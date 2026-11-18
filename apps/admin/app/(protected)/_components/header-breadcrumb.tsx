@@ -2,6 +2,7 @@
 
 import { Fragment } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import {
   Breadcrumb,
@@ -15,36 +16,40 @@ import { useBreadcrumbItems } from "./breadcrumb-provider"
 
 export function HeaderBreadcrumb() {
   const items = useBreadcrumbItems()
-
-  if (items.length === 0) {
-    return null
-  }
+  const section = usePathname().split("/")[1]
+  const sectionTitle = section ? section.charAt(0).toUpperCase() + section.slice(1) : "Overview"
+  const title = items.at(-1)?.label ?? sectionTitle
 
   return (
-    <Breadcrumb className="min-w-0">
-      <BreadcrumbList className="flex-nowrap overflow-hidden">
-        {items.map((item, index) => (
-          <Fragment key={item.label}>
-            {index > 0 && <BreadcrumbSeparator />}
-            <BreadcrumbItem
-              className={index === items.length - 1 ? "min-w-0" : "shrink-0"}
-            >
-              {!item.href ? (
-                <BreadcrumbPage className="truncate">
-                  {item.label}
-                </BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink
-                  className="truncate"
-                  render={<Link href={item.href} />}
-                >
-                  {item.label}
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
-          </Fragment>
-        ))}
-      </BreadcrumbList>
-    </Breadcrumb>
+    <div className="min-w-0">
+      <span className={items.length > 0 ? "block truncate text-sm font-semibold lg:hidden" : "block truncate text-sm font-semibold"}>
+        {title}
+      </span>
+      {items.length > 0 && (
+        <Breadcrumb className="hidden min-w-0 lg:block">
+          <BreadcrumbList className="flex-nowrap">
+            {items.map((item, index) => (
+              <Fragment key={item.href ?? item.label}>
+                {index > 0 && <BreadcrumbSeparator className="shrink-0" />}
+                <BreadcrumbItem className="min-w-0">
+                  {!item.href ? (
+                    <BreadcrumbPage className="truncate font-semibold">
+                      {item.label}
+                    </BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink
+                      className="truncate"
+                      render={<Link href={item.href} />}
+                    >
+                      {item.label}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
+      )}
+    </div>
   )
 }

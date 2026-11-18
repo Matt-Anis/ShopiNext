@@ -5,14 +5,12 @@ export default async function NewStaffPage() {
   await requirePermission("user", "create")
 
   return (
-    <div className="px-8 pt-9">
-      <div className="max-w-[480px]">
-        <h1 className="text-2xl font-semibold tracking-tight">New staff</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          They&apos;ll receive an email to set their own password.
-        </p>
-        <CreateStaffForm />
-      </div>
+    <div className="mx-auto w-full max-w-lg px-4 py-6 sm:px-6 lg:py-9">
+      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">New staff</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        They&apos;ll receive an email to set their own password.
+      </p>
+      <CreateStaffForm />
     </div>
   )
 }

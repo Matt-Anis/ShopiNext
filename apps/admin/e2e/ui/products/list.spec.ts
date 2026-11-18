@@ -30,6 +30,21 @@ async function openRowMenu(page: Page, rowText: string) {
 }
 
 test.describe("Products list", () => {
+  test("finds and opens a product from the compact list", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const product = await seedProduct({ name: `Mobile product ${uniqueSuffix()}`, status: "active" })
+
+    await signIn(page, admin)
+    await page.goto("/products")
+    await expect(page.getByTestId("new-product-button")).toBeVisible()
+    await page.getByTestId("data-table-search-input").fill(product.name)
+
+    const row = page.getByRole("listitem").filter({ hasText: product.name })
+    await expect(row).toContainText("Published")
+    await row.getByRole("link", { name: product.name, exact: true }).click()
+    await expect(page).toHaveURL(`/products/${product.id}`)
+  })
+
   test("shows a seeded product's status, category, option and variant counts", async ({
     page,
   }) => {

@@ -107,7 +107,7 @@ export function SortableImageCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between border-t pt-2 border-border">
+        <div className="flex flex-wrap items-center justify-between gap-1 border-t border-border pt-2 max-sm:[&_button]:size-11">
           {/* Reordering arrow controls */}
           <div className="flex items-center gap-1">
             <Tooltip>

@@ -183,8 +183,8 @@ export function OrderStatusDialog({
 }: OrderStatusDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-4 sm:max-w-md sm:p-6">
+        <DialogHeader className="pr-8">
           <DialogTitle>Update Order Status</DialogTitle>
           <DialogDescription>
             Transition the order lifecycle state and optionally record a public

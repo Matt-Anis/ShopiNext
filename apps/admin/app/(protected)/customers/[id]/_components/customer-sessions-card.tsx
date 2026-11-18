@@ -1,7 +1,7 @@
 import { Laptop, Monitor, Smartphone } from "lucide-react"
 
 import { Badge } from "@repo/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
+import { Card, CardContent, CardHeader } from "@repo/ui/card"
 import type { CustomerSessionItem } from "@/features/customers/queries"
 
 interface CustomerSessionsCardProps {
@@ -27,35 +27,33 @@ export function CustomerSessionsCard({ sessions }: CustomerSessionsCardProps) {
   )
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card size="sm" className="min-w-0 rounded-xl border border-border shadow-none ring-0 dark:ring-0">
+      <CardHeader className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex items-center gap-2">
-          <Monitor className="size-4 text-muted-foreground" />
-          <CardTitle className="text-xs font-semibold tracking-wide uppercase">
-            Active Sessions
-          </CardTitle>
+          <Monitor aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Active sessions</h2>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {activeSessions.length} active
-        </Badge>
+        {activeSessions.length > 0 && (
+          <Badge variant="outline">{activeSessions.length} active</Badge>
+        )}
       </CardHeader>
       <CardContent>
         {activeSessions.length === 0 ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             No active sessions on record.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border text-xs">
+          <ul className="divide-y divide-border text-xs">
             {activeSessions.map((s) => {
               const { label, icon: Icon } = parseDevice(s.userAgent)
               return (
-                <div
+                <li
                   key={s.id}
                   className="flex flex-col gap-1 py-2.5 first:pt-0 last:pb-0"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <span className="flex items-center gap-1.5 font-medium text-foreground">
-                      <Icon className="size-3.5 text-muted-foreground" />
+                      <Icon aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
                       {label}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
@@ -66,14 +64,14 @@ export function CustomerSessionsCard({ sessions }: CustomerSessionsCardProps) {
                     </span>
                   </div>
                   {s.ipAddress && (
-                    <span className="font-mono text-[11px] text-muted-foreground">
+                    <span className="font-mono text-[11px] wrap-anywhere text-muted-foreground">
                       IP: {s.ipAddress}
                     </span>
                   )}
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ul>
         )}
       </CardContent>
     </Card>

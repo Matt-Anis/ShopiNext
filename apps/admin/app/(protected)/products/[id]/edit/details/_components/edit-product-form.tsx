@@ -75,7 +75,7 @@ export function EditProductForm({
         defaultDescription={description ?? ""}
       />
 
-      <div className="mt-7 flex items-center gap-3 pt-4">
+      <div className="mt-7 flex flex-wrap items-center gap-3 pt-4">
         <Button
           type="submit"
           disabled={isPending}

@@ -1,7 +1,7 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@repo/ui/theme-provider"
 import { cn } from "@repo/ui/utils";
 import { Toaster } from "@repo/ui/toast";
 import { TooltipProvider } from "@repo/ui/tooltip";

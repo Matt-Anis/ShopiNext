@@ -36,6 +36,7 @@ type SidebarContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void
+  setPreviewOpen: (open: boolean) => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
@@ -68,6 +69,7 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  const [previewOpen, setPreviewOpen] = React.useState(false)
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -90,8 +92,13 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+    if (isMobile) {
+      setOpenMobile((open) => !open)
+      return
+    }
+    setOpen(!open && !previewOpen)
+    setPreviewOpen(false)
+  }, [isMobile, open, previewOpen, setOpen])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -111,13 +118,14 @@ function SidebarProvider({
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? "expanded" : "collapsed"
+  const state = open || (!isMobile && previewOpen) ? "expanded" : "collapsed"
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       state,
       open,
       setOpen,
+      setPreviewOpen,
       isMobile,
       openMobile,
       setOpenMobile,
@@ -153,20 +161,34 @@ function Sidebar({
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
+  expandOnHover = false,
   className,
   children,
   dir,
+  ref,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right"
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
+  expandOnHover?: boolean
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const { isMobile, open, state, openMobile, setOpenMobile, setPreviewOpen } = useSidebar()
+  const previewEnabled = expandOnHover && collapsible === "icon" && variant === "sidebar"
+  const pointerWithin = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!previewEnabled || isMobile) return
+    return () => {
+      pointerWithin.current = false
+      setPreviewOpen(false)
+    }
+  }, [isMobile, previewEnabled, setPreviewOpen])
 
   if (collapsible === "none") {
     return (
       <div
+        ref={ref}
         data-slot="sidebar"
         className={cn(
           "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
@@ -183,6 +205,7 @@ function Sidebar({
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
+          ref={ref}
           dir={dir}
           data-sidebar="sidebar"
           data-slot="sidebar"
@@ -223,10 +246,13 @@ function Sidebar({
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+          previewEnabled && "motion-reduce:transition-none",
+          previewEnabled && !open && "w-(--sidebar-width-icon)"
         )}
       />
       <div
+        ref={ref}
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
@@ -235,9 +261,35 @@ function Sidebar({
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          previewEnabled && "z-30 motion-reduce:transition-none",
+          previewEnabled && !open && "group-data-[state=expanded]:shadow-xl",
           className
         )}
         {...props}
+        onPointerEnter={(event) => {
+          props.onPointerEnter?.(event)
+          if (!previewEnabled || event.pointerType !== "mouse") return
+          pointerWithin.current = true
+          setPreviewOpen(true)
+        }}
+        onPointerLeave={(event) => {
+          props.onPointerLeave?.(event)
+          if (!previewEnabled || event.pointerType !== "mouse") return
+          pointerWithin.current = false
+          if (!event.currentTarget.contains(event.currentTarget.ownerDocument.activeElement)) {
+            setPreviewOpen(false)
+          }
+        }}
+        onFocus={(event) => {
+          props.onFocus?.(event)
+          if (previewEnabled && event.currentTarget.contains(event.target)) setPreviewOpen(true)
+        }}
+        onBlur={(event) => {
+          props.onBlur?.(event)
+          if (previewEnabled && !pointerWithin.current && !event.currentTarget.contains(event.relatedTarget)) {
+            setPreviewOpen(false)
+          }
+        }}
       >
         <div
           data-sidebar="sidebar"
@@ -252,11 +304,12 @@ function Sidebar({
 }
 
 function SidebarTrigger({
+  children,
   className,
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { isMobile, openMobile, state, toggleSidebar } = useSidebar()
 
   return (
     <Button
@@ -264,6 +317,7 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon-sm"
+      aria-expanded={isMobile ? openMobile : state === "expanded"}
       className={cn(className)}
       onClick={(event) => {
         onClick?.(event)
@@ -271,8 +325,12 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      {children ?? (
+        <>
+          <PanelLeftIcon />
+          <span className="sr-only">Toggle Sidebar</span>
+        </>
+      )}
     </Button>
   )
 }
