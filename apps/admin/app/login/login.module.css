@@ -1,81 +1,69 @@
-.stage::before,
-.stage::after {
-  position: absolute;
-  z-index: -1;
-  aspect-ratio: 1;
-  pointer-events: none;
-  content: "";
-}
-
-.stage::before {
-  top: -9rem;
-  left: -20vw;
-  width: min(96vw, 76rem);
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--brand) 34%, transparent),
-    transparent 70%
-  );
-}
-
-.stage::after {
-  top: -10rem;
-  right: -24vw;
-  width: min(82vw, 68rem);
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--brand) 23%, transparent),
-    transparent 68%
-  );
-}
-
 .wordmark {
   font-size: clamp(2.75rem, 12vw, 5rem);
 }
 
 @media (width >= 64rem) {
-  .stage::before {
-    top: -36%;
-    left: -28vw;
-  }
-
-  .stage::after {
-    top: auto;
-    right: -26vw;
-    bottom: -45%;
-  }
-
   .wordmark {
-    font-size: min(20vw, 42svh);
+    font-size: min(18vw, 44svh);
+  }
+
+  .formPanel::before,
+  .formPanel::after {
+    position: absolute;
+    z-index: -1;
+    width: min(85%, 45rem);
+    aspect-ratio: 1;
+    pointer-events: none;
+    content: "";
+  }
+
+  .formPanel::before {
+    top: -16%;
+    right: -22%;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--brand) 36%, transparent),
+      transparent 70%
+    );
+  }
+
+  .formPanel::after {
+    bottom: -27%;
+    left: -24%;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--brand) 24%, transparent),
+      transparent 68%
+    );
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .stage::before {
-    animation: crossStage 9s ease-in-out infinite alternate;
+@media (width >= 64rem) and (prefers-reduced-motion: no-preference) {
+  .formPanel::before {
+    animation: sweepDown 8s ease-in-out infinite alternate;
   }
 
-  .stage::after {
-    animation: crossStageInReverse 11s ease-in-out -3s infinite alternate;
-  }
-}
-
-@keyframes crossStage {
-  from {
-    transform: translate3d(0, -3svh, 0);
-  }
-
-  to {
-    transform: translate3d(59vw, 13svh, 0);
+  .formPanel::after {
+    animation: sweepUp 10s ease-in-out -3s infinite alternate;
   }
 }
 
-@keyframes crossStageInReverse {
+@keyframes sweepDown {
   from {
     transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translate3d(-54vw, -10svh, 0);
+    transform: translate3d(-67%, 82%, 0);
+  }
+}
+
+@keyframes sweepUp {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(76%, -86%, 0);
   }
 }
