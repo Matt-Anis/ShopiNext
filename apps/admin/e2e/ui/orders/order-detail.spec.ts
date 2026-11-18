@@ -27,7 +27,7 @@ test.describe("Order detail view", () => {
     await signIn(page, admin)
     await page.goto(`/orders/${order.id}`)
 
-    await expect(page.getByText(`Order #${order.id.slice(0, 8)}`)).toBeVisible()
+    await expect(page.getByRole("heading", { name: `Order #${order.id.slice(0, 8)}` })).toBeVisible()
     await expect(
       page.getByRole("status").or(page.locator(".badge, [data-slot='badge']"))
     ).toContainText("Processing")
@@ -37,6 +37,7 @@ test.describe("Order detail view", () => {
   test("shows itemized products, variant options, and price totals", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 320, height: 800 })
     const product = await seedProduct({
       name: `Premium Hoodie ${uniqueSuffix()}`,
     })
@@ -67,6 +68,9 @@ test.describe("Order detail view", () => {
     await expect(itemsSection).toContainText("2")
     await expect(itemsSection).toContainText("$45.00")
     await expect(itemsSection).toContainText("$90.00")
+    await expect.poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth)
+    ).toBe(320)
   })
 
   test("shows customer card with email and stripe session link", async ({

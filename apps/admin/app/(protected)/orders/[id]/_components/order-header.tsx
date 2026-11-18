@@ -59,10 +59,10 @@ export function OrderHeader({ order }: OrderHeaderProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               Order #{order.id.slice(0, 8)}
             </h1>
             <Badge variant={statusVariantMap[order.status] ?? "secondary"}>
@@ -70,7 +70,7 @@ export function OrderHeader({ order }: OrderHeaderProps) {
             </Badge>
             {isArchived && <Badge variant="outline">Archived</Badge>}
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm wrap-anywhere text-muted-foreground">
             Placed on{" "}
             {order.createdAt.toLocaleString(undefined, {
               dateStyle: "medium",
@@ -81,9 +81,9 @@ export function OrderHeader({ order }: OrderHeaderProps) {
         </div>
 
         {canUpdate && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant="outline"
+              className="max-sm:h-11"
               disabled={isPending}
               onClick={() => setStatusDialogOpen(true)}
             >
@@ -93,6 +93,7 @@ export function OrderHeader({ order }: OrderHeaderProps) {
 
             <Button
               variant={isArchived ? "secondary" : "outline"}
+              className="max-sm:h-11"
               disabled={isPending}
               onClick={handleToggleArchive}
             >

@@ -202,7 +202,7 @@ export function OrderStaffNotes({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <MessageSquare className="size-4 text-muted-foreground" />
           <h2 className="text-xs font-semibold tracking-wide text-foreground uppercase">
@@ -218,7 +218,7 @@ export function OrderStaffNotes({
       <div className="relative">
         <ScrollArea
           ref={scrollRootRef}
-          className="h-80 sm:h-96 w-full rounded-2xl border border-border bg-muted/5 p-4"
+          className="h-80 w-full rounded-xl border border-border bg-muted/5 p-3 sm:h-96 sm:p-4"
         >
           {groupedNotes.length === 0 ? (
             <div className="flex h-full min-h-64 items-center justify-center">
@@ -262,9 +262,9 @@ export function OrderStaffNotes({
                           </Avatar>
 
                           <div className="flex min-w-0 flex-1 flex-col gap-1">
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-sm font-semibold text-foreground">
+                                <span className="text-sm font-semibold wrap-anywhere text-foreground">
                                   {note.author?.name || "Staff Member"}
                                 </span>
                                 {isOwn && (
@@ -289,14 +289,14 @@ export function OrderStaffNotes({
                               </div>
 
                               {canUpdate && isOwn && !isEditing && (
-                                <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                                <div className="flex items-center gap-0.5 transition-opacity pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-within:opacity-100">
                                   <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon-xs"
                                     onClick={() => handleStartEdit(note)}
                                     disabled={isActionPending}
-                                    className="text-muted-foreground hover:text-foreground"
+                                    className="text-muted-foreground hover:text-foreground pointer-coarse:size-11"
                                     title="Edit note"
                                     aria-label="Edit note"
                                   >
@@ -308,7 +308,7 @@ export function OrderStaffNotes({
                                     size="icon-xs"
                                     onClick={() => setNoteToDelete(note)}
                                     disabled={isActionPending}
-                                    className="text-muted-foreground hover:text-destructive"
+                                    className="text-muted-foreground hover:text-destructive pointer-coarse:size-11"
                                     title="Delete note"
                                     aria-label="Delete note"
                                   >
@@ -490,14 +490,14 @@ function OrderStaffNoteForm({ orderId, onSuccess }: OrderStaffNoteFormProps) {
               handleSubmit(e)
             }
           }}
-          className="min-h-[36px] max-h-[84px] flex-1 resize-none overflow-y-auto border-0 bg-transparent px-2.5 py-2 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="max-h-[84px] min-h-[36px] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-2.5 py-2 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         />
 
         <Button
           type="submit"
           size="icon-sm"
           disabled={isPending || !content.trim()}
-          className="shrink-0 rounded-lg"
+          className="shrink-0 rounded-lg max-sm:size-11"
         >
           {isPending ? (
             <Loader2 className="size-4 animate-spin" />

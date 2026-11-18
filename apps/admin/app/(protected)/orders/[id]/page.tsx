@@ -30,22 +30,22 @@ export default async function OrderDetailPage({
   const displayOrder = isDemo ? { ...order, checkoutEmail } : order
 
   return (
-    <div className="px-8 py-9">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="divide-y divide-border rounded-2xl border border-border">
-          <div className="p-6">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-8">
+        <div className="min-w-0 divide-y divide-border rounded-xl border border-border bg-card">
+          <div className="p-4 sm:p-6">
             <OrderHeader order={displayOrder} />
           </div>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <OrderItemsCard
               items={order.items}
               totalAmount={order.totalAmount}
             />
           </div>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <OrderTimeline events={order.timelineEvents} />
           </div>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <OrderStaffNotes
               orderId={order.id}
               notes={notes}
@@ -53,8 +53,8 @@ export default async function OrderDetailPage({
             />
           </div>
         </div>
-        <div className="h-fit divide-y divide-border rounded-2xl border border-border lg:sticky lg:top-(--admin-header-offset)">
-          <div className="p-6">
+        <div className="h-fit min-w-0 rounded-xl border border-border bg-card xl:sticky xl:top-(--admin-header-offset)">
+          <div className="p-4 sm:p-6">
             <OrderCustomerCard
               customerEmail={checkoutEmail}
               userId={order.userId}
