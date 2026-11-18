@@ -9,7 +9,6 @@ import {
   LayoutGrid,
   Package,
   ShoppingBag,
-  Store,
   UserCheck,
   Users,
   X,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@repo/ui/button"
+import { ShopiNextLogo } from "@repo/ui/shopinext-logo"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/collapsible"
 import {
   Sidebar,
@@ -100,7 +100,7 @@ export function AppSidebar({
       <SidebarHeader className="h-16 shrink-0 flex-row items-center justify-between border-b border-sidebar-border px-4">
         <div className="flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <Store aria-hidden="true" className="size-4" />
+            <ShopiNextLogo className="size-5" />
           </span>
           <span className="font-semibold tracking-tight">ShopiNext</span>
         </div>

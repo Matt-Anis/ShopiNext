@@ -42,6 +42,7 @@
     "./select": "./components/select.tsx",
     "./separator": "./components/separator.tsx",
     "./sheet": "./components/sheet.tsx",
+    "./shopinext-logo": "./components/shopinext-logo.tsx",
     "./sidebar": "./components/sidebar.tsx",
     "./skeleton": "./components/skeleton.tsx",
     "./table": "./components/table.tsx",
