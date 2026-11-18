@@ -165,6 +165,7 @@ function Sidebar({
   className,
   children,
   dir,
+  ref,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right"
@@ -187,6 +188,7 @@ function Sidebar({
   if (collapsible === "none") {
     return (
       <div
+        ref={ref}
         data-slot="sidebar"
         className={cn(
           "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
@@ -203,6 +205,7 @@ function Sidebar({
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
+          ref={ref}
           dir={dir}
           data-sidebar="sidebar"
           data-slot="sidebar"
@@ -248,6 +251,7 @@ function Sidebar({
         )}
       />
       <div
+        ref={ref}
         data-slot="sidebar-container"
         data-side={side}
         className={cn(

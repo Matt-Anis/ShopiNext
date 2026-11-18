@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useRef } from "react"
 import {
   ChevronRight,
   FolderTree,
@@ -33,6 +34,7 @@ import {
   useSidebar,
 } from "@repo/ui/sidebar"
 import { usePermission } from "@/hooks/use-permission"
+import { useSidebarProximityGlow } from "@/hooks/use-sidebar-proximity-glow"
 import { NavUser } from "./nav-user"
 
 type NavigationSection = {
@@ -48,7 +50,9 @@ export function AppSidebar({
   user: { name: string; email: string; image?: string | null }
 }) {
   const pathname = usePathname()
-  const { isMobile, setOpen, setOpenMobile, setPreviewOpen } = useSidebar()
+  const { isMobile, setOpen, setOpenMobile, setPreviewOpen, state } = useSidebar()
+  const panelRef = useRef<HTMLDivElement>(null)
+  useSidebarProximityGlow(panelRef, !isMobile && state === "collapsed")
   const canViewOverview = usePermission("analytics", "read")
   const canViewStaff = usePermission("user", "list")
   const canCreateStaff = usePermission("user", "create")
@@ -109,7 +113,8 @@ export function AppSidebar({
     <Sidebar
       collapsible="icon"
       expandOnHover
-      className="border-sidebar-border"
+      ref={panelRef}
+      className="admin-sidebar-panel border-sidebar-border"
       onKeyDown={(event) => {
         if (!isMobile && event.key === "Escape" && !event.defaultPrevented && event.currentTarget.contains(event.target as Node)) {
           event.preventDefault()
