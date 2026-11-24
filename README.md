@@ -1,6 +1,8 @@
 # ShopiNext
 
 > **Status:** Active development — full-stack e-commerce storefront and staff operations dashboard built as a Turborepo monorepo.
+>
+> **Live Deployments:** [Storefront](https://shopinext.mattanis.dev/) (`https://shopinext.mattanis.dev/`) · [Admin Dashboard](https://admin.shopinext.mattanis.dev/) (`https://admin.shopinext.mattanis.dev/`)
 
 ShopiNext is a modern, production-minded e-commerce platform pairing a customer-facing storefront (`apps/client`) with a role-based admin dashboard (`apps/admin`). It emphasizes strict database isolation, least-privilege PostgreSQL roles, idempotent payment & email pipelines, direct-to-S3 presigned uploads, transactional outbox search synchronization, and parallel sharded end-to-end testing.
 
