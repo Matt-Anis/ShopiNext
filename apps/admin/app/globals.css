@@ -149,13 +149,15 @@
 
 .admin-sidebar-panel::after {
   position: absolute;
-  inset: 0 -0.75rem 0 auto;
-  width: 1.5rem;
+  inset: 0 -1rem 0 auto;
+  width: 1.25rem;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse 85% 4rem at center var(--sidebar-glow-y, 50%),
-    color-mix(in srgb, var(--brand) 78%, transparent),
-    transparent
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in srgb, var(--brand) 24%, transparent) 20%,
+    color-mix(in srgb, var(--brand) 9%, transparent) 50%,
+    transparent 100%
   );
   opacity: var(--sidebar-glow-opacity, 0);
   content: "";
@@ -163,7 +165,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .admin-sidebar-panel::after {
-    transition: opacity 160ms ease-out;
+    transition: opacity 220ms ease-out;
   }
 }
 

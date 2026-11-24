@@ -2,7 +2,7 @@
 
 import { useEffect, type RefObject } from "react"
 
-const GLOW_DISTANCE = 28
+const GLOW_DISTANCE = 56
 
 export function useSidebarProximityGlow(
   panelRef: RefObject<HTMLDivElement | null>,
@@ -17,7 +17,6 @@ export function useSidebarProximityGlow(
 
     const clearGlow = () => {
       panel.style.removeProperty("--sidebar-glow-opacity")
-      panel.style.removeProperty("--sidebar-glow-y")
     }
 
     const updateGlow = (event: PointerEvent) => {
@@ -32,8 +31,9 @@ export function useSidebarProximityGlow(
         return
       }
 
-      panel.style.setProperty("--sidebar-glow-opacity", String(1 - distance / GLOW_DISTANCE))
-      panel.style.setProperty("--sidebar-glow-y", `${event.clientY}px`)
+      const progress = 1 - distance / GLOW_DISTANCE
+      const eased = progress * progress * (3 - 2 * progress)
+      panel.style.setProperty("--sidebar-glow-opacity", eased.toFixed(3))
     }
 
     function handlePointerOut(event: PointerEvent) {
