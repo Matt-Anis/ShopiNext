@@ -39,6 +39,9 @@ importers:
       '@dnd-kit/react':
         specifier: ^0.5.1
         version: 0.5.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@paper-design/shaders-react':
+        specifier: ^0.0.82
+        version: 0.0.82(@types/react@19.2.18)(react@19.2.4)
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -1891,6 +1894,18 @@ packages:
   '@opentelemetry/semantic-conventions@1.43.0':
     resolution: {integrity: sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg==}
     engines: {node: '>=14'}
+
+  '@paper-design/shaders-react@0.0.82':
+    resolution: {integrity: sha512-DSPvsCgqagN23sYJP4vB9UpKj0IM6Aq9DOulI8c6ByHdDD6mIKRCNN6tqHK1FDdzCEQNz0dstlRtcdImAWcqqQ==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@paper-design/shaders@0.0.82':
+    resolution: {integrity: sha512-eCxYQrrCxRVc4KG8sLSQecsq8Ymstbaq/FqZjq/fhOa6UiR1ZZfdMO5IJpHmwL0GYmfzvZVQ4l8ZOLux0uLVdg==}
 
   '@playwright/test@1.62.1':
     resolution: {integrity: sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==}
@@ -6353,6 +6368,15 @@ snapshots:
   '@nolyfill/is-core-module@1.0.39': {}
 
   '@opentelemetry/semantic-conventions@1.43.0': {}
+
+  '@paper-design/shaders-react@0.0.82(@types/react@19.2.18)(react@19.2.4)':
+    dependencies:
+      '@paper-design/shaders': 0.0.82
+      react: 19.2.4
+    optionalDependencies:
+      '@types/react': 19.2.18
+
+  '@paper-design/shaders@0.0.82': {}
 
   '@playwright/test@1.62.1':
     dependencies:
