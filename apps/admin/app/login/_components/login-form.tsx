@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useRef, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@repo/ui/utils"
@@ -11,12 +11,26 @@ import { Field, FieldGroup, FieldLabel } from "@repo/ui/field"
 import { Input } from "@repo/ui/input"
 import { PasswordInput } from "@repo/ui/password-input"
 
+const DEMO_EMAIL = "demo@shopinext.mattanis.dev"
+const DEMO_PASSWORD = "secret"
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+
+  function fillDemoCredentials() {
+    if (emailRef.current) {
+      emailRef.current.value = DEMO_EMAIL
+    }
+    if (passwordRef.current) {
+      passwordRef.current.value = DEMO_PASSWORD
+    }
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -61,6 +75,7 @@ export function LoginForm({
           <Field className="gap-2">
             <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input
+              ref={emailRef}
               id="email"
               name="email"
               type="email"
@@ -68,18 +83,19 @@ export function LoginForm({
               required
               placeholder="you@example.com"
               data-testid="login-email-input"
-              className="h-11 border-input bg-card"
+              className="h-11 border-input bg-transparent"
             />
           </Field>
           <Field className="gap-2">
             <FieldLabel htmlFor="password">Password</FieldLabel>
             <PasswordInput
+              ref={passwordRef}
               id="password"
               name="password"
               autoComplete="current-password"
               required
               data-testid="login-password-input"
-              className="h-11 border-input bg-card"
+              className="h-11 border-input bg-transparent"
             />
           </Field>
           <Field>
@@ -94,6 +110,28 @@ export function LoginForm({
           </Field>
         </FieldGroup>
       </form>
+      <div className="space-y-2.5 border-t border-border/60 pt-5">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Demo account
+          </p>
+          <button
+            type="button"
+            onClick={fillDemoCredentials}
+            className="cursor-pointer text-xs font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            Fill
+          </button>
+        </div>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+          <dt className="text-muted-foreground">Email</dt>
+          <dd className="truncate font-mono text-foreground/90">
+            {DEMO_EMAIL}
+          </dd>
+          <dt className="text-muted-foreground">Password</dt>
+          <dd className="font-mono text-foreground/90">{DEMO_PASSWORD}</dd>
+        </dl>
+      </div>
     </div>
   )
 }

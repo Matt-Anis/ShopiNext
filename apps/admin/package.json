@@ -19,6 +19,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1152.0",
     "@base-ui/react": "^1.7.0",
     "@dnd-kit/react": "^0.5.1",
+    "@paper-design/shaders-react": "^0.0.82",
     "@repo/db": "workspace:*",
     "@repo/search": "workspace:*",
     "@repo/ui": "workspace:*",
