@@ -59,7 +59,7 @@ export function LoginBackground() {
       colorBack={palette.colorBack}
       softness={0.7}
       intensity={0.15}
-      noise={0.5}
+      noise={0}
       shape="wave"
       speed={prefersReducedMotion ? 0 : 1}
     />
